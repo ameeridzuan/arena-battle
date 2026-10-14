@@ -1,0 +1,37 @@
+# ---- Godot 4 editor / import cache (regenerated locally, never commit) ----
+.godot/
+*.tmp
+*.translation
+
+# ---- Export builds ----
+/build/
+/export/
+export_presets.cfg
+
+# ---- Mono / C# (not used; kept for safety) ----
+.mono/
+data_*/
+mono_crash.*.json
+
+# ---- Secrets & local config (never commit) ----
+.env
+.env.*
+*.pem
+*.key
+
+# ---- OS / editor cruft ----
+.DS_Store
+Thumbs.db
+desktop.ini
+*.swp
+*~
+
+# ---- Large binaries: manage via Git LFS once assets land (Milestone 6+) ----
+# Uncomment and configure .gitattributes + LFS before committing heavy assets.
+# *.glb
+# *.gltf
+# *.fbx
+# *.png
+# *.jpg
+# *.wav
+# *.ogg
