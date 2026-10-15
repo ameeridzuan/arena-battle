@@ -4,8 +4,10 @@ A third-person 3D platform/action battle arena where **two teams of four players
 in the same arena. Built incrementally, milestone by milestone, with a small testable
 foundation first.
 
-> **Status:** Milestone 0 (Foundation & Plan) — documentation and project structure only.
-> Gameplay implementation (Milestone 1) has **not** started and is pending plan approval.
+> **Status:** Milestone 1 (Playable 3D Movement) **implemented and headless-verified** with
+> Godot 4.7.2. One arena + one third-person character (walk/run/jump/gravity/collision) is
+> working. Combat (M2) and multiplayer (M4+) are not started. See
+> [`docs/DEVELOPMENT_ROADMAP.md`](docs/DEVELOPMENT_ROADMAP.md).
 
 ---
 
@@ -32,8 +34,10 @@ Before the game can be run or tested, the following must be installed on the mac
 - **Blender** — *required later* (Milestone 6+) for character/arena authoring; not needed
   for the placeholder-mesh prototype.
 
-> Environment check on 2026-10-14 (Windows 25H2): **Git 2.51.0 installed**; **Godot NOT
-> installed**; **Blender NOT installed**; C: free space ~21.3 GB. See
+> Environment check (Windows 25H2, updated 2026-10-15): **Git 2.51.0 installed**; **Godot
+> 4.7.2.stable installed & verified**; **Blender NOT installed** (only needed from Milestone 6);
+> C: free ~21 GB. Godot editor: `…\Qoder_Personal\Godot_v4.7.2-stable_win64.exe\Godot_v4.7.2-stable_win64.exe`
+> (use the sibling `..._console.exe` for CLI/headless commands). See
 > [`docs/DECISIONS.md`](docs/DECISIONS.md) and [`docs/DEVELOPMENT_ROADMAP.md`](docs/DEVELOPMENT_ROADMAP.md).
 
 This agent-driven project does **not** auto-install software. Install Godot (and Blender when
@@ -55,29 +59,46 @@ ArenaBattle/
 │   ├── DEVELOPMENT_ROADMAP.md
 │   ├── AGENT_RULES.md
 │   └── DECISIONS.md
-├── project.godot                # Created at Milestone 1 (pending approval)
-├── assets/                      # Created when first needed
-├── scenes/                      # Created when first needed
-├── scripts/                     # Created when first needed
-├── resources/                   # Created when first needed
-└── tests/                       # Created when first needed
+├── icon.svg
+├── project.godot                # Godot 4.7 project: main scene, input map, Forward+, gravity
+├── scenes/
+│   ├── main/Main.tscn           # entry scene: instances Arena + Player + HUD
+│   ├── arena/Arena.tscn         # floor, 4 walls, sun, environment, spawn markers
+│   ├── characters/Player.tscn   # CharacterBody3D + capsule + third-person camera rig
+│   └── ui/HUD.tscn              # controls label
+├── scripts/
+│   └── player/                  # player_controller.gd, camera_rig.gd
+├── tests/
+│   └── integration/movement_smoke_test.gd   # headless floor/movement/jump test
+├── assets/                      # created when first needed (M6+)
+└── resources/                   # created when first needed
 ```
 
 > Folders are created **when first needed**, not pre-made empty (per the foundation rules).
-> The engine/project files and `scenes/`, `scripts/`, `assets/`, `resources/`, `tests/`
-> directories are introduced with Milestone 1 once the plan is approved.
+> `assets/` and `resources/` are intentionally absent until a milestone needs them.
 
 ---
 
-## How to Run (available from Milestone 1)
+## How to Run
 
-1. Install **Godot 4.x stable** and note the exact version.
-2. Open the Godot Project Manager → **Import** → select `project.godot` in this folder.
-3. Press **F5** (or the Play button) to run the main scene.
-4. Expected: a placeholder third-person character you can move, turn and jump inside a
-   bounded, lit arena.
+1. Open the Godot Project Manager → **Import** → select `project.godot` in this folder
+   (Godot 4.7.x recommended).
+2. Press **F5** (or the Play button) to run the main scene `scenes/main/Main.tscn`.
+3. Expected: a capsule placeholder character you can move, turn and jump inside a bounded,
+   lit 30×30 arena, with a third-person mouse-look camera and a controls label.
 
-### Controls (proposed for Milestone 1)
+### Automated headless test (no display needed)
+
+From the `ArenaBattle/` folder, using the Godot **console** binary:
+
+```powershell
+& "<path>\Godot_v4.7.2-stable_win64_console.exe" --headless --path . --script res://tests/integration/movement_smoke_test.gd
+```
+
+It verifies floor collision, movement and jump, prints `ALL_TESTS_PASS=true` and exits `0`
+on success (or `1` on failure). Last run: **PASS** (exit 0).
+
+### Controls
 
 | Action        | Default binding        |
 |---------------|------------------------|

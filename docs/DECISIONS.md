@@ -62,12 +62,25 @@
 
 ---
 
+## ADR-0006 — Milestone 1 camera rig: yaw pivot + pitch tilt (no SpringArm3D yet)
+- **Context:** A third-person camera needs mouse yaw + pitch and must not feed rotation back into
+  camera-relative movement.
+- **Decision:** `CameraPivot` (Node3D) holds **yaw only**; a child `CameraTilt` holds **pitch**; the
+  `Camera3D` sits at a fixed offset (0, 1.2, 4.0) behind/above the player. The player body does not
+  rotate — only the visual `Mesh` turns to face travel — so the pivot's yaw stays clean for movement
+  math. SpringArm3D camera-collision is deferred (open arena; no clipping yet).
+- **Rationale:** Deterministic, avoids Euler-order/SpringArm-direction ambiguity, keeps movement and
+  look independent. Headless test confirms floor/movement/jump all pass.
+- **Status:** Adopted (2026-10-15). Revisit SpringArm collision when arena geometry gets complex.
+
+---
+
 ## Open Questions / Temporary Assumptions
 
 | # | Item | Temporary assumption | Revisit by |
 |---|------|----------------------|-----------|
-| Q1 | Exact Godot 4.x version | Latest stable 4.x; pin once installed | Before M1 code |
-| Q2 | Renderer (Forward+ vs Mobile) | Forward+ default on desktop | M1 |
+| Q1 | Exact Godot 4.x version | **Resolved: 4.7.2.stable.official.ed1daf0bf** | Done (M1) |
+| Q2 | Renderer (Forward+ vs Mobile) | **Resolved: Forward+** (`renderer/rendering_method="forward_plus"`) | Done (M1) |
 | Q3 | Arena size | ~30m × 30m box | M1 tuning |
 | Q4 | Melee vs ranged combat focus | Melee-first, undecided | Before M2 |
 | Q5 | Match objective (TDM vs objective) | Team-deathmatch placeholder | Before M3/M5 |

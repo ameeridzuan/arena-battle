@@ -1,19 +1,19 @@
 # Development Roadmap — ArenaBattle
 
 > Milestone 0 document. Complete and verify each milestone before starting the next.
-> Current position: **Milestone 0 done (pending review); Milestone 1 not started (pending approval).**
+> Current position: **Milestone 0 done; Milestone 1 implemented & headless-verified (Godot 4.7.2). Next: M2 combat.**
 
 ## Environment Gate (blocking M1 run/test)
 
 | Tool   | Status (2026-10-14)         | Needed for |
 |--------|-----------------------------|-----------|
 | Git    | ✅ Installed (2.51.0)        | version control |
-| Godot 4.x | ❌ Not installed          | open/run/export project — **required for M1** |
+| Godot 4.x | ✅ Installed & verified (**4.7.2.stable**) | open/run/export project |
 | Blender | ❌ Not installed            | art pipeline — required from M6 |
 | Disk (C:) | ~21.3 GB free             | sufficient for Godot (~0.2 GB) + Blender (~1 GB) |
 
-**Action required from user:** install Godot 4.x stable and confirm the exact version before
-Milestone 1 implementation can be verified. The agent will not install software without approval.
+**Action required from user:** ~~install Godot 4.x stable~~ ✅ Done — Godot 4.7.2.stable verified.
+Blender is still needed only at Milestone 6. The agent will not install software without approval.
 
 ---
 
@@ -29,19 +29,24 @@ Milestone 1 implementation can be verified. The agent will not install software 
 
 **Acceptance:** environment, plan, assumptions and next steps documented. *(Met, pending review.)*
 
-### M1 — Playable 3D Movement ⏳ (pending approval)
-- [ ] Create/configure the Godot project (`project.godot`, folder skeleton).
-- [ ] Main scene + simple arena (floor, walls, light, environment, camera).
-- [ ] `CharacterBody3D` player controller.
-- [ ] Camera-relative movement, gravity, jumping.
-- [ ] Collision + arena boundaries.
-- [ ] Third-person follow camera (spring arm, mouse look).
-- [ ] Input actions defined in Project Settings.
-- [ ] Instruction label (HUD).
-- [ ] README run/test instructions.
+### M1 — Playable 3D Movement ✅ (implemented & headless-verified)
+- [x] Create/configure the Godot project (`project.godot`, folder skeleton).
+- [x] Main scene + simple arena (floor, walls, light, environment, camera).
+- [x] `CharacterBody3D` player controller.
+- [x] Camera-relative movement, gravity, jumping.
+- [x] Collision + arena boundaries.
+- [x] Third-person follow camera (yaw pivot + pitch tilt, mouse look, Esc toggle).
+- [x] Input actions defined in Project Settings.
+- [x] Instruction label (HUD).
+- [x] README run/test instructions.
 
 **Acceptance:** project launches with no script errors; player moves/turns/jumps/lands; cannot
 fall through floor; camera usable; controls documented.
+
+**Verification (2026-10-15, Godot 4.7.2 headless):** `--import` exit 0; smoke run exit 0;
+`tests/integration/movement_smoke_test.gd` → floor_collision=true, movement=true (4.55 m),
+jump=true, **ALL_TESTS_PASS=true**, exit 0. *Manual F5 playtest (visual/camera feel) still to be
+confirmed by the user in the editor.*
 
 ### M2 — Basic Combat
 - Dummy target with health; one basic attack; validated range/hit detection; damage via a

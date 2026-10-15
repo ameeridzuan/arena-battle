@@ -1,0 +1,10 @@
+[gd_scene format=3]
+
+[node name="HUD" type="CanvasLayer"]
+
+[node name="ControlsLabel" type="Label" parent="."]
+offset_left = 16.0
+offset_top = 12.0
+offset_right = 800.0
+offset_bottom = 96.0
+text = "ArenaBattle — Milestone 1\nMove: W / A / S / D     Run: hold Shift     Jump: Space\nLook: Mouse     Release / re-capture cursor: Esc"
