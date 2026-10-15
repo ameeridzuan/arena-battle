@@ -172,8 +172,8 @@ confirmed by the user in the editor.*
 
 1. **Manual F5 playtest (user):** walk to the dummy, attack with Left Mouse, confirm the red
    hit-flash + console `[DummyTarget] health:` prints and that the cooldown feels right (AC-10).
-2. **Decide Q5** (match objective: team-deathmatch vs objective) — gate for M3 design.
-3. **Architect** drafts the M3 spec (player health/death, respawn, score, match-end) reusing the
+2. **Q5 decided — team-deathmatch** (ADR-0009). M3 design is unblocked.
+3. **Architect** drafts the M3 spec (player health/death, respawn, TDM score, match-end) reusing the
    `Health` component; keeps movement/combat/match as separate components.
 4. Optional QA follow-up: extend `combat_smoke_test.gd` to exercise the arc at a non-zero
    `CameraPivot` yaw (arc must rotate with the camera).

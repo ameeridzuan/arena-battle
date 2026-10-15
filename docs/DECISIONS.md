@@ -128,6 +128,19 @@
 
 ---
 
+## ADR-0009 — Match objective: team-deathmatch (Q5 resolved)
+- **Context:** M3 (local gameplay loop) needs a concrete win condition before design can start.
+  Q5 left the objective open (team-deathmatch vs objective-based).
+- **Decision:** Adopt **team-deathmatch (TDM)** as the match objective. A kill against an opposing
+  team scores one point for the attacker's team; the match ends on a score limit OR a time limit,
+  whichever comes first, and the higher-scoring team wins (draw handled explicitly).
+- **Rationale:** TDM reuses the M2 combat/`Health` path directly (a death is just `died` → award a
+  point), is the simplest objective to make server-authoritative in M4/M5, and needs no extra map
+  geometry or capture logic. Objective modes can layer on later without discarding the scoring core.
+- **Status:** Adopted (2026-10-15). Drives the M3 spec (score, match-end, respawn). Resolves Q5.
+
+---
+
 ## Open Questions / Temporary Assumptions
 
 | # | Item | Temporary assumption | Revisit by |
@@ -136,9 +149,9 @@
 | Q2 | Renderer (Forward+ vs Mobile) | **Resolved: Forward+** (`renderer/rendering_method="forward_plus"`) | Done (M1) |
 | Q3 | Arena size | ~30m × 30m box | M1 tuning |
 | Q4 | Melee vs ranged combat focus | **Resolved: Melee-first** (ADR-0007) | Done (M2) |
-| Q5 | Match objective (TDM vs objective) | Team-deathmatch placeholder | Before M3/M5 |
+| Q5 | Match objective (TDM vs objective) | **Resolved: Team-deathmatch** (ADR-0009) | Done (M2) |
 | Q6 | Art direction / visual style | Placeholder shapes | M6 |
 | Q7 | `FOUNDATION_INSTRUCTIONS.md` location | Left at project root (doc text refers to `docs/`); not moved without approval | On approval |
 | Q8 | Git init timing | Deferred until user approves | On approval |
 
-> Q1–Q4 are resolved. Q5 must be decided before M3 design begins.
+> Q1–Q5 are resolved. Q6 (art direction) is due before M6; Q7/Q8 are standing notes.
