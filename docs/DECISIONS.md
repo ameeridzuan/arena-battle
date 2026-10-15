@@ -141,6 +141,63 @@
 
 ---
 
+## ADR-0010 — Milestone 3: MatchManager (scene node), Combatant component, static opponents, Health reset
+- **Context:** M3 requires a local gameplay loop: player health/death, respawn, TDM scoring, and
+  match-end. The architecture must keep movement/combat/match separated (FOUNDATION §5.1), be
+  testable headless, and lift cleanly to a server-authoritative model in M4. Key open choices:
+  MatchManager as autoload vs scene node; how combatants get team identity and death handling;
+  whether opponents move; how Health restores on respawn.
+- **Decision:**
+  1. **MatchManager is a scene node in Main.tscn** (NOT an autoload). Joins group
+     `"match_manager"` for discovery. Owns phase (WAITING/RUNNING/ENDED), per-team scores,
+     countdown timer. Exposes signals (`match_started`, `score_changed`, `player_died`,
+     `match_ended(winner)`) and methods (`start_match()`, `register_kill(scorer, victim)`).
+     Timer ticks in `_physics_process` (fixed 60 Hz, deterministic).
+  2. **`combatant.gd` — a reusable child-Node component** (like Health) attached to every
+     combatant body. Owns: `team_id` (exported int), death→kill-attribution→MatchManager
+     notification, respawn scheduling (disable/enable cycle + SceneTree timer), spawn-point
+     lookup by group. Does NOT own movement or attack logic.
+  3. **Static dummy opponents (no movement AI).** Opponents reuse the existing DummyTarget scene
+     with added Combatant + AttackHitbox (auto_attack=true). They damage the player when in
+     range/arc but never move. Enemy pathfinding/chase is explicitly out of scope for M3.
+  4. **Health additions (backward-compatible):** `var last_damage_source: Node` set in
+     `apply_damage` for kill attribution; `func reset() -> void` restores to max_health for
+     respawn. No signal signature changes — M2 combat test passes unmodified.
+  5. **melee_attacker addition:** `@export var auto_attack: bool = false`. When true, attacks on
+     cooldown without reading Input. Default false preserves M2 behaviour exactly.
+  6. **Player joins group `"damageable"`** and gains `apply_damage()`/`get_health()` delegates on
+     `player_controller.gd` (3 lines; no movement logic touched). Dummy AttackHitbox uses
+     `collision_mask = 2` (Player layer) → detects player, never other dummies.
+  7. **Kill attribution:** `Health.last_damage_source` → source node's `Combatant.get_team_id()`
+     → `MatchManager.register_kill(scorer_team, victim_team)`. Null/missing source degrades
+     safely (no score, warning printed).
+  8. **Respawn:** disable in place (collision off, mesh hidden, physics_process off), wait
+     `respawn_delay` (SceneTree timer), teleport to team spawn marker (group lookup +
+     `spawn_index`), `Health.reset()`, re-enable. NOT removed/re-instantiated.
+  9. **Draw handling:** time expires with equal scores → `match_ended(-1)`. No overtime in M3.
+  10. **Tunables (defaults):** score_limit=5, time_limit=180 s, respawn_delay=3 s,
+      opponent_count=2, dummy attack_damage=20, dummy attack_cooldown=1.5 s,
+      dummy attack_arc_deg=90°.
+- **Rationale:**
+  - *Scene node over autoload:* scoped lifecycle (no global state leakage between tests/matches);
+    Inspector-editable exports; in M4 the server scene has the authoritative instance and the
+    client scene has a shadow — no runtime `if is_server` branching inside the pure logic.
+  - *Combatant component over root-script inheritance:* keeps player_controller.gd (movement) and
+    dummy_target.gd (feedback) unchanged in responsibility; team/death/respawn logic is isolated
+    and reusable across any combatant body type.
+  - *Static opponents:* M3 validates the LOOP (start→play→score→die→respawn→end), not AI.
+    Movement AI adds pathfinding/navmesh scope that belongs in M5+ when real opponents exist.
+    Static opponents with auto_attack still exercise both directions of the kill flow.
+  - *`reset()` naming:* state-machine language ("return to initial state"); avoids confusion with
+    `heal(amount)` (partial, future ability) or `revive()` (lifecycle concept owned by combatant).
+  - *`last_damage_source` stored in Health:* avoids changing the `died()` signal signature (which
+    would break existing connections); combatant reads it synchronously in the died handler.
+  - *Disable-in-place over remove/re-instantiate:* symmetric, stable node tree, no signal
+    reconnection overhead, maps to persistent server entities in M4.
+- **Status:** Proposed (2026-10-15). Pending reviewer approval of tunable defaults.
+
+---
+
 ## Open Questions / Temporary Assumptions
 
 | # | Item | Temporary assumption | Revisit by |
@@ -153,5 +210,8 @@
 | Q6 | Art direction / visual style | Placeholder shapes | M6 |
 | Q7 | `FOUNDATION_INSTRUCTIONS.md` location | Left at project root (doc text refers to `docs/`); not moved without approval | On approval |
 | Q8 | Git init timing | Deferred until user approves | On approval |
+| Q9 | Enemy movement AI | Out of scope M3; static opponents only | M5+ |
+| Q10 | Overtime / tiebreaker on draw | None in M3 (draw = draw) | M5 |
 
 > Q1–Q5 are resolved. Q6 (art direction) is due before M6; Q7/Q8 are standing notes.
+> Q9/Q10 are M3 deferrals recorded for future milestones.

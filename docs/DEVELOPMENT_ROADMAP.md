@@ -1,7 +1,7 @@
 # Development Roadmap — ArenaBattle
 
 > Milestone 0 document. Complete and verify each milestone before starting the next.
-> Current position: **Milestone 2 done (headless-verified). Milestone 3 next — design phase (Q5 match objective must be decided first).**
+> Current position: **Milestone 2 done (headless-verified). Milestone 3 spec complete — pending reviewer approval.**
 
 ## Environment Gate (resolved)
 
@@ -133,11 +133,158 @@ confirmed by the user in the editor.*
 
 ---
 
-### M3 — Local Gameplay Loop
-- Player health & death; simple respawn; basic score + match-end condition; separate
-  movement/combat/match components.
+### M3 — Local Gameplay Loop 📋 (spec complete — pending approval)
 
-**Acceptance:** a short local test match starts, plays and ends predictably.
+> **Spec:** See `TECHNICAL_ARCHITECTURE.md` §3.5–3.9, §4.3–4.4, §6.5–6.10, §7 (M3 rows), §10 (M3
+> table) and `DECISIONS.md` ADR-0010.
+> **Objective (FOUNDATION §4 M3):** a short LOCAL test match that starts, plays and ends
+> predictably — player health & death, simple respawn, basic score + match-end condition, and
+> movement/combat/match kept as SEPARATE components. Match objective = team-deathmatch (ADR-0009).
+> **NO networking** (M4), no art, no audio.
+
+#### Scope checklist
+
+- [ ] `MatchManager` node (`scripts/match/match_manager.gd`) — phase/score/timer/signals.
+- [ ] `Combatant` component (`scripts/combat/combatant.gd`) — team id, death→kill attribution,
+      respawn scheduling, spawn-point group lookup.
+- [ ] `health.gd` additions — `last_damage_source` var + `reset()` method (backward-compatible).
+- [ ] `melee_attacker.gd` addition — `auto_attack` export (default false = M2 behaviour).
+- [ ] `player_controller.gd` minimal additions — `_ready()` group join, `apply_damage()`,
+      `get_health()` delegates. **No movement logic changed.**
+- [ ] `Player.tscn` updated — add Health + Combatant child nodes.
+- [ ] `DummyTarget.tscn` updated — add Combatant + AttackHitbox (auto_attack=true, mask=2).
+- [ ] `Arena.tscn` updated — spawn markers join groups (`spawn_team_0`, `spawn_team_1`);
+      add SpawnB2 marker; adjust Y to 1.0.
+- [ ] `Main.tscn` updated — add MatchManager node; replace single DummyTarget with 2 Opponent
+      instances at team-B spawn positions, oriented toward arena centre.
+- [ ] `HUD.tscn` updated — add ScoreLabel, TimerLabel, ResultLabel; attach `hud.gd`.
+- [ ] `scripts/ui/hud.gd` — connects to MatchManager signals, updates labels. Pure display.
+- [ ] Integration test: `tests/integration/match_smoke_test.gd`.
+- [ ] M2 regression: `combat_smoke_test.gd` still passes (ALL_TESTS_PASS=true).
+- [ ] M1 regression: `movement_smoke_test.gd` still passes.
+
+#### Out of scope (explicitly excluded from M3)
+
+- **Networking / multiplayer** (M4).
+- **Enemy movement AI** (pathfinding, chase, patrol, navmesh) — opponents are STATIC.
+- **Art / animation / audio / VFX** — placeholder meshes and print/label feedback only.
+- **Character selection / lobby / menus.**
+- **Multiple arenas.**
+- **Abilities / ultimates / ranged attacks.**
+- **Overtime / tiebreaker** on draw (draw = draw, match ends).
+- **Persistent stats / progression.**
+- **Dynamic opponent count** (fixed at 2 instances in Main.tscn; tunable by editing the scene).
+
+#### Acceptance criteria
+
+| # | Criterion | How verified |
+|---|-----------|-------------|
+| AC-M3-1 | Match starts automatically on scene load; phase transitions WAITING→RUNNING; `match_started` signal emitted | `match_smoke_test.gd` case 1 |
+| AC-M3-2 | Killing an opponent increments TEAM_A score by 1; `score_changed` emitted with correct values | case 2 |
+| AC-M3-3 | Opponent's auto_attack damages the player when player is within range/arc | case 3 |
+| AC-M3-4 | Player death increments TEAM_B score by 1; `player_died` signal emitted | case 3 |
+| AC-M3-5 | Dead player is disabled (input off, mesh hidden, collision off) during respawn delay | case 4 |
+| AC-M3-6 | Player respawns after `respawn_delay` (3 s) at TEAM_A spawn point with health restored to max | case 4 |
+| AC-M3-7 | Dead opponent is disabled during respawn delay, then respawns at TEAM_B spawn with health restored | case 5 |
+| AC-M3-8 | Match ends when a team reaches `score_limit` (5); `match_ended(winner)` emitted with correct team | case 6 |
+| AC-M3-9 | Match ends when `time_limit` (180 s) expires; higher score wins; equal scores → draw (winner = −1) | case 7 |
+| AC-M3-10 | After match ends, no more kills are registered and no respawns occur | case 8 |
+| AC-M3-11 | HUD displays score (both teams) and countdown timer; updates on `score_changed` | manual F5 |
+| AC-M3-12 | HUD displays match result ("TEAM A WINS" / "TEAM B WINS" / "DRAW") on `match_ended` | manual F5 |
+| AC-M3-13 | Movement, combat and match logic are in SEPARATE scripts (no cross-contamination) | code review |
+| AC-M3-14 | All tunables are `@export` with documented defaults — no magic numbers | code review |
+| AC-M3-15 | `combat_smoke_test.gd` (M2) still passes: ALL_TESTS_PASS=true, exit 0 | headless regression |
+| AC-M3-16 | `movement_smoke_test.gd` (M1) still passes: ALL_TESTS_PASS=true, exit 0 | headless regression |
+| AC-M3-17 | Project runs with zero script errors (`--import` + headless exit 0) | CI / manual |
+
+#### QA test cases (for `tests/integration/match_smoke_test.gd`)
+
+1. **match_starts** — instantiate Main.tscn; await deferred start; assert phase == RUNNING,
+   time_remaining > 0, `match_started` signal received.
+2. **kill_opponent_scores** — call `opponent.apply_damage(999, player)` directly (bypasses
+   melee timing); assert TEAM_A score == 1, `score_changed(1, 0)` emitted.
+3. **opponent_damages_player** — teleport player into opponent's range/arc; wait for
+   auto_attack cooldown; assert player health < max; if lethal, assert TEAM_B score == 1
+   and `player_died` emitted.
+4. **player_respawn** — kill player (direct apply_damage); assert disabled state (collision
+   off, mesh hidden, physics_process off); wait respawn_delay + margin; assert player at
+   SpawnA position, health == max, collision on, mesh visible, physics_process on.
+5. **opponent_respawn** — kill opponent; assert disabled; wait respawn_delay + margin; assert
+   opponent at team-B spawn, health == max, re-enabled.
+6. **score_limit_ends_match** — set score_limit=2 (test override); register 2 kills for TEAM_A;
+   assert phase == ENDED, `match_ended(0)` emitted (TEAM_A wins).
+7. **time_expiry_ends_match** — set time_limit=1.0 (test override); wait > 1 s; assert phase ==
+   ENDED; test both unequal scores (winner = higher) and equal scores (winner = −1, draw).
+8. **post_match_no_scoring** — after match_ended, call register_kill; assert score unchanged;
+   kill a combatant; assert no respawn occurs.
+
+**Supplementary (non-scored):**
+- **null_source_degradation** — call `apply_damage(999, null)` on a combatant; assert death
+  processes (disable + respawn) but NO score is awarded (safe degradation).
+- **M2 regression gate** — run `combat_smoke_test.gd` in the same session; assert ALL_TESTS_PASS.
+
+#### File manifest — CREATE / MODIFY
+
+| Action | Path | Responsibility | Owner |
+|--------|------|----------------|-------|
+| CREATE | `scripts/match/match_manager.gd` | Match state machine: phase, scores, timer, signals, register_kill, start/end | Gameplay Dev |
+| CREATE | `scripts/combat/combatant.gd` | Team identity, death→kill attribution, respawn disable/enable, spawn lookup | Gameplay Dev |
+| CREATE | `scripts/ui/hud.gd` | HUD label updates driven by MatchManager signals (score, timer, result) | Gameplay Dev |
+| CREATE | `tests/integration/match_smoke_test.gd` | M3 integration test (8 scored cases + supplementary) | QA Engineer |
+| MODIFY | `scripts/combat/health.gd` | Add `last_damage_source` var + `reset()` method (backward-compatible) | Gameplay Dev |
+| MODIFY | `scripts/combat/melee_attacker.gd` | Add `@export auto_attack: bool = false` + conditional branch | Gameplay Dev |
+| MODIFY | `scripts/player/player_controller.gd` | Add `_ready()` (group join), `apply_damage()`, `get_health()` delegates | Gameplay Dev |
+| MODIFY | `scenes/characters/Player.tscn` | Add Health (Node) + Combatant (Node) children | Gameplay Dev |
+| MODIFY | `scenes/targets/DummyTarget.tscn` | Add Combatant (Node) + AttackHitbox (Area3D + CollisionShape3D) children | Gameplay Dev |
+| MODIFY | `scenes/arena/Arena.tscn` | Spawn markers → groups; add SpawnB2; adjust Y to 1.0 | Gameplay Dev |
+| MODIFY | `scenes/main/Main.tscn` | Add MatchManager node; replace DummyTarget with 2 Opponent instances; reposition Player to SpawnA | Gameplay Dev |
+| MODIFY | `scenes/ui/HUD.tscn` | Add ScoreLabel, TimerLabel, ResultLabel; attach hud.gd; update ControlsLabel text | Gameplay Dev |
+
+**NOT modified:** `project.godot` (no new input actions, layers, or autoloads),
+`scripts/targets/dummy_target.gd` (Combatant child handles team/death/respawn; existing feedback
+code untouched), `scripts/player/camera_rig.gd`.
+
+#### Exported tunables & defaults (reviewer confirm/change)
+
+| Tunable | Location | Default | Notes |
+|---------|----------|---------|-------|
+| `score_limit` | MatchManager | **5** | Kills needed to win |
+| `time_limit` | MatchManager | **180.0 s** | Match duration |
+| `auto_start` | MatchManager | **true** | Start match on scene load |
+| `respawn_delay` | Combatant | **3.0 s** | Time dead before respawn |
+| `team_id` (player) | Combatant on Player | **0** (TEAM_A) | |
+| `team_id` (opponents) | Combatant on DummyTarget | **1** (TEAM_B) | |
+| `spawn_index` | Combatant | **0** | Selects among group spawn markers |
+| `auto_attack` | melee_attacker on DummyTarget | **true** | Opponents swing on cooldown |
+| `attack_damage` (opponent) | melee_attacker on DummyTarget | **20.0** | 5 hits to kill player (100 HP) |
+| `attack_cooldown` (opponent) | melee_attacker on DummyTarget | **1.5 s** | Slower than player (0.6 s) |
+| `attack_range` (opponent) | melee_attacker on DummyTarget | **2.0 m** | Same as player |
+| `attack_arc_deg` (opponent) | melee_attacker on DummyTarget | **90°** | Narrower than player (120°) |
+| `max_health` (player) | Health on Player | **100.0** | Same as dummy |
+| Opponent count | Main.tscn instances | **2** | Add/remove instances to change |
+| Opponent placement | Main.tscn transforms | SpawnB (6,1,6), SpawnB2 (8,1,4) | Face arena centre |
+
+#### Server-authoritative readiness notes (M4 prep)
+
+| M3 component | What moves to server in M4 | What stays client-side |
+|--------------|---------------------------|----------------------|
+| `match_manager.gd` | Authoritative instance on server (phase, scores, timer, register_kill, match-end) | Shadow instance on client (display only; receives replicated state) |
+| `combatant.gd` | Death validation, respawn timing + position, team assignment | Visual disable/enable (mesh, collision) as client-side presentation |
+| `health.gd` | Server applies damage, emits health_changed → replicated | Client receives health_changed for display |
+| `melee_attacker.gd` | Server re-validates range/arc/cooldown on "I attacked" intent | Client sends intent; local prediction optional |
+| `player_controller.gd` | Server validates position (anti-cheat) | Local movement prediction |
+| `hud.gd` | — | Purely client-side display |
+| `camera_rig.gd` | — | Purely client-side |
+
+**Determinism guarantees for M4 lift:**
+- MatchManager timer uses `_physics_process` (fixed tick) → server clock is authoritative.
+- Kill attribution is synchronous within the `died` signal handler → no race conditions.
+- Respawn uses SceneTree timer (real-time seconds) → in M4, server owns the timer and broadcasts
+  the respawn event; clients replay visually.
+- No `get_tree().reload_current_scene()`, no `Input` reads, no rendering calls in match/combat logic.
+- All tunables are `@export` → server can override from config/Resource without code changes.
+
+---
 
 ### M4 — Multiplayer PoC (2 clients)
 - Research current Godot multiplayer APIs; host/client responsibilities; sync spawning +
@@ -170,10 +317,15 @@ confirmed by the user in the editor.*
 
 ## Immediate Next Steps
 
-1. **Manual F5 playtest (user):** walk to the dummy, attack with Left Mouse, confirm the red
-   hit-flash + console `[DummyTarget] health:` prints and that the cooldown feels right (AC-10).
-2. **Q5 decided — team-deathmatch** (ADR-0009). M3 design is unblocked.
-3. **Architect** drafts the M3 spec (player health/death, respawn, TDM score, match-end) reusing the
-   `Health` component; keeps movement/combat/match as separate components.
-4. Optional QA follow-up: extend `combat_smoke_test.gd` to exercise the arc at a non-zero
+1. **Reviewer approval of M3 spec** — confirm or change the tunable defaults listed above
+   (score_limit, time_limit, respawn_delay, opponent count, static-vs-bot, MatchManager
+   scene-node-vs-autoload, health reset method name). **← GATE: implementation does not begin
+   until approved.**
+2. **Manual F5 playtest (user, M2 carry-over):** walk to the dummy, attack with Left Mouse,
+   confirm the red hit-flash + console `[DummyTarget] health:` prints and that the cooldown
+   feels right (AC-10).
+3. **Gameplay Developer** implements M3 per the file manifest (after approval).
+4. **QA Engineer** writes `match_smoke_test.gd` per the 8 test cases above; re-runs M1/M2
+   regressions.
+5. Optional QA follow-up: extend `combat_smoke_test.gd` to exercise the arc at a non-zero
    `CameraPivot` yaw (arc must rotate with the camera).

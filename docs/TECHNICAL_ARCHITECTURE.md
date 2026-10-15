@@ -1,7 +1,7 @@
 # Technical Architecture — ArenaBattle
 
-> Milestone 0 design; updated at Milestone 2 (combat). Describes the intended Godot 4 structure
-> and interfaces.
+> Milestone 0 design; updated at Milestone 2 (combat) and Milestone 3 (local gameplay loop).
+> Describes the intended Godot 4 structure and interfaces.
 
 ## 1. Guiding Principles
 
@@ -33,12 +33,12 @@ ArenaBattle/
 ├── scripts/
 │   ├── core/        # game bootstrap, shared constants/config, service locators
 │   ├── player/      # player_controller.gd, camera_rig.gd
-│   ├── combat/      # health.gd, melee_attacker.gd (Milestone 2)
+│   ├── combat/      # health.gd, melee_attacker.gd, combatant.gd (Milestone 3)
 │   ├── targets/     # dummy_target.gd (Milestone 2)
 │   ├── abilities/   # (later)
 │   ├── multiplayer/ # (Milestone 4+) network manager, replication
-│   ├── match/       # (Milestone 3+) match/round/score logic
-│   └── ui/          # HUD scripts
+│   ├── match/       # match_manager.gd (Milestone 3)
+│   └── ui/          # hud.gd (Milestone 3)
 ├── resources/       # characters/ weapons/ abilities/ — data-driven .tres
 └── tests/           # unit/ integration/
 ```
@@ -46,6 +46,7 @@ ArenaBattle/
 Folders created at M1: `scenes/main`, `scenes/arena`, `scenes/characters`, `scenes/ui`,
 `scripts/player`.
 Folders created at M2: `scenes/targets`, `scripts/combat`, `scripts/targets`.
+Folders created at M3: `scripts/match`, `scripts/ui`.
 
 ## 3. Scene Graphs
 
@@ -101,6 +102,69 @@ Main (Node3D)
 └── HUD (instance)
 ```
 
+### 3.5 Milestone 3 — Player.tscn (updated)
+
+```text
+Player (CharacterBody3D)             # collision_layer=2, collision_mask=5
+├── CollisionShape3D                 # CapsuleShape3D radius=0.5, height=2.0
+├── Mesh (MeshInstance3D)            # CapsuleMesh radius=0.5, height=2.0
+├── CameraPivot (Node3D)             # camera_rig.gd
+│   └── CameraTilt (Node3D)
+│       └── Camera3D
+├── AttackHitbox (Area3D)            # melee_attacker.gd — collision_layer=0, collision_mask=4
+│   └── CollisionShape3D             # SphereShape3D radius=2.0
+├── Health (Node)                    # health.gd — max_health=100.0           ← NEW (M3)
+└── Combatant (Node)                 # combatant.gd — team_id=0, respawn_delay=3.0  ← NEW (M3)
+```
+
+### 3.6 Milestone 3 — DummyTarget.tscn (updated → opponent)
+
+```text
+DummyTarget (StaticBody3D)           # dummy_target.gd — collision_layer=4, collision_mask=0
+├── CollisionShape3D                 # BoxShape3D size=(1.0, 2.0, 1.0)
+├── Mesh (MeshInstance3D)            # BoxMesh size=(1.0, 2.0, 1.0) + StandardMaterial3D
+├── Health (Node)                    # health.gd — max_health=100.0
+├── Combatant (Node)                 # combatant.gd — team_id=1, respawn_delay=3.0  ← NEW (M3)
+└── AttackHitbox (Area3D)            # melee_attacker.gd — auto_attack=true          ← NEW (M3)
+    │                                #   collision_layer=0, collision_mask=2 (detects Player)
+    │                                #   aim_reference_path=^"..", attack_damage=20,
+    │                                #   attack_cooldown=1.5, attack_range=2.0, attack_arc_deg=90
+    └── CollisionShape3D             # SphereShape3D radius=2.0
+```
+
+### 3.7 Milestone 3 — Arena.tscn (updated spawn points)
+
+```text
+└── SpawnPoints (Node3D)
+    ├── SpawnA  (Marker3D)           # (-6, 1.0, -6)  groups=["spawn_team_0"]
+    ├── SpawnB  (Marker3D)           # ( 6, 1.0,  6)  groups=["spawn_team_1"]
+    └── SpawnB2 (Marker3D)           # ( 8, 1.0,  4)  groups=["spawn_team_1"]  ← NEW (M3)
+```
+
+### 3.8 Milestone 3 — Main.tscn (updated)
+
+```text
+Main (Node3D)
+├── MatchManager (Node)              # match_manager.gd                        ← NEW (M3)
+│                                    #   score_limit=5, time_limit=180.0, auto_start=true
+├── Arena (instance)
+├── Player (instance)                # position = SpawnA (-6, 1, -6)
+├── Opponent1 (instance DummyTarget) # position = SpawnB (6, 1, 6), rotated to face centre
+├── Opponent2 (instance DummyTarget) # position = SpawnB2 (8, 1, 4), rotated to face centre
+│                                    #   Combatant.spawn_index=1
+└── HUD (instance)
+```
+
+### 3.9 Milestone 3 — HUD.tscn (updated)
+
+```text
+HUD (CanvasLayer)                    # hud.gd                                  ← NEW script (M3)
+├── ControlsLabel (Label)            # existing — text updated for M3
+├── ScoreLabel (Label)               # "TEAM A: 0  |  TEAM B: 0"              ← NEW (M3)
+├── TimerLabel (Label)               # "3:00"                                  ← NEW (M3)
+└── ResultLabel (Label)              # hidden; shown on match_ended            ← NEW (M3)
+```
+
 ## 4. Script Responsibilities
 
 ### 4.1 Milestone 1 (unchanged)
@@ -111,13 +175,29 @@ Main (Node3D)
 | `camera_rig.gd` | `CameraPivot` | Mouse-look yaw/pitch, Esc toggles cursor capture. |
 | `hud.gd` (if used) | `HUD` | Static controls label. |
 
-### 4.2 Milestone 2 (new)
+### 4.2 Milestone 2 (unchanged)
 
 | Script | Node | Responsibility |
 |--------|------|----------------|
 | `health.gd` | `Health (Node)` child | Reusable health component. Stores current HP, clamps 0…max, emits `health_changed` / `died`. Exposes `apply_damage(amount, source)` and `get_health()`. |
 | `melee_attacker.gd` | `AttackHitbox (Area3D)` child of Player | Reads `attack` input in `_physics_process`, manages cooldown timer, queries `get_overlapping_bodies()`, applies arc filter using CameraPivot forward, calls `apply_damage` on valid targets. Owns all attack tunables. |
 | `dummy_target.gd` | `DummyTarget (StaticBody3D)` root | Registers in `"damageable"` group, delegates `apply_damage`/`get_health` to Health child, emits print feedback on hit/death, flashes mesh color. |
+
+### 4.3 Milestone 3 (new)
+
+| Script | Node | Responsibility |
+|--------|------|----------------|
+| `match_manager.gd` | `MatchManager (Node)` in Main.tscn | Owns match state: phase (WAITING/RUNNING/ENDED), per-team scores, countdown timer. Exposes `start_match()`, `register_kill(scorer, victim)`, signals. Pure/deterministic logic — no rendering, no input, no scene-tree shortcuts. Joins group `"match_manager"`. |
+| `combatant.gd` | `Combatant (Node)` child of Player / DummyTarget | Team identity (`team_id`), death→kill-attribution→MatchManager notification, respawn scheduling (disable/enable cycle), spawn-point lookup by group. Does NOT own movement or attack logic. |
+| `hud.gd` | `HUD (CanvasLayer)` root | Connects to MatchManager signals; updates ScoreLabel, TimerLabel, ResultLabel. Pure display — no game logic. |
+
+### 4.4 Milestone 3 — minimal additions to existing scripts
+
+| Script | Addition | Rationale |
+|--------|----------|-----------|
+| `health.gd` | `var last_damage_source: Node = null` (set in `apply_damage`); `func reset() -> void` | Kill attribution needs the source after `died` fires; respawn needs health restoration. Backward-compatible — no signal signature changes. |
+| `melee_attacker.gd` | `@export var auto_attack: bool = false`; modified `_physics_process` branch | Lets dummy opponents attack on cooldown without reading player input. Default `false` = existing M2 behaviour preserved. |
+| `player_controller.gd` | `func _ready()` → `add_to_group("damageable")`; `func apply_damage(amount, source)` → delegates to `$Health`; `func get_health() -> float` → delegates to `$Health` | Satisfies the combat-interface contract (§6.1) so enemy hitboxes can damage the player. **No movement logic changed.** |
 
 ## 5. Input Map
 
@@ -135,6 +215,8 @@ Defined in Project Settings → Input Map, referenced by action name in code (ne
 
 Mouse look uses captured mouse mode (`Input.MOUSE_MODE_CAPTURED`) with an `Esc` toggle to
 release the cursor — implemented in `camera_rig.gd`.
+
+**No new input actions required for M3.**
 
 ## 6. Combat Interface (Milestone 2 — ADR-0005 + ADR-0007)
 
@@ -279,7 +361,341 @@ func _flash_red() -> void:
     )
 ```
 
-## 7. Collision Layer / Mask Plan (Milestone 2)
+### 6.5 Health component — M3 additions (backward-compatible)
+
+Two additions to `scripts/combat/health.gd`. **No signal signatures change.** The M2 combat
+smoke test continues to pass without modification.
+
+```gdscript
+## --- M3 ADDITION: store the source of the most recent damage for kill attribution ---
+var last_damage_source: Node = null
+
+func apply_damage(amount: float, source: Node) -> void:   # signature unchanged
+    if _current <= 0.0:
+        return
+    last_damage_source = source                           # ← NEW: store before clamping
+    _current = maxf(_current - amount, 0.0)
+    health_changed.emit(_current, max_health)
+    if _current == 0.0:
+        died.emit()
+
+## --- M3 ADDITION: reset for respawn ---
+func reset() -> void:
+    _current = max_health
+    last_damage_source = null
+    health_changed.emit(_current, max_health)
+```
+
+**Why `reset()` and not `revive()` or `heal()`:**
+- `reset()` is state-machine language: "return to initial state." It matches the existing
+  `_ready()` initialisation and is unambiguous.
+- `heal(amount)` implies partial restoration (future ability system); `revive()` implies a
+  lifecycle concept that belongs to `combatant.gd`, not to the pure Health component.
+- Backward-compatible: no existing caller breaks; the M2 test never calls `reset()`.
+
+### 6.6 Melee attacker — M3 addition (backward-compatible)
+
+One new export and a conditional branch in `_physics_process`:
+
+```gdscript
+@export var auto_attack: bool = false   # ← NEW: when true, attacks on cooldown without input
+
+func _physics_process(delta: float) -> void:
+    _cooldown_remaining -= delta
+    if _cooldown_remaining <= 0.0:
+        if auto_attack or Input.is_action_just_pressed("attack"):
+            _cooldown_remaining = attack_cooldown
+            _perform_attack()
+```
+
+Default `false` preserves M2 behaviour exactly. The M2 combat smoke test never sets
+`auto_attack`, so it remains `false` and all 6 cases pass unchanged.
+
+### 6.7 MatchManager (`scripts/match/match_manager.gd`)
+
+```gdscript
+extends Node
+## Milestone 3 — match state machine.  Node in Main.tscn (NOT an autoload).
+## Joins group "match_manager" so combatants can discover it without hardcoded paths.
+## Pure/deterministic: no rendering, no input, no scene-tree shortcuts.
+## Designed to lift server-side in M4 with zero logic changes.
+
+enum Phase { WAITING, RUNNING, ENDED }
+enum Team { TEAM_A = 0, TEAM_B = 1 }
+
+signal match_started
+signal score_changed(team_a_score: int, team_b_score: int)
+signal player_died                                       # convenience for HUD/camera
+signal match_ended(winner: int)                          # Team value, or -1 for draw
+
+@export var score_limit: int = 5                         # kills to win
+@export var time_limit: float = 180.0                    # seconds
+@export var auto_start: bool = true                      # start on _ready (deferred)
+
+var phase: Phase = Phase.WAITING
+var score_a: int = 0
+var score_b: int = 0
+var time_remaining: float = 0.0
+
+func _ready() -> void:
+    add_to_group("match_manager")
+    if auto_start:
+        start_match.call_deferred()                      # after all siblings' _ready
+
+func _physics_process(delta: float) -> void:
+    if phase != Phase.RUNNING:
+        return
+    time_remaining = maxf(time_remaining - delta, 0.0)
+    if time_remaining <= 0.0:
+        _end_match()
+
+func start_match() -> void:
+    phase = Phase.RUNNING
+    score_a = 0
+    score_b = 0
+    time_remaining = time_limit
+    match_started.emit()
+
+func register_kill(scorer_team: int, victim_team: int) -> void:
+    if phase != Phase.RUNNING:
+        return
+    if scorer_team == Team.TEAM_A:
+        score_a += 1
+    elif scorer_team == Team.TEAM_B:
+        score_b += 1
+    else:
+        return                                           # unknown team — no score
+    score_changed.emit(score_a, score_b)
+    if victim_team == Team.TEAM_A:
+        player_died.emit()
+    if score_a >= score_limit or score_b >= score_limit:
+        _end_match()
+
+func _end_match() -> void:
+    if phase == Phase.ENDED:
+        return                                           # idempotent
+    phase = Phase.ENDED
+    var winner: int
+    if score_a > score_b:
+        winner = Team.TEAM_A
+    elif score_b > score_a:
+        winner = Team.TEAM_B
+    else:
+        winner = -1                                      # draw
+    match_ended.emit(winner)
+
+## --- Read-only queries (for HUD / tests) ---
+func get_phase() -> Phase:
+    return phase
+func get_time_remaining() -> float:
+    return time_remaining
+func get_score(team: int) -> int:
+    return score_a if team == Team.TEAM_A else score_b
+```
+
+**Design notes:**
+- `_physics_process` (fixed 60 Hz tick) for the timer → deterministic, matches server tick model.
+- `start_match.call_deferred()` ensures all combatants' `_ready()` has fired before the match
+  begins (Godot calls `_ready` bottom-up, siblings in tree order; deferred runs after all).
+- `register_kill` is idempotent per-kill (one call per death); `_end_match` is idempotent
+  (guarded by phase check).
+- Draw: `winner = -1`. No overtime in M3.
+- No client-only shortcuts (no `get_tree().reload_current_scene()`, no direct node manipulation).
+
+### 6.8 Combatant component (`scripts/combat/combatant.gd`)
+
+```gdscript
+extends Node
+## Milestone 3 — team identity + death/respawn glue for any combatant body.
+## Attach as a child Node alongside Health. Does NOT own movement or attack logic.
+## Discovers MatchManager via group "match_manager".
+
+signal combatant_died(team_id: int)
+signal combatant_respawned(team_id: int)
+
+@export var team_id: int = 0                             # 0 = TEAM_A (player), 1 = TEAM_B
+@export var respawn_delay: float = 3.0                   # seconds
+@export var spawn_index: int = 0                         # which spawn marker to use
+
+var _is_dead: bool = false
+var _match_over: bool = false
+var _health: Health
+var _parent_body: Node3D
+var _mesh: MeshInstance3D
+var _collision: CollisionShape3D
+var _attack_hitbox: Area3D
+var _match_manager: Node
+var _spawn_point: Node3D
+
+func _ready() -> void:
+    _parent_body = get_parent() as Node3D
+    _health = _parent_body.get_node_or_null("Health") as Health
+    _mesh = _parent_body.get_node_or_null("Mesh") as MeshInstance3D
+    _collision = _parent_body.get_node_or_null("CollisionShape3D") as CollisionShape3D
+    _attack_hitbox = _parent_body.get_node_or_null("AttackHitbox") as Area3D
+    _match_manager = get_tree().get_first_node_in_group("match_manager")
+    _resolve_spawn_point()
+    if _health:
+        _health.died.connect(_on_died)
+    if _match_manager:
+        _match_manager.match_ended.connect(_on_match_ended)
+
+func get_team_id() -> int:
+    return team_id
+
+func is_dead() -> bool:
+    return _is_dead
+
+## --- Death → kill attribution → respawn scheduling ---
+func _on_died() -> void:
+    if _is_dead:
+        return
+    _is_dead = true
+    combatant_died.emit(team_id)
+    _attribute_kill()
+    _disable_combatant()
+    if not _match_over:
+        get_tree().create_timer(respawn_delay).timeout.connect(_respawn)
+
+func _attribute_kill() -> void:
+    if _match_manager == null:
+        return
+    var source: Node = _health.last_damage_source if _health else null
+    var scorer_team := _resolve_team(source)
+    if scorer_team >= 0:
+        _match_manager.register_kill(scorer_team, team_id)
+
+func _resolve_team(source: Node) -> int:
+    ## Maps an attacker node → its team_id.  Returns -1 if unresolvable (safe degradation).
+    if source == null or not is_instance_valid(source):
+        return -1
+    var combatant := source.get_node_or_null("Combatant")
+    if combatant and combatant.has_method("get_team_id"):
+        return combatant.get_team_id()
+    return -1
+
+## --- Disable / enable cycle ---
+func _disable_combatant() -> void:
+    if _collision:
+        _collision.disabled = true
+    if _mesh:
+        _mesh.visible = false
+    _parent_body.set_physics_process(false)
+    if _attack_hitbox:
+        _attack_hitbox.set_physics_process(false)
+
+func _respawn() -> void:
+    if _match_over:
+        return
+    _is_dead = false
+    if _spawn_point:
+        _parent_body.global_position = _spawn_point.global_position
+    if _collision:
+        _collision.disabled = false
+    if _mesh:
+        _mesh.visible = true
+    if _health:
+        _health.reset()
+    _parent_body.set_physics_process(true)
+    if _attack_hitbox:
+        _attack_hitbox.set_physics_process(true)
+    combatant_respawned.emit(team_id)
+
+func _on_match_ended(_winner: int) -> void:
+    _match_over = true
+    if _attack_hitbox:
+        _attack_hitbox.set_physics_process(false)
+
+## --- Spawn point resolution (by group) ---
+func _resolve_spawn_point() -> void:
+    var group_name := "spawn_team_%d" % team_id
+    var spawns := get_tree().get_nodes_in_group(group_name)
+    if spawns.size() > 0:
+        _spawn_point = spawns[spawn_index % spawns.size()] as Node3D
+```
+
+**Design notes:**
+- Spawn lookup by **group** (not NodePath) → robust against scene-tree restructuring; works in
+  tests that re-parent nodes.
+- `spawn_index` selects among multiple markers in the same group → supports N combatants per team.
+- `_resolve_team(source)` degrades safely: null source → -1 → no kill registered (prevents crash
+  on environmental/future damage with no attacker).
+- Respawn uses `SceneTree.create_timer()` → fires regardless of the parent's process mode.
+- `_match_over` flag prevents respawn after the match ends.
+- Player-specific: `set_physics_process(false)` on the Player root stops movement input processing.
+  Camera rig (a child) is unaffected — the player can still look around while dead.
+
+### 6.9 Kill-attribution flow (end-to-end)
+
+```text
+1. Attacker's melee_attacker._perform_attack()
+   → body.apply_damage(attack_damage, _owner_body)
+     where _owner_body = get_parent() = the attacker's root body (Player or DummyTarget)
+
+2. Target root's apply_damage(amount, source)
+   → _health.apply_damage(amount, source)
+
+3. Health.apply_damage:
+   → last_damage_source = source        [M3 addition]
+   → _current -= amount; clamp 0
+   → health_changed.emit(...)
+   → if _current == 0: died.emit()
+
+4. Combatant._on_died()  [connected to Health.died]
+   → reads _health.last_damage_source   (= attacker's root body node)
+   → _resolve_team(source):
+       source.get_node_or_null("Combatant").get_team_id()
+       → returns attacker's team_id (0 or 1)
+       → if source is null / has no Combatant → returns -1 (no score awarded)
+   → _match_manager.register_kill(scorer_team, self.team_id)
+
+5. MatchManager.register_kill(scorer_team, victim_team):
+   → increments scorer's score
+   → score_changed.emit(score_a, score_b)
+   → if victim_team == TEAM_A: player_died.emit()
+   → if score >= score_limit: _end_match()
+```
+
+**Safe degradation:** if `source` is `null` (environmental damage, future hazards) or the source
+node has no `Combatant` child, `_resolve_team` returns `-1` and `register_kill` is NOT called.
+The death still processes (disable + respawn) but no team scores. A warning is printed.
+
+### 6.10 Respawn flow
+
+```text
+Death:
+  Combatant._on_died()
+    → _is_dead = true
+    → combatant_died.emit(team_id)
+    → _attribute_kill()  [kill attribution flow above]
+    → _disable_combatant():
+        CollisionShape3D.disabled = true
+        Mesh.visible = false
+        parent_body.set_physics_process(false)      [stops movement / auto-attack]
+        AttackHitbox.set_physics_process(false)      [stops input/auto attacks]
+    → SceneTree timer (respawn_delay seconds) → _respawn()
+
+Respawn:
+  Combatant._respawn()
+    → if _match_over: return (no respawn after match end)
+    → _is_dead = false
+    → parent_body.global_position = _spawn_point.global_position
+    → CollisionShape3D.disabled = false
+    → Mesh.visible = true
+    → Health.reset()  [_current = max_health, last_damage_source = null, health_changed emitted]
+    → parent_body.set_physics_process(true)
+    → AttackHitbox.set_physics_process(true)
+    → combatant_respawned.emit(team_id)
+```
+
+**"Dead" state definition:**
+- **Player:** input disabled (physics_process off → no movement/jump; AttackHitbox off → no
+  attacks), mesh hidden, collision off. Camera remains active (player observes arena).
+- **Dummy opponents:** auto-attack stops (AttackHitbox physics_process off), mesh hidden,
+  collision off. **Disabled in place, NOT removed.** Justification: simpler lifecycle, symmetric
+  disable/enable, stable node tree for M4 server entity mapping, no re-instantiation overhead.
+
+## 7. Collision Layer / Mask Plan (Milestone 2 + M3 additions)
 
 Godot 4 uses a 32-bit integer for `collision_layer` and `collision_mask`. The editor shows them as
 numbered checkboxes (1-based). Bitmask value = 2^(layer_number − 1).
@@ -291,20 +707,23 @@ numbered checkboxes (1-based). Bitmask value = 2^(layer_number − 1).
 | 3 | 4 | `DamageableTarget` | DummyTarget and future targets |
 | 4 | 8 | *(reserved — projectiles/hazards, M3+)* | — |
 
-### Node collision settings
+### Node collision settings (M3 updated)
 
 | Node | `collision_layer` | `collision_mask` | Rationale |
 |------|:-:|:-:|---|
 | Floor / Walls | 1 | 1 (default) | Static world; mask irrelevant for StaticBody3D |
 | Player (CharacterBody3D) | 2 | 5 (= 1 + 4) | Collides with world (1) and targets (4); NOT detected by own hitbox |
 | DummyTarget (StaticBody3D) | 4 | 0 | On target layer; does not detect anything |
-| AttackHitbox (Area3D) | 0 | 4 | Detects only layer 3 (DamageableTarget); never sees Player (layer 2) |
+| Player → AttackHitbox (Area3D) | 0 | 4 | Detects only layer 3 (DamageableTarget); never sees Player (layer 2) |
+| DummyTarget → AttackHitbox (Area3D) | 0 | 2 | **M3 NEW:** Detects only layer 2 (Player); never sees other dummies (layer 4) |
 
-**Key invariant:** `AttackHitbox.collision_mask` (4) does NOT include `Player.collision_layer` (2),
-so `get_overlapping_bodies()` can never return the player. The additional `is_in_group("damageable")`
-filter in code provides a second semantic safety net.
+**Key invariants (M3):**
+- Player's AttackHitbox mask (4) excludes Player's layer (2) → no self-hit.
+- Dummy's AttackHitbox mask (2) excludes Dummy's layer (4) → dummies never hit each other.
+- Both hitboxes use the `is_in_group("damageable")` code filter as a semantic safety net.
+- Player is NOW in group `"damageable"` (M3 addition) so dummy hitboxes can damage it.
 
-### Project Settings addition
+### Project Settings addition (unchanged from M2)
 
 ```ini
 [layer_names]
@@ -321,6 +740,7 @@ filter in code provides a second semantic safety net.
 - `rendering` → Forward+ renderer (confirmed Godot 4.7.2).
 - `physics/3d/default_gravity` → 20.0
 - `layer_names/3d_physics_layer_*` → see §7.
+- **No new project settings required for M3.** (MatchManager is a scene node, not an autoload.)
 
 ## 9. Verification Approach
 
@@ -330,6 +750,12 @@ Godot **4.7.2.stable** is installed and headless verification is available:
 3. Manual F5 playtest for visual/feel checks.
 
 M2 test: `tests/integration/combat_smoke_test.gd` — verifies damage, range, cooldown, death.
+M3 test: `tests/integration/match_smoke_test.gd` — verifies match lifecycle, scoring, respawn, end.
+
+**M2 regression:** `combat_smoke_test.gd` must still pass after M3 changes. The additions to
+`health.gd` and `melee_attacker.gd` are backward-compatible (no signal/API changes, defaults
+preserve M2 behaviour). The player joining group `"damageable"` does not affect the M2 test
+because the player's own AttackHitbox mask (4) still excludes the player's layer (2).
 
 No feature will be reported as "passing" until it has actually been run.
 
@@ -345,7 +771,30 @@ M2 design choices that keep the door open for server-authoritative multiplayer:
 | Source identification | `apply_damage(amount, source)` passes the attacker node | In M4, `source` becomes a peer_id / player_id reference |
 | Group-based filtering | `"damageable"` group | Server maintains authoritative target registry |
 
-No networking code is added at M2; the architecture simply avoids decisions that would block it.
+### M3 additions to server-readiness
+
+| Concern | M3 decision | M4 path |
+|---------|-------------|---------|
+| Match rules separation | `match_manager.gd` is pure logic (no rendering, no input, no scene-tree shortcuts) | Runs identically on dedicated server; clients receive replicated phase/score/timer |
+| MatchManager as scene node (not autoload) | Scoped lifecycle; no global state leakage | Server scene has authoritative instance; client scene has shadow instance that only displays replicated state |
+| Kill attribution via `last_damage_source` | Source node → Combatant child → team_id | In M4, source maps to `peer_id`; server validates the kill before awarding score |
+| Respawn in `combatant.gd` | Disable/enable cycle + SceneTree timer + spawn-point group lookup | Server owns respawn timing; broadcasts "respawn at position" to clients; clients replay visually |
+| Timer via `_physics_process` | Fixed-timestep countdown (deterministic) | Server tick is the single clock; clients interpolate display |
+| Team id on Combatant component | Exported int, not hardcoded | Server assigns teams at match start; replicated to clients |
+| Draw handling | Explicit `winner = -1` | Server broadcasts draw; clients display |
+| No client-only shortcuts | MatchManager never calls `reload_current_scene()`, never reads Input, never accesses rendering | Lift-and-shift to server process |
+
+**What moves to the server in M4:**
+- `match_manager.gd` (authoritative instance on server; shadow on client)
+- `health.gd` (server applies damage; client receives health_changed)
+- `combatant.gd` death/respawn scheduling (server decides timing + position)
+- Kill attribution validation (server verifies source identity before scoring)
+
+**What stays client-side in M4:**
+- `player_controller.gd` (local prediction; server validates position)
+- `camera_rig.gd` (purely visual)
+- `hud.gd` (display only; driven by replicated signals)
+- `melee_attacker.gd` input reading (client sends "I attacked" intent; server re-validates)
 
 ## 11. Risks & Dependencies
 
@@ -355,3 +804,11 @@ No networking code is added at M2; the architecture simply avoids decisions that
 - Melee arc check uses XZ-plane projection only (no vertical angle) — acceptable for ground combat.
 - `get_overlapping_bodies()` is updated once per physics frame *before* the step; the attack
   reads it in `_physics_process`, so the data is at most 1 frame stale (irrelevant at 60 Hz).
+- **M3 risk — auto_attack on static dummies:** dummies swing every `attack_cooldown` regardless
+  of whether anything is in range. `_perform_attack()` iterates an empty overlap list harmlessly.
+  Negligible perf cost with 2 opponents.
+- **M3 risk — M2 test regression:** mitigated by backward-compatible additions only (defaults
+  preserve M2 behaviour). QA must re-run `combat_smoke_test.gd` as part of M3 verification.
+- **M3 dependency — spawn-point groups:** Arena.tscn markers must join the correct groups before
+  combatant.gd can resolve spawn positions. If a group is empty, `_spawn_point` is null and
+  respawn occurs in place (safe fallback, logged as warning).
