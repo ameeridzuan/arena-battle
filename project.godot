@@ -58,6 +58,12 @@ attack={
 ]
 }
 
+[layer_names]
+
+3d_physics_layer_1="World"
+3d_physics_layer_2="Player"
+3d_physics_layer_3="DamageableTarget"
+
 [physics]
 
 3d/default_gravity=20.0

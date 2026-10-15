@@ -58,7 +58,7 @@
 - **Context:** Combat, health and (later) server validation all need one consistent contract.
 - **Decision:** Fix `apply_damage(amount, source)` / `get_health()` now; implement at Milestone 2.
 - **Rationale:** Prevents rework and keeps authoritative rules separable for future networking.
-- **Status:** Proposed (documented in TECHNICAL_ARCHITECTURE.md §6).
+- **Status:** Adopted (2026-10-15). Implemented via `health.gd` component — see ADR-0007.
 
 ---
 
@@ -75,6 +75,59 @@
 
 ---
 
+## ADR-0007 — Milestone 2: Health component + Area3D hitbox + arc filter (melee)
+- **Context:** M2 requires one basic attack, a damageable target, and a single combat interface.
+  The attack type was undecided (Q4: melee vs ranged). The hit detection mechanism needed to avoid
+  self-hits, be testable headless, and stay server-authoritative-ready for M4.
+- **Decision:**
+  1. **Melee-first** — resolve Q4 as melee. The player swings in a short-range arc in front.
+  2. **Reusable `Health` component** (`scripts/combat/health.gd`, `class_name Health`) — a plain
+     `Node` added as a child of any damageable scene. Stores HP, clamps at 0, emits
+     `health_changed(current, max)` and `died`. No dependencies on the parent's type.
+  3. **Group + physics-layer dual filter** — damageable roots join group `"damageable"` AND sit on
+     physics layer 3 (bitmask 4). The attack hitbox Area3D uses `collision_mask = 4` (detects only
+     layer 3) and additionally checks `is_in_group("damageable")` in code. The player's own body
+     (layer 2) is never detected.
+  4. **Sphere Area3D + code arc filter** — an `AttackHitbox (Area3D)` with a `SphereShape3D` of
+     radius = `attack_range` (default 2.0 m) is always monitoring. On attack, the script queries
+     `get_overlapping_bodies()` and rejects bodies outside `attack_arc_deg / 2` of the CameraPivot's
+     forward direction (XZ-plane projection). This avoids needing to rotate the hitbox or parent it
+     to the camera.
+  5. **Cooldown via delta accumulation** — `_cooldown_remaining` decremented in `_physics_process`.
+     No Timer node needed; deterministic and trivially testable.
+  6. **Damage source = the Player node** — `apply_damage(amount, get_parent())` passes the
+     CharacterBody3D, not the Area3D. In M4, the server identifies the attacker by this reference.
+- **Rationale:**
+  - Melee is simpler to validate (no projectile lifetime/travel), satisfies the FOUNDATION spec
+    ("basic attack"), and keeps scope minimal.
+  - Health-as-child-node is reusable across all damageable entities (players, dummies, destructibles)
+    without inheritance or mixins.
+  - Sphere + code arc avoids fragile hitbox rotation/parenting while remaining physically correct.
+  - Layer separation guarantees the player never self-hits; group check is a semantic safety net.
+  - Delta-accumulation cooldown is frame-rate independent and works in headless tests with
+    `Input.action_press("attack")`.
+  - All tunables are `@export` — configurable in Inspector or by Resource override for M4.
+- **Status:** Adopted (2026-10-15). Supersedes Q4 temporary assumption.
+
+---
+
+## ADR-0008 — Melee range enforced centre-to-centre (QA finding DEF-3)
+- **Context:** QA (`combat_smoke_test.gd`) found that attack range was enforced only by the
+  hit-sphere radius, so effective reach = `attack_range + the target's own half-extent`. A dummy
+  whose centre was 2.2 m away (beyond the documented 2.0 m `attack_range`) still took damage. That
+  makes reach depend on target size and undermines the deterministic server-side re-validation
+  planned for M4.
+- **Decision:** Add an explicit centre-to-centre gate in `melee_attacker._perform_attack()`:
+  `if to_body.length() > attack_range: continue`, reusing the existing XZ offset vector. The sphere
+  `Area3D` stays as the broad-phase overlap query; the code gate makes `attack_range` mean metres
+  from the attacker's origin to the target's origin, independent of target size.
+- **Rationale:** Matches the documented "attack_range in metres" semantics, keeps reach consistent
+  across differently-sized targets, and makes the hit rule trivially reproducible on a server.
+- **Status:** Adopted (2026-10-15). Verified: DIAG `centre_distance_2.2m_took_damage=false`; all 6
+  combat test cases and the M1 movement regression still pass (exit 0).
+
+---
+
 ## Open Questions / Temporary Assumptions
 
 | # | Item | Temporary assumption | Revisit by |
@@ -82,11 +135,10 @@
 | Q1 | Exact Godot 4.x version | **Resolved: 4.7.2.stable.official.ed1daf0bf** | Done (M1) |
 | Q2 | Renderer (Forward+ vs Mobile) | **Resolved: Forward+** (`renderer/rendering_method="forward_plus"`) | Done (M1) |
 | Q3 | Arena size | ~30m × 30m box | M1 tuning |
-| Q4 | Melee vs ranged combat focus | Melee-first, undecided | Before M2 |
+| Q4 | Melee vs ranged combat focus | **Resolved: Melee-first** (ADR-0007) | Done (M2) |
 | Q5 | Match objective (TDM vs objective) | Team-deathmatch placeholder | Before M3/M5 |
 | Q6 | Art direction / visual style | Placeholder shapes | M6 |
 | Q7 | `FOUNDATION_INSTRUCTIONS.md` location | Left at project root (doc text refers to `docs/`); not moved without approval | On approval |
 | Q8 | Git init timing | Deferred until user approves | On approval |
 
-> None of Q1–Q8 block writing the Milestone 1 **plan**. Q1/Q2 must be resolved before M1 code is
-> verified in-editor.
+> Q1–Q4 are resolved. Q5 must be decided before M3 design begins.

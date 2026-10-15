@@ -1,14 +1,18 @@
-[gd_scene load_steps=4 format=3]
+[gd_scene load_steps=5 format=3 uid="uid://7o7388hjwtlh"]
 
 [ext_resource type="PackedScene" path="res://scenes/arena/Arena.tscn" id="1_arena"]
 [ext_resource type="PackedScene" path="res://scenes/characters/Player.tscn" id="2_player"]
 [ext_resource type="PackedScene" path="res://scenes/ui/HUD.tscn" id="3_hud"]
+[ext_resource type="PackedScene" path="res://scenes/targets/DummyTarget.tscn" id="4_dummy"]
 
-[node name="Main" type="Node3D"]
+[node name="Main" type="Node3D" unique_id=166739296]
 
-[node name="Arena" parent="." instance=ExtResource("1_arena")]
+[node name="Arena" parent="." unique_id=1691548677 instance=ExtResource("1_arena")]
 
-[node name="Player" parent="." instance=ExtResource("2_player")]
+[node name="Player" parent="." unique_id=694163127 instance=ExtResource("2_player")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1, 0)
 
-[node name="HUD" parent="." instance=ExtResource("3_hud")]
+[node name="HUD" parent="." unique_id=638088544 instance=ExtResource("3_hud")]
+
+[node name="DummyTarget" parent="." instance=ExtResource("4_dummy")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1, -4)
