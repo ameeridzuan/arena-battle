@@ -6,7 +6,7 @@ foundation first.
 
 > **Status (2026-10-16):** M1 movement and M2 melee combat are implemented. Approved M3
 > local team deathmatch is implemented and headless-verified; manual HUD/feel acceptance
-> checks remain pending. Multiplayer (M4+) has not started. See
+> checks were accepted by the owner on 2026-10-16. M4 two-client PoC is implemented and automatically verified; manual multiplayer acceptance is pending. See
 > [`docs/DEVELOPMENT_ROADMAP.md`](docs/DEVELOPMENT_ROADMAP.md).
 
 ---
@@ -161,3 +161,21 @@ A task is complete only when the behaviour is implemented **and tested**, change
 decisions are documented, the project runs (or blockers are reported), and acceptance
 criteria are checked. Unverified features are never reported as passing. See
 [`docs/AGENT_RULES.md`](docs/AGENT_RULES.md).
+
+### M3 follow-up: player hit feedback and health bar
+
+Left-click shows a brief cyan attack arc (also on misses); taking damage flashes the
+player red with a light view tint. Bottom-left HP text and a health bar track damage,
+death (zero HP) and restored health on respawn. These are placeholder visuals before M4;
+polished animation/effects remain M6/M7. F5 visual acceptance is still required.
+
+### M4 two-client multiplayer proof of concept
+
+Owner accepted M3 and its player feedback/health HUD on 2026-10-16. A separate
+`scenes/multiplayer/MultiplayerArena.tscn` adds a local server and two clients. Run
+`.\tools\start_multiplayer.ps1` from PowerShell in this folder to open both game windows.
+Close both windows to stop the local server. F5/Main.tscn continues to run the local game.
+
+The server controls movement, hits, HP, respawn, scoring and match results. This is a
+loopback proof of concept; manual two-client acceptance remains pending. See
+`docs/M4_MULTIPLAYER_PLAN.md` for setup, tests and latency/packet-loss limitations.

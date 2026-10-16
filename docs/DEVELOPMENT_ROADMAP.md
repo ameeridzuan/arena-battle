@@ -1,7 +1,7 @@
 # Development Roadmap — ArenaBattle
 
 > Milestone 0 document. Complete and verify each milestone before starting the next.
-> Current position (2026-10-16): **M2 headless-verified; approved M3 implemented and headless-verified. Manual HUD/feel acceptance remains pending.**
+> Current position (2026-10-16): **M3 including player feedback/health HUD manually accepted by owner on 2026-10-16. M4 two-client PoC is implemented and automatically verified; manual multiplayer acceptance is pending.**
 
 ## Environment Gate (resolved)
 
@@ -133,7 +133,7 @@ confirmed by the user in the editor.*
 
 ---
 
-### M3 — Local Gameplay Loop (approved; headless-verified, manual acceptance pending)
+### M3 — Local Gameplay Loop ✅ (owner accepted 2026-10-16)
 
 > **Spec:** See `TECHNICAL_ARCHITECTURE.md` §3.5–3.9, §4.3–4.4, §6.5–6.10, §7 (M3 rows), §10 (M3
 > table) and `DECISIONS.md` ADR-0010.
@@ -190,7 +190,7 @@ The runtime opponent-facing regression passes with the existing authored scene t
 AC-M3-1–10 and AC-M3-15–17 have automated evidence. Code review verified component separation
 and exported gameplay tunables (AC-M3-13/14). HUD text/state assertions supplement testing,
 but visual score/countdown presentation (AC-M3-11), result presentation (AC-M3-12) and play
-feel still require manual F5 acceptance. **Full M3 remains open until those checks pass.**
+feel still require manual F5 acceptance. **Historical gate: owner subsequently reported “all works well” on 2026-10-16 and authorized the next task; M3 and the feedback/health HUD follow-up are accepted.**
 
 #### Acceptance criteria
 
@@ -303,12 +303,46 @@ code untouched), `scripts/player/camera_rig.gd`.
 
 ---
 
-### M4 — Multiplayer PoC (2 clients)
-- Research current Godot multiplayer APIs; host/client responsibilities; sync spawning +
-  minimal state; server validates damage/health/respawn/score/victory; handle disconnects &
-  invalid requests; test latency; document limitations.
+### M3 follow-up — Basic combat feedback & player health HUD ✅ (owner accepted 2026-10-16)
 
-**Acceptance:** two clients join one match with consistent, server-validated gameplay.
+This small presentation follow-up is required before M4. It extends the original M3
+placeholder-only scope; M6/M7 still own polished animation, sound and effects.
+
+- Player attack: show a brief cyan arc in the attack direction for each accepted swing,
+  including a miss; cooldown-blocked input must not create another swipe.
+- Player hurt: flash the player mesh red and briefly tint the view on an actual HP decrease.
+- Show a bottom-left player health bar and current/max HP. Track damage through zero HP
+  during death, then restore the display on respawn; do not flash on health restoration.
+- Keep feedback in a presentation component/HUD, with no changes to damage, movement,
+  cooldowns, scoring or respawn rules. M4 will bind HUD to the owning peer's replicated Health.
+- Automated gate: feedback/HUD integration checks plus M1/M2/M3 regressions.
+- Manual gate: F5 verifies swipe direction/readability, hurt flash/tint, HP readability,
+  death/respawn presentation and the existing score/result checks.
+
+**Health-bar plan check:** no later milestone explicitly required a health bar; M7 listed only
+general HUD work. This follow-up makes the baseline player health bar explicit now.
+Opponent overhead health bars are not included in this request.
+
+### M4 — Multiplayer PoC (2 clients; automatically verified, owner playtest pending)
+
+Owner authorized the next task after accepting M3 on 2026-10-16. Scope: one local server
+process and two ENet clients, in a separate `MultiplayerArena.tscn`. Existing Main.tscn
+continues to run the accepted local game. See `M4_MULTIPLAYER_PLAN.md` and ADR-0011.
+
+- Server assigns one player per team, starts only when both clients register, and runs
+  movement/collision, range/arc/cooldown hit validation, health, death/respawn and TDM.
+- Clients send bounded control intents tagged with sequence numbers. No client position,
+  health, damage, score, team assignment or win reports are accepted.
+- Snapshot replication includes both players, local HP HUD, attacks, death visibility,
+  score, timer and result. Remote cameras do not consume local input.
+- Reject malformed/replayed input; enforce a per-peer input budget and stale-input stop.
+- Remove disconnected players; terminate a running session on disconnect; report connection
+  failure/server loss. Restart processes for a fresh match (no reconnect/lobby flow yet).
+- Verify two real client processes, delayed controls, simultaneous actions and failure paths.
+
+**Acceptance:** automated native import, multiplayer integration and M1–M3 regressions;
+then owner two-window playtest of controls, health, combat, score/results and disconnects.
+Manual multiplayer acceptance remains pending. M5 does not start before acceptance.
 
 ### M5 — 4v4 Match Foundation
 - 8-player limit; two teams of four; team spawn points; match start/timer/score/end; test with
@@ -334,10 +368,7 @@ code untouched), `scripts/player/camera_rig.gd`.
 
 ## Immediate Next Steps
 
-1. **Manual F5 playtest:** verify score/countdown readability and updates (AC-M3-11), all
-   result labels (AC-M3-12), and camera/movement/melee feel, including M2 hit feedback.
-2. Retain the verified checkpoint locally; remote push remains a separate owner decision.
-   Do not mark full M3 complete until manual acceptance passes.
-3. Start fresh matches by stopping and running the main scene again (F5). Manager-only
-   `start_match()` re-entry does not reset Combatant end-state latches and is unsupported.
-4. Plan M4 only after the local loop is accepted; no networking is included in this checkpoint.
+1. Automated M4 import/networking/regression and rendered checks passed; see tests/M4_QA_REPORT.md.
+2. Owner two-window multiplayer playtest using `tools/start_multiplayer.ps1`.
+3. Retain local changes for review; pushing requires separate owner authorization.
+4. Plan M5 only after M4 acceptance; 4v4 and online hosting are out of scope here.

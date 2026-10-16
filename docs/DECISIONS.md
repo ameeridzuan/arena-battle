@@ -202,6 +202,23 @@
 
 ---
 
+## ADR-0011 — M4: separate loopback server, bounded controls and server-owned snapshots
+
+- **Context:** Owner accepted M3 including feedback/HP HUD and authorized the next task
+  on 2026-10-16. M4 needs two real clients, server validation and failure handling.
+- **Decision:** ENet; one headless local server and two clients. Bind server to loopback,
+  retain authority 1, derive player identity from RPC sender. Send bounded controls,
+  simulate movement/attacks server-side and replicate outcomes at 20Hz. Keep M3 Main.tscn;
+  use a separate MultiplayerArena scene and client display model. Start only after two
+  registrations, stop on a running-peer disconnect. Reuse Health/Combatant/MatchManager.
+- **Reason:** This gives a single place for gameplay authority without client transform
+  trust, while preserving the accepted local scene and avoiding premature M5/M8 scope.
+- **Limits:** No prediction/interpolation/lag compensation; transient action edges share
+  unreliable control packets. Restart processes for a fresh match. See M4 plan for tests.
+- **Status:** Implemented and automatically verified; manual multiplayer acceptance pending.
+
+---
+
 ## Open Questions / Temporary Assumptions
 
 | # | Item | Temporary assumption | Revisit by |

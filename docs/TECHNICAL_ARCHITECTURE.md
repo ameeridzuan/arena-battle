@@ -829,3 +829,31 @@ M2 design choices that keep the door open for server-authoritative multiplayer:
 - **M3 dependency — spawn-point groups:** Arena.tscn markers must join the correct groups before
   combatant.gd can resolve spawn positions. If a group is empty, `_spawn_point` is null and
   respawn occurs in place (safe fallback, logged as warning).
+
+## M3 follow-up — player presentation and health HUD (2026-10-16)
+
+`Player/PlayerFeedback` owns the temporary swipe mesh and player hurt material. It listens
+to `AttackHitbox.attack_started(forward)` and `Health.health_changed(current, maximum)`.
+The attacker emits the presentation signal once per accepted swing, including misses;
+hit rules and cooldowns remain in the attack component. Feedback never writes health.
+The swipe radius/arc come from attack configuration; durations/colors are exported.
+
+HUD binds the local player's Health through exported `player_health_path`, initially
+`../Player/Health`. It initializes from current HP, then displays health changes, zero HP
+on death and restored HP on respawn. It also fades a non-interactive red view tint on
+damage. The bar and numeric label anchor to the lower-left viewport corner. In M4, bind
+the owning peer's replicated Health; do not choose the first arbitrary combatant.
+M6/M7 can replace placeholder presentation while preserving these event hooks.
+
+## M4 — local server/client session
+
+`MultiplayerArena.tscn` owns Arena and Players. Its `network_session.gd` creates the
+server MatchManager or client ReplicaMatchState and HUD. It owns ENet/RPC lifecycle,
+registration, sender-bound input validation, authoritative control dispatch and snapshots.
+PlayerController external control reuses the local movement calculation; CameraPivot's
+input is enabled only on the owning client's replica. AttackHitbox external control
+reuses existing cooldown/range/arc checks; Health.network_replica prevents local damage
+and reset calls. Client Combatant nodes are removed before ready so replicas cannot run
+death attribution or respawn timers. Server Combatants retain the accepted lifecycle.
+HUD.bind_health supports late-spawned local player binding. The local M3 defaults remain
+unchanged. Full interfaces, channel choices, acceptance and limitations: M4_MULTIPLAYER_PLAN.md.

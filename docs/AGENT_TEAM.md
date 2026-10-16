@@ -14,8 +14,9 @@
 
 - **Product:** 3D third-person 4v4 battle arena (Godot 4.7.2 + GDScript), Windows-first, server-authoritative.
 - **Current state (2026-10-16):** M1 movement and M2 combat are implemented; approved M3 local
-  gameplay loop is implemented and headless-verified. Manual HUD/feel acceptance remains pending.
-  Next after acceptance: M4 multiplayer PoC, M5 4v4, M6 art, M7 content, M8 online.
+  gameplay loop and feedback/HP follow-up were accepted by the owner on 2026-10-16.
+  M4 multiplayer PoC is automatically verified; owner multiplayer acceptance gates M5.
+  Later: M5 4v4, M6 art, M7 content, M8 online.
 - **Objective of the team:** deliver each milestone to its acceptance criteria with clean separation of
   concerns, verified quality, and no premature/untested complexity.
 - **Constraints:** solo developer + AI agents; lean coordination overhead; strict file-safety & security rules;
@@ -189,6 +190,12 @@ folder (`architect.md`, `gameplay-developer.md` and `qa-engineer.md`) were loade
 their existing responsibilities. Architect owns docs, Gameplay owns scenes/scripts and targeted
 fixes, and QA owns tests/evidence. No model defaults or persistent agent configuration were changed.
 
-**Current next actions:** review the headless-verified M3 diff, and retain manual
-F5 HUD/feel acceptance as an outstanding gate. Start M4 only after local acceptance. Push requires
+**Current next actions:** owner accepted M3 and authorized M4. Playtest the verified
+M4 two-client scene with tools/start_multiplayer.ps1. Start M5 only after M4 acceptance. Push requires
 the owner's separate authorization.
+
+### M4 checkpoint — 2026-10-16
+
+Owner accepted M3 + basic feedback/HP HUD and authorized the next task. M4 now implements
+a separate local ENet server/two-client scene. Interfaces and QA are in M4_MULTIPLAYER_PLAN.md;
+manual multiplayer acceptance gates M5. No remote push is authorized by this checkpoint.

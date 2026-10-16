@@ -77,3 +77,9 @@ Each M3 case uses a fresh authored Main scene. Scene setup, overlap settlement a
 - No networking, asset pipeline or later milestone is claimed tested.
 
 The null-source test intentionally emits the documented no-source/no-score warning; any unrelated error or warning must be investigated rather than hidden behind a zero exit code.
+
+## Owner acceptance — 2026-10-16
+
+After the feedback/HP HUD follow-up, the owner reported “all works well” and authorized
+the next task. M3 manual acceptance is recorded; M4 may proceed. Earlier pending-gate
+entries above are the historical evidence before owner acceptance.

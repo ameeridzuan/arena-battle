@@ -7,6 +7,8 @@ extends Node3D
 ##
 ## Esc toggles mouse capture so the cursor can be released/re-captured.
 
+@export var local_input_enabled: bool = true
+
 @export var look_sensitivity_deg: float = 0.15  # degrees of rotation per pixel of mouse motion
 @export var pitch_min_deg: float = -55.0         # look-down limit
 @export var pitch_max_deg: float = 60.0          # look-up limit
@@ -17,10 +19,13 @@ var _pitch_deg: float = 0.0
 
 
 func _ready() -> void:
-	Input.mouse_mode = Input.MOUSE_MODE_CAPTURED
+	if local_input_enabled:
+		Input.mouse_mode = Input.MOUSE_MODE_CAPTURED
 
 
 func _unhandled_input(event: InputEvent) -> void:
+	if not local_input_enabled:
+		return
 	if event is InputEventMouseMotion and Input.mouse_mode == Input.MOUSE_MODE_CAPTURED:
 		rotation_degrees.y -= event.relative.x * look_sensitivity_deg
 		_pitch_deg = clampf(

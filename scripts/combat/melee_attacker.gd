@@ -10,6 +10,9 @@ extends Area3D
 ##
 ## All tunables are exported — no magic numbers.
 
+## Presentation hook: emitted once per accepted swing, including misses.
+signal attack_started(forward: Vector3)
+
 @export var attack_damage: float = 25.0
 @export var attack_range: float = 2.0
 @export var attack_cooldown: float = 0.6
@@ -17,6 +20,9 @@ extends Area3D
 ## When true, attacks every [member attack_cooldown] seconds without reading Input
 ## (used by the static M3 opponents).  When false, the "attack" action is required.
 @export var auto_attack: bool = false
+@export var external_control: bool = false
+## Network team matches disable friendly damage; preserve local prototype defaults.
+@export var friendly_fire: bool = true
 @export var aim_reference_path: NodePath = ^"../CameraPivot"
 
 var _cooldown_remaining: float = 0.0
@@ -39,11 +45,20 @@ func _ready() -> void:
 
 func _physics_process(delta: float) -> void:
 	_cooldown_remaining -= delta
-	if _cooldown_remaining <= 0.0:
+	if not external_control and _cooldown_remaining <= 0.0:
 		# Short-circuit: with auto_attack the Input action is never read (server-safe).
 		if auto_attack or Input.is_action_just_pressed("attack"):
 			_cooldown_remaining = attack_cooldown
 			_perform_attack()
+
+
+## Server-side request uses the same cooldown and hit-validation path as local attacks.
+func request_attack() -> bool:
+	if not is_physics_processing() or _cooldown_remaining > 0.0:
+		return false
+	_cooldown_remaining = attack_cooldown
+	_perform_attack()
+	return true
 
 
 func _perform_attack() -> void:
@@ -53,12 +68,20 @@ func _perform_attack() -> void:
 	if forward.length_squared() < 0.0001:
 		return
 	forward = forward.normalized()
+	attack_started.emit(forward)
 
 	var half_arc_rad := deg_to_rad(attack_arc_deg * 0.5)
 
 	for body in get_overlapping_bodies():
-		if not body.is_in_group("damageable"):
+		if not is_physics_processing():
+			break
+		if body == _owner_body or not body.is_in_group("damageable"):
 			continue
+		if not friendly_fire:
+			var source_team := _owner_body.get_node_or_null("Combatant")
+			var target_team := body.get_node_or_null("Combatant")
+			if source_team != null and target_team != null and source_team.team_id == target_team.team_id:
+				continue
 		# XZ vector from this hitbox to the target body.
 		var to_body := Vector3(
 			body.global_position.x - global_position.x,

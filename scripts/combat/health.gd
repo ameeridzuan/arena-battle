@@ -9,6 +9,9 @@ extends Node
 signal health_changed(current: float, maximum: float)
 signal died()
 
+## Replicas only receive state through the session authority RPC.
+@export var network_replica: bool = false
+
 @export var max_health: float = 100.0
 
 var _current: float = 0.0
@@ -26,7 +29,7 @@ func _ready() -> void:
 ## [param source] is the owning character node that dealt the damage (recorded in
 ## [member last_damage_source] for Milestone 3 kill attribution).
 func apply_damage(amount: float, source: Node) -> void:
-	if _current <= 0.0:
+	if network_replica or _current <= 0.0:
 		return
 	last_damage_source = source
 	_current = maxf(0.0, _current - amount)
@@ -43,6 +46,20 @@ func get_health() -> float:
 ## Named `reset()` deliberately: not `heal()` (partial restore, a future ability) and
 ## not `revive()` (a lifecycle concept owned by `combatant.gd`).  See ADR-0010 / §6.5.
 func reset() -> void:
+	if network_replica:
+		return
 	_current = max_health
 	last_damage_source = null
+	health_changed.emit(_current, max_health)
+
+
+## Presentation-only state application. Not an RPC; server-owned session is the caller.
+func apply_network_state(current: float, maximum: float) -> void:
+	if not network_replica:
+		return
+	var next := clampf(current, 0.0, maximum)
+	if is_equal_approx(next, _current) and is_equal_approx(maximum, max_health):
+		return
+	max_health = maximum
+	_current = next
 	health_changed.emit(_current, max_health)

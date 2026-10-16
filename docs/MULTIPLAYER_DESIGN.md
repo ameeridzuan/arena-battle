@@ -1,8 +1,7 @@
 # Multiplayer Design — ArenaBattle
 
-> Milestone 0 design placeholder. **Networking is out of scope until the local gameplay loop
-> (Milestone 3) is stable.** This document fixes the architecture direction early so gameplay
-> code is written network-ready, without implementing it yet.
+> M3 was manually accepted on 2026-10-16. M4 implementation follows the server-authoritative
+> direction below; see `M4_MULTIPLAYER_PLAN.md` for current interfaces, checks and limitations.
 
 ## 1. Model: Server-Authoritative
 
@@ -59,3 +58,11 @@ but must never replace server validation.
 - Transport choice (ENet vs WebSocket vs WebRTC) — decide at M4.
 - Hosting model for PoC (listen server on one client vs dedicated process).
 - Tick rate and bandwidth budget — decide at M4/M5.
+
+## M4 implementation — 2026-10-16
+
+ENet with a separate headless loopback server and two clients; server retains authority
+over all nodes, simulates movement and runs existing combat/match components. Controls
+are validated by sender, sequence, finite bounds, rate and freshness. Clients have only
+replicated display state. Snapshot rate 20Hz, physics/input 60Hz. See ADR-0011 and
+M4_MULTIPLAYER_PLAN.md. 4v4 and online readiness remain M5/M8.

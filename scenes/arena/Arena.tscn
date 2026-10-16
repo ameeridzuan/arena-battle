@@ -101,3 +101,18 @@ transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 6, 1, 6)
 
 [node name="SpawnB2" type="Marker3D" parent="SpawnPoints" groups=["spawn_team_1"]]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 8, 1, 4)
+
+[node name="SpawnA2" type="Marker3D" parent="SpawnPoints" groups=["spawn_team_0"]]
+position = Vector3(-8, 1, -4)
+
+[node name="SpawnA3" type="Marker3D" parent="SpawnPoints" groups=["spawn_team_0"]]
+position = Vector3(-4, 1, -8)
+
+[node name="SpawnA4" type="Marker3D" parent="SpawnPoints" groups=["spawn_team_0"]]
+position = Vector3(-9, 1, -8)
+
+[node name="SpawnB3" type="Marker3D" parent="SpawnPoints" groups=["spawn_team_1"]]
+position = Vector3(4, 1, 8)
+
+[node name="SpawnB4" type="Marker3D" parent="SpawnPoints" groups=["spawn_team_1"]]
+position = Vector3(9, 1, 8)

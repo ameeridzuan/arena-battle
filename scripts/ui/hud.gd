@@ -1,7 +1,7 @@
 extends CanvasLayer
 ## Milestone 3 — HUD display layer (docs/TECHNICAL_ARCHITECTURE.md §3.9, §4.3).
 ##
-## PURE DISPLAY: it reads MatchManager state and writes Label text.  It contains no game
+## PURE DISPLAY: reads MatchManager/Health state and updates labels, bar and damage tint.  It contains no game
 ## rules, no scoring, no scene-tree shortcuts — in M4 it stays client-side and is driven by
 ## replicated state (AC-M3-13).
 ##
@@ -23,6 +23,18 @@ const CLOCK_FORMAT := "%d:%02d"
 @export var timer_label_path: NodePath = ^"TimerLabel"
 @export var result_label_path: NodePath = ^"ResultLabel"
 
+## Explicit local-player binding; M4 must bind this to the owning peer's player.
+@export var player_health_path: NodePath = ^"../Player/Health"
+@export var damage_tint_duration: float = 0.18
+@export var damage_tint_alpha: float = 0.12
+
+var _health: Health
+var _health_bar: ProgressBar
+var _health_label: Label
+var _damage_tint: ColorRect
+var _last_health: float = 0.0
+var _tint_remaining: float = 0.0
+
 var _match_manager: Node
 var _score_label: Label
 var _timer_label: Label
@@ -33,6 +45,11 @@ func _ready() -> void:
 	_score_label = get_node_or_null(score_label_path) as Label
 	_timer_label = get_node_or_null(timer_label_path) as Label
 	_result_label = get_node_or_null(result_label_path) as Label
+
+	_health_bar = get_node_or_null("HealthBar") as ProgressBar
+	_health_label = get_node_or_null("HealthLabel") as Label
+	_damage_tint = get_node_or_null("DamageTint") as ColorRect
+	bind_health(get_node_or_null(player_health_path) as Health)
 
 	_match_manager = get_tree().get_first_node_in_group(MATCH_MANAGER_GROUP)
 	if _match_manager == null:
@@ -47,8 +64,24 @@ func _ready() -> void:
 	_refresh_timer()
 
 
-func _process(_delta: float) -> void:
+func _process(delta: float) -> void:
 	_refresh_timer()
+	_tint_remaining = maxf(0.0, _tint_remaining - delta)
+	if _damage_tint:
+		_damage_tint.color.a = damage_tint_alpha * _tint_remaining / maxf(damage_tint_duration, 0.01)
+
+
+func _on_health_changed(current: float, maximum: float) -> void:
+	if current < _last_health:
+		_tint_remaining = maxf(damage_tint_duration, 0.01)
+	elif current > _last_health:
+		_tint_remaining = 0.0
+	_last_health = current
+	if _health_bar:
+		_health_bar.max_value = maxf(maximum, 1.0)
+		_health_bar.value = current
+	if _health_label:
+		_health_label.text = "HP: %d / %d" % [ceili(current), ceili(maximum)]
 
 
 # --- Signal handlers -----------------------------------------------------------------
@@ -111,3 +144,19 @@ func _result_text(winner: int) -> String:
 	if winner == WINNER_DRAW:
 		return "DRAW"
 	return "MATCH OVER"
+
+
+## Local player can spawn after HUD _ready in a network session.
+func bind_health(health: Health) -> void:
+	if is_instance_valid(_health) and _health.health_changed.is_connected(_on_health_changed):
+		_health.health_changed.disconnect(_on_health_changed)
+	_health = health
+	_tint_remaining = 0.0
+	if _health_bar:
+		_health_bar.visible = _health != null
+	if _health_label:
+		_health_label.visible = _health != null
+	if _health:
+		_last_health = _health.get_health()
+		_health.health_changed.connect(_on_health_changed)
+		_on_health_changed(_last_health, _health.max_health)

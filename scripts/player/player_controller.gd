@@ -8,10 +8,13 @@ extends CharacterBody3D
 ## Milestone 3 adds ONLY the combat-interface contract (group "damageable" +
 ## apply_damage()/get_health() delegates to the child Health node) so enemy hitboxes can
 ## damage the player.  Respawn/team logic lives in the Combatant child; attack logic lives
-## in AttackHitbox; networking is still out (M4).  No movement logic was touched.
+## in AttackHitbox. M4 supplies validated external controls through the same movement helpers.
 ##
 ## Tunables are exported so they can be adjusted in the Inspector without editing code
 ## (no unexplained magic numbers — see docs/TECHNICAL_ARCHITECTURE.md).
+
+## M4: server supplies validated controls; replicas never simulate movement.
+@export var external_control: bool = false
 
 @export_group("Movement")
 @export var walk_speed: float = 6.0        # m/s
@@ -35,13 +38,25 @@ func _ready() -> void:
 
 
 func _physics_process(delta: float) -> void:
+	if external_control:
+		return
+	_simulate_movement(delta, _camera_relative_input(), Input.is_action_pressed("run"),
+		Input.is_action_just_pressed("jump"))
+
+
+## Called only by the authoritative session, with bounded input (never client positions).
+func simulate_network_input(delta: float, movement: Vector2, yaw: float,
+		running: bool, jump_pressed: bool) -> void:
+	_camera_pivot.rotation.y = yaw
+	var direction := Vector3(movement.x, 0.0, movement.y).rotated(Vector3.UP, yaw)
+	_simulate_movement(delta, direction, running, jump_pressed)
+
+
+func _simulate_movement(delta: float, direction: Vector3, running: bool, jump_pressed: bool) -> void:
 	_apply_gravity(delta)
-
-	var move_dir := _camera_relative_input()
-	var speed := run_speed if Input.is_action_pressed("run") else walk_speed
-	_apply_horizontal_movement(move_dir, speed, delta)
-	_handle_jump()
-
+	_apply_horizontal_movement(direction, run_speed if running else walk_speed, delta)
+	if jump_pressed and is_on_floor():
+		velocity.y = jump_velocity
 	move_and_slide()
 	_face_movement_direction(delta)
 

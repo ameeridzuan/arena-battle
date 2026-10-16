@@ -1,6 +1,6 @@
-[gd_scene load_steps=6 format=3 uid="uid://7o7388hjwtlh"]
+[gd_scene format=3 uid="uid://7o7388hjwtlh"]
 
-[ext_resource type="Script" path="res://scripts/match/match_manager.gd" id="1_mm"]
+[ext_resource type="Script" uid="uid://btgcowg5fphmr" path="res://scripts/match/match_manager.gd" id="1_mm"]
 [ext_resource type="PackedScene" path="res://scenes/arena/Arena.tscn" id="2_arena"]
 [ext_resource type="PackedScene" path="res://scenes/characters/Player.tscn" id="3_player"]
 [ext_resource type="PackedScene" path="res://scenes/targets/DummyTarget.tscn" id="4_dummy"]
@@ -8,24 +8,18 @@
 
 [node name="Main" type="Node3D" unique_id=166739296]
 
-[node name="MatchManager" type="Node" parent="."]
+[node name="MatchManager" type="Node" parent="." unique_id=285167135]
 script = ExtResource("1_mm")
-score_limit = 5
-time_limit = 180.0
-auto_start = true
 
 [node name="Arena" parent="." unique_id=1691548677 instance=ExtResource("2_arena")]
 
 [node name="Player" parent="." unique_id=694163127 instance=ExtResource("3_player")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -6, 1, -6)
 
-[node name="Opponent1" parent="." instance=ExtResource("4_dummy")]
+[node name="Opponent1" parent="." unique_id=1737940627 instance=ExtResource("4_dummy")]
 transform = Transform3D(0.707107, 0, 0.707107, 0, 1, 0, -0.707107, 0, 0.707107, 6, 1, 6)
 
-[node name="Combatant" parent="Opponent1" index="3"]
-spawn_index = 0
-
-[node name="Opponent2" parent="." instance=ExtResource("4_dummy")]
+[node name="Opponent2" parent="." unique_id=452618460 instance=ExtResource("4_dummy")]
 transform = Transform3D(0.447214, 0, 0.894427, 0, 1, 0, -0.894427, 0, 0.447214, 8, 1, 4)
 
 [node name="Combatant" parent="Opponent2" index="3"]

@@ -1,10 +1,12 @@
-[gd_scene load_steps=9 format=3]
+[gd_scene load_steps=10 format=3]
 
 [ext_resource type="Script" path="res://scripts/player/player_controller.gd" id="1_pc"]
 [ext_resource type="Script" path="res://scripts/player/camera_rig.gd" id="2_cr"]
 [ext_resource type="Script" path="res://scripts/combat/melee_attacker.gd" id="3_ma"]
 [ext_resource type="Script" path="res://scripts/combat/health.gd" id="4_h"]
 [ext_resource type="Script" path="res://scripts/combat/combatant.gd" id="5_cb"]
+
+[ext_resource type="Script" path="res://scripts/player/player_feedback.gd" id="6_feedback"]
 
 [sub_resource type="CapsuleMesh" id="body_mesh"]
 radius = 0.5
@@ -57,3 +59,6 @@ script = ExtResource("5_cb")
 team_id = 0
 respawn_delay = 3.0
 spawn_index = 0
+
+[node name="PlayerFeedback" type="Node3D" parent="."]
+script = ExtResource("6_feedback")
