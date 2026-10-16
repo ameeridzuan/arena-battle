@@ -99,3 +99,14 @@ theme_override_styles/background = SubResource("health_background")
 theme_override_styles/fill = SubResource("health_fill")
 value = 100.0
 show_percentage = false
+
+[node name="FacingLabel" type="Label" parent="."]
+offset_left = 16.0
+offset_top = 146.0
+offset_right = 560.0
+offset_bottom = 172.0
+theme_override_colors/font_shadow_color = Color(0, 0, 0, 1)
+theme_override_constants/shadow_offset_x = 2
+theme_override_constants/shadow_offset_y = 2
+mouse_filter = 2
+text = "Facing [V]: Attack-snap (C)"

@@ -16,6 +16,12 @@ extends CharacterBody3D
 ## M4: server supplies validated controls; replicas never simulate movement.
 @export var external_control: bool = false
 
+## M6 facing toggle (option B). When false (default, option C) the mesh faces the movement
+## direction and snaps to the aim only at the moment of a swing. When true the mesh always
+## faces the camera-aim direction. Single-player only: the toggle key is read in
+## _physics_process(), which networked replicas skip via the external_control early-return.
+@export var face_aim_always: bool = false
+
 @export_group("Movement")
 @export var walk_speed: float = 6.0        # m/s
 @export var run_speed: float = 10.0        # m/s while "run" is held
@@ -46,6 +52,8 @@ func _ready() -> void:
 func _physics_process(delta: float) -> void:
 	if external_control:
 		return
+	if Input.is_action_just_pressed("toggle_face_aim"):
+		face_aim_always = not face_aim_always
 	_simulate_movement(delta, _camera_relative_input(), Input.is_action_pressed("run"),
 		Input.is_action_just_pressed("jump"))
 
@@ -64,7 +72,7 @@ func _simulate_movement(delta: float, direction: Vector3, running: bool, jump_pr
 	if jump_pressed and is_on_floor():
 		velocity.y = jump_velocity
 	move_and_slide()
-	_face_movement_direction(delta)
+	_update_facing(delta)
 
 
 func _apply_gravity(delta: float) -> void:
@@ -120,6 +128,22 @@ func _face_movement_direction(delta: float) -> void:
 		_mesh.rotation.y = lerp_angle(
 			_mesh.rotation.y, target_yaw, clampf(turn_speed * delta, 0.0, 1.0)
 		)
+
+
+## Chooses the visual-facing rule: option B (always face the camera-aim) or option C (face the
+## movement direction; _on_attack_started snaps to aim at each swing).
+func _update_facing(delta: float) -> void:
+	if face_aim_always:
+		_face_aim_direction()
+	else:
+		_face_movement_direction(delta)
+
+
+## Option B: the mesh's local +Z (its front) tracks the camera-forward. The camera pivot's yaw
+## maps to the same world direction _on_attack_started snaps to (atan2 of the aim forward), so
+## facing and attack direction are always identical while this mode is on.
+func _face_aim_direction() -> void:
+	_mesh.rotation.y = _camera_pivot.rotation.y + PI
 
 
 ## M6 (attack-facing): turn the visual mesh to the swing's aim direction instantly, so the

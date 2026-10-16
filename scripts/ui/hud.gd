@@ -35,6 +35,11 @@ var _damage_tint: ColorRect
 var _last_health: float = 0.0
 var _tint_remaining: float = 0.0
 
+## M6 facing-mode indicator (single-player only). Bound to the local player's controller.
+var _facing_label: Label
+var _player_controller
+var _facing_mode_b: bool = false
+
 var _match_manager: Node
 var _score_label: Label
 var _timer_label: Label
@@ -49,6 +54,7 @@ func _ready() -> void:
 	_health_bar = get_node_or_null("HealthBar") as ProgressBar
 	_health_label = get_node_or_null("HealthLabel") as Label
 	_damage_tint = get_node_or_null("DamageTint") as ColorRect
+	_facing_label = get_node_or_null("FacingLabel") as Label
 	bind_health(get_node_or_null(player_health_path) as Health)
 
 	_match_manager = get_tree().get_first_node_in_group(MATCH_MANAGER_GROUP)
@@ -69,6 +75,7 @@ func _process(delta: float) -> void:
 	_tint_remaining = maxf(0.0, _tint_remaining - delta)
 	if _damage_tint:
 		_damage_tint.color.a = damage_tint_alpha * _tint_remaining / maxf(damage_tint_duration, 0.01)
+	_update_facing_label()
 
 
 func _on_health_changed(current: float, maximum: float) -> void:
@@ -152,6 +159,7 @@ func bind_health(health: Health) -> void:
 		_health.health_changed.disconnect(_on_health_changed)
 	_health = health
 	_tint_remaining = 0.0
+	_player_controller = _health.get_parent() if _health != null else null
 	if _health_bar:
 		_health_bar.visible = _health != null
 	if _health_label:
@@ -160,3 +168,23 @@ func bind_health(health: Health) -> void:
 		_last_health = _health.get_health()
 		_health.health_changed.connect(_on_health_changed)
 		_on_health_changed(_last_health, _health.max_health)
+	_update_facing_label()
+
+
+## Shows the current facing mode and the toggle key. Hidden for networked replicas
+## (external_control), where facing is server-driven and the toggle key is not read.
+func _update_facing_label() -> void:
+	if _facing_label == null:
+		return
+	if _player_controller == null:
+		_facing_label.visible = false
+		return
+	var external = _player_controller.get("external_control")
+	var mode = _player_controller.get("face_aim_always")
+	if external == null or mode == null or external:
+		_facing_label.visible = false
+		return
+	_facing_label.visible = true
+	if bool(mode) != _facing_mode_b:
+		_facing_mode_b = bool(mode)
+		_facing_label.text = "Facing [V]: Aim (B)" if _facing_mode_b else "Facing [V]: Attack-snap (C)"
