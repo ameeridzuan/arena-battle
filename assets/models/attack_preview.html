@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>ArenaBattle Player - Attack Animation Preview</title>
+<style>
+  body { margin:0; background:#1c1e22; color:#e8e8e8; font-family:system-ui,Segoe UI,Arial,sans-serif;
+         display:flex; flex-direction:column; align-items:center; justify-content:center; min-height:100vh; }
+  h1 { font-size:18px; font-weight:600; margin:12px 0 4px; }
+  p.sub { margin:0 0 14px; font-size:13px; color:#9aa0a6; }
+  canvas { background:#2a2d33; border:1px solid #3a3f47; border-radius:6px; image-rendering:auto; }
+  .bar { margin-top:12px; display:flex; gap:10px; align-items:center; }
+  button { background:#3a7bd5; border:0; color:#fff; padding:7px 16px; border-radius:5px; cursor:pointer; font-size:14px; }
+  button:hover { background:#4a8be5; }
+  input[type=range] { width:280px; }
+  #lbl { font-size:13px; color:#9aa0a6; min-width:90px; }
+</style>
+</head>
+<body>
+  <h1>Attack Animation &mdash; horizontal slash</h1>
+  <p class="sub">frames 1&ndash;26 @ 30fps (&asymp;0.87s) &middot; rest &rarr; wind-up right &rarr; sweep across &rarr; follow-through left &rarr; recover</p>
+  <canvas id="cv" width="640" height="360"></canvas>
+  <div class="bar">
+    <button id="play">Pause</button>
+    <input type="range" id="scrub" min="1" max="26" value="1" step="1">
+    <span id="lbl">frame 1 / 26</span>
+  </div>
+<script>
+const FIRST = 1, LAST = 26, FPS = 30;
+const cv = document.getElementById('cv'), ctx = cv.getContext('2d');
+const scrub = document.getElementById('scrub'), lbl = document.getElementById('lbl'), playBtn = document.getElementById('play');
+const imgs = {};
+for (let f = FIRST; f <= LAST; f++) {
+  const im = new Image();
+  im.src = 'preview_frames/frame_' + String(f).padStart(4,'0') + '.png';
+  imgs[f] = im;
+}
+let frame = FIRST, playing = true, acc = 0, prev = performance.now();
+function draw(f){
+  const im = imgs[f];
+  ctx.clearRect(0,0,cv.width,cv.height);
+  if (im.complete && im.naturalWidth) ctx.drawImage(im,0,0,cv.width,cv.height);
+  lbl.textContent = 'frame ' + f + ' / ' + LAST;
+  scrub.value = f;
+}
+function loop(now){
+  const dt = now - prev; prev = now;
+  if (playing) {
+    acc += dt;
+    const step = 1000/FPS;
+    while (acc >= step) { acc -= step; frame = frame >= LAST ? FIRST : frame+1; }
+  }
+  draw(frame);
+  requestAnimationFrame(loop);
+}
+playBtn.onclick = () => { playing = !playing; playBtn.textContent = playing ? 'Pause' : 'Play'; };
+scrub.oninput = () => { frame = parseInt(scrub.value,10); playing = false; playBtn.textContent='Play'; draw(frame); };
+requestAnimationFrame(loop);
+</script>
+</body>
+</html>
