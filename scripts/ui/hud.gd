@@ -171,7 +171,7 @@ func bind_health(health: Health) -> void:
 	_update_facing_label()
 
 
-## Shows the current camera mode (A = free mouse-look, B = locked behind the character) and the
+## Shows the current camera mode (A = free mouse-look, B = over-the-shoulder aim) and the
 ## toggle key. Hidden for networked replicas (external_control), where the camera is server-driven
 ## and the toggle key is not read.
 func _update_facing_label() -> void:
@@ -188,4 +188,4 @@ func _update_facing_label() -> void:
 	_facing_label.visible = true
 	if bool(mode) != _camera_lock_b:
 		_camera_lock_b = bool(mode)
-		_facing_label.text = "Camera [V]: Locked (B)" if _camera_lock_b else "Camera [V]: Free-look (A)"
+		_facing_label.text = "Camera [V]: Aim (B)" if _camera_lock_b else "Camera [V]: Free-look (A)"

@@ -16,15 +16,19 @@ extends CharacterBody3D
 ## M4: server supplies validated controls; replicas never simulate movement.
 @export var external_control: bool = false
 
-## M6 camera toggle (key V). The character ALWAYS faces its movement direction and the melee
-## swing travels along the mesh front, so the attack follows the character in BOTH modes; this
-## flag only changes the CAMERA. When false (default, option A) the camera is free mouse-look.
-## When true (option B) the camera yaw is hard-locked behind the character (mouse horizontal
-## look is overridden; pitch still works). Single-player only: the toggle key is read in
-## _physics_process(), which networked replicas skip via the external_control early-return.
+## M6 camera toggle (key V) — two third-person schemes. The melee swing always travels along the
+## mesh front (+Z), so the attack follows whichever way the character faces.
+##   • false (default, option A — free-look): the camera is free mouse-look and the character faces
+##     its MOVEMENT direction, so the attack follows movement.
+##   • true (option B — over-the-shoulder aim): the camera sits locked behind the character and the
+##     MOUSE steers; the character turns to face the camera-forward (the aim), W/S move forward/back
+##     and A/D slide sideways (strafe) WITHOUT turning, so the attack follows the mouse-aim. This is
+##     the view a future ranged attack will aim down.
+## Single-player only: the toggle key is read in _physics_process(), which networked replicas skip
+## via the external_control early-return (their facing stays server-authoritative movement-facing).
 @export var camera_lock_behind: bool = false
-## How fast the locked camera swings behind the character (per-second lerp rate); higher = snappier.
-@export var camera_lock_speed: float = 12.0
+## How fast the character turns to face the aim in option B (per-second lerp rate); higher = snappier.
+@export var lock_turn_speed: float = 12.0
 
 @export_group("Movement")
 @export var walk_speed: float = 6.0        # m/s
@@ -54,7 +58,6 @@ func _physics_process(delta: float) -> void:
 		camera_lock_behind = not camera_lock_behind
 	_simulate_movement(delta, _camera_relative_input(), Input.is_action_pressed("run"),
 		Input.is_action_just_pressed("jump"))
-	_update_camera_lock(delta)
 
 
 ## Called only by the authoritative session, with bounded input (never client positions).
@@ -71,7 +74,10 @@ func _simulate_movement(delta: float, direction: Vector3, running: bool, jump_pr
 	if jump_pressed and is_on_floor():
 		velocity.y = jump_velocity
 	move_and_slide()
-	_face_movement_direction(delta)
+	if camera_lock_behind:
+		_face_aim_direction(delta)
+	else:
+		_face_movement_direction(delta)
 
 
 func _apply_gravity(delta: float) -> void:
@@ -129,16 +135,15 @@ func _face_movement_direction(delta: float) -> void:
 		)
 
 
-## Option B (camera_lock_behind): swing the camera yaw to sit directly behind the character's
-## facing (mesh front +Z), so the camera looks along the direction the character — and therefore
-## the attack — is facing. Mouse horizontal look is overridden here; pitch (CameraTilt) is left
-## untouched. No-op in option A, where the camera stays under free mouse-look.
-func _update_camera_lock(delta: float) -> void:
-	if not camera_lock_behind:
-		return
-	var target_yaw := _mesh.rotation.y + PI
-	_camera_pivot.rotation.y = lerp_angle(
-		_camera_pivot.rotation.y, target_yaw, clampf(camera_lock_speed * delta, 0.0, 1.0)
+## Option B (over-the-shoulder aim): turn the mesh's front (+Z) to face the camera-forward, so the
+## camera stays locked behind the character and the melee/ranged attack travels where you aim. The
+## camera pivot is the mouse-driven master (camera_rig); the character follows it. Lerped so
+## toggling in and fast mouse turns stay smooth instead of snapping. Because the mesh faces the
+## aim — not the velocity — A/D strafe slides sideways without spinning the character (no orbit).
+func _face_aim_direction(delta: float) -> void:
+	var target_yaw := _camera_pivot.rotation.y + PI
+	_mesh.rotation.y = lerp_angle(
+		_mesh.rotation.y, target_yaw, clampf(lock_turn_speed * delta, 0.0, 1.0)
 	)
 
 

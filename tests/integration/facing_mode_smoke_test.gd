@@ -1,13 +1,14 @@
 extends SceneTree
-## M6 camera/facing smoke test (single-player).
+## M6 camera/facing smoke test (single-player) — two third-person schemes.
 ##
-## The character ALWAYS faces its MOVEMENT direction and the melee swing travels along the Mesh
-## front (+Z), so the attack follows the character in BOTH modes. The "toggle_camera_lock" action
-## (key V) only changes the CAMERA:
-##   * default (option A) is free mouse-look (camera_lock_behind == false);
-##   * the swing direction equals the Mesh front, independent of the camera (attack_started forward);
-##   * the toggle key flips camera_lock_behind;
-##   * option B hard-locks the camera yaw behind the character (camera yaw == mesh yaw + PI).
+## The melee swing always travels along the Mesh front (+Z), so the attack follows the character's
+## facing. The "toggle_camera_lock" action (key V) switches scheme:
+##   * option A (default, camera_lock_behind == false): free mouse-look; the character faces its
+##     MOVEMENT direction, the attack follows movement, and the controller does not drive the camera;
+##   * option B (camera_lock_behind == true): over-the-shoulder aim; the MOUSE steers, the character
+##     turns to face the camera-forward (mesh yaw == camera yaw + PI) so the camera stays locked
+##     behind it, the attack follows the aim, and A/D strafe SLIDES sideways without spinning the
+##     character (no orbit).
 ##
 ## Run: Godot_v4.7.2-stable_win64_console.exe --headless --path . ^
 ##        --script res://tests/integration/facing_mode_smoke_test.gd
@@ -76,19 +77,33 @@ func _run() -> void:
 	await _frames(3)
 	_check("A_camera_not_locked", _angle_close(cam.rotation.y, cam_before))
 
-	# Toggle key -> option B (hard-lock the camera behind the character).
+	# Toggle key -> option B (over-the-shoulder aim: the mouse steers, the character faces the aim).
 	await _press_toggle()
 	_check("toggle_key_enables_camera_lock", player.camera_lock_behind == true)
 
-	# The camera yaw swings to sit behind the character's facing (mesh yaw + PI).
-	mesh.rotation.y = 0.7
+	# In B the character turns to face the camera-forward (mesh yaw == camera yaw + PI), so the
+	# camera stays locked behind it. The camera pivot is the master; the mesh follows.
+	cam.rotation.y = 1.1
 	await _frames(40)
-	_check("B_camera_locks_behind_character", _angle_close(cam.rotation.y, mesh.rotation.y + PI))
+	_check("B_mesh_faces_camera_aim", _angle_close(mesh.rotation.y, cam.rotation.y + PI))
 
-	# A different character facing must be tracked too.
-	mesh.rotation.y = -2.0
+	# The swing therefore follows the aim (mesh front == camera-forward).
+	captured[0] = Vector3.ZERO
+	hitbox._perform_attack()
+	_check("B_attack_follows_aim", captured[0].distance_to(
+			Vector3(sin(cam.rotation.y + PI), 0.0, cos(cam.rotation.y + PI))) < 0.01)
+
+	# KEY regression: strafing must SLIDE, not orbit. Aim down -Z (cam yaw 0), then hold move_right
+	# (+X strafe): the character must translate sideways while its facing stays at -Z (no spin to +X).
+	cam.rotation.y = 0.0
 	await _frames(40)
-	_check("B_camera_tracks_character_facing", _angle_close(cam.rotation.y, mesh.rotation.y + PI))
+	var x_before: float = player.position.x
+	Input.action_press("move_right")
+	await _frames(20)
+	Input.action_release("move_right")
+	await _frames(2)
+	_check("B_strafe_slides_without_turning",
+			player.position.x > x_before + 0.2 and _angle_close(mesh.rotation.y, PI, 0.25))
 
 	# Toggle key -> back to option A.
 	await _press_toggle()
