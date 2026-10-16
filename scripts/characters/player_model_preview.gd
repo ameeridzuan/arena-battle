@@ -4,7 +4,7 @@ extends Node3D
 ## adds a temporary camera + sun so the owner can eyeball it.
 ## Presentation-only: no gameplay logic lives here.
 
-const ANIM_NAME := "Attack"
+const ANIM_NAME := "Idle"
 const CAM_POS := Vector3(2.2, 1.6, -2.6)
 const CAM_TARGET := Vector3(0, 1.0, 0)
 

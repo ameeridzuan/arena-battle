@@ -11,6 +11,8 @@ const SERVER_ID := 1
 const LOOPBACK := "127.0.0.1"
 const MAX_PLAYERS := 8
 const TEAM_SIZE := 4
+## Team identity colours (used for the overhead marker; the authored model materials are kept).
+const TEAM_COLORS := [Color(0.2, 0.55, 1.0), Color(1.0, 0.55, 0.15)]
 const MAX_SEQUENCE_ADVANCE := 1024
 
 @export var port: int = 24560
@@ -199,12 +201,13 @@ func _spawn_player(id: int, team: int, slot: int = 0) -> CharacterBody3D:
 	var camera: Node3D = body.get_node("CameraPivot")
 	camera.local_input_enabled = not server_mode and id == _local_peer_id
 	body.get_node("CameraPivot/CameraTilt/Camera3D").current = camera.local_input_enabled
-	var team_material := StandardMaterial3D.new()
-	team_material.albedo_color = Color(0.2, 0.55, 1.0) if team == 0 else Color(1.0, 0.55, 0.15)
-	body.get_node("Mesh").material_override = team_material
-	# M6: tint the authored skinned model under Mesh as well as the anchor node.
-	for sm in body.get_node("Mesh").find_children("*", "MeshInstance3D", true, false):
-		(sm as MeshInstance3D).material_override = team_material
+	# M7 art pass: the locally-controlled body is Arclight (player 1), every remote body is
+	# Ashen Warden (player 2) — the host-vs-remote mapping. Authored materials are shown
+	# unmodified, so team identity is carried by a small overhead marker rather than a
+	# full-body colour override that would hide the model.
+	var mesh: Node = body.get_node("Mesh")
+	mesh.character = 0 if id == _local_peer_id else 1
+	_add_team_marker(mesh, team)
 	if server_mode:
 		body.get_node("Combatant").team_id = team
 		body.get_node("Combatant").spawn_index = slot
@@ -223,6 +226,24 @@ func _spawn_player(id: int, team: int, slot: int = 0) -> CharacterBody3D:
 		if id == _local_peer_id:
 			hud.bind_health(body.get_node("Health"))
 	return body
+
+## Small unshaded overhead orb in the team colour. Parented under `Mesh` so it follows the body,
+## rotates harmlessly (a sphere), is hidden with the model on death, and picks up the damage
+## flash like the rest of the skinned meshes.
+func _add_team_marker(mesh: Node, team: int) -> void:
+	var marker := MeshInstance3D.new()
+	marker.name = "TeamMarker"
+	var sphere := SphereMesh.new()
+	sphere.radius = 0.12
+	sphere.height = 0.24
+	marker.mesh = sphere
+	var mat := StandardMaterial3D.new()
+	mat.shading_mode = BaseMaterial3D.SHADING_MODE_UNSHADED
+	mat.albedo_color = TEAM_COLORS[team] if team >= 0 and team < TEAM_COLORS.size() else Color.WHITE
+	marker.material_override = mat
+	marker.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
+	marker.position = Vector3(0.0, 1.15, 0.0)
+	mesh.add_child(marker)
 
 func send_controls(movement: Vector2, yaw: float, running: bool, jump: bool, attack: bool) -> void:
 	if server_mode or not connected:

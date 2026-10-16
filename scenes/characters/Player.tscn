@@ -1,4 +1,4 @@
-[gd_scene load_steps=10 format=3]
+[gd_scene load_steps=11 format=3]
 
 [ext_resource type="Script" path="res://scripts/player/player_controller.gd" id="1_pc"]
 [ext_resource type="Script" path="res://scripts/player/camera_rig.gd" id="2_cr"]
@@ -7,7 +7,8 @@
 [ext_resource type="Script" path="res://scripts/combat/combatant.gd" id="5_cb"]
 
 [ext_resource type="Script" path="res://scripts/player/player_feedback.gd" id="6_feedback"]
-[ext_resource type="PackedScene" uid="uid://bpvtr2m0a4iff" path="res://assets/models/player.glb" id="7_model"]
+[ext_resource type="Script" path="res://scripts/player/character_model.gd" id="8_cmodel"]
+[ext_resource type="Script" path="res://scripts/player/character_animation.gd" id="9_canim"]
 
 [sub_resource type="CapsuleShape3D" id="body_shape"]
 radius = 0.5
@@ -25,9 +26,8 @@ script = ExtResource("1_pc")
 shape = SubResource("body_shape")
 
 [node name="Mesh" type="MeshInstance3D" parent="."]
-
-[node name="Model" parent="Mesh" instance=ExtResource("7_model")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -1, 0)
+script = ExtResource("8_cmodel")
+character = 0
 
 [node name="CameraPivot" type="Node3D" parent="."]
 script = ExtResource("2_cr")
@@ -63,3 +63,6 @@ spawn_index = 0
 
 [node name="PlayerFeedback" type="Node3D" parent="."]
 script = ExtResource("6_feedback")
+
+[node name="CharacterAnimation" type="Node" parent="."]
+script = ExtResource("9_canim")

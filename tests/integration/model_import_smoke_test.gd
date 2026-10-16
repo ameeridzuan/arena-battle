@@ -1,20 +1,26 @@
 extends SceneTree
-## Headless integration smoke test for Milestone 6 (Art & Character Pipeline).
+## Headless integration smoke test for the M7 character art pass.
 ##
-## Verifies the M6 acceptance criteria that CAN be checked without a human/display:
-##   1. The exported character GLB loads and instantiates.
+## Validates BOTH authored character GLBs — Arclight (player 1) and Ashen Warden (player 2):
+##   1. Each exported GLB loads and instantiates.
 ##   2. It carries a Skeleton3D with the expected bone count.
-##   3. It carries the expected skinned meshes and materials.
-##   4. It carries the "Attack" animation and playing it actually drives the skeleton.
+##   3. It carries skinned meshes and materials.
+##   4. It exposes the canonical animation set, and playing an attack clip drives the skeleton.
 ##   5. It imports at unit scale (no unintended scaling from the Blender->Godot hand-off).
 ##
 ## Run from the project root with the Godot console binary:
 ##   godot --headless --path . --script res://tests/integration/model_import_smoke_test.gd
 ## Exit code 0 = all checks passed, 1 = at least one failed.
 
-const MODEL_SCENE := "res://assets/models/player.glb"
-const EXPECTED_BONES := 20
-const EXPECTED_ANIM := "Attack"
+const MODELS := [
+	{"name": "arclight", "scene": "res://assets/models/arclight.glb", "bones": 20},
+	{"name": "ashen_warden", "scene": "res://assets/models/ashen_warden.glb", "bones": 26},
+]
+## Canonical clips both models must expose (shared by scripts/player/character_animation.gd).
+const REQUIRED_ANIMS := ["Idle", "Walk", "Run", "Jump", "Attack_Slash"]
+## Clip + bone used to prove the animation actually drives the skeleton.
+const DRIVE_ANIM := "Attack_Slash"
+const DRIVE_BONE := "hand.R"
 
 
 func _init() -> void:
@@ -22,16 +28,24 @@ func _init() -> void:
 
 
 func _run() -> void:
+	var all_pass := true
+	for spec in MODELS:
+		print("--- MODEL ", spec.name, " ---")
+		var ok: bool = await _validate_model(spec)
+		all_pass = all_pass and ok
+	print("ALL_TESTS_PASS=", all_pass)
+	quit(0 if all_pass else 1)
+
+
+func _validate_model(spec: Dictionary) -> bool:
 	var results: Array[bool] = []
 
-	var packed: PackedScene = load(MODEL_SCENE)
+	var packed: PackedScene = load(spec.scene)
 	var model_ok := packed != null
 	print("CHECK model_loads = ", model_ok)
 	results.append(model_ok)
 	if not model_ok:
-		print("ALL_TESTS_PASS=false")
-		quit(1)
-		return
+		return false
 
 	var model: Node3D = packed.instantiate() as Node3D
 	root.add_child(model)
@@ -40,18 +54,14 @@ func _run() -> void:
 
 	# --- Skeleton -----------------------------------------------------------
 	var skeletons := model.find_children("*", "Skeleton3D", true, false)
-	var skeleton: Skeleton3D = null
-	if skeletons.size() > 0:
-		skeleton = skeletons[0] as Skeleton3D
+	var skeleton: Skeleton3D = skeletons[0] if skeletons.size() > 0 else null
 	var skeleton_ok := skeleton != null
-	var bone_count: int = 0
-	if skeleton_ok:
-		bone_count = skeleton.get_bone_count()
+	var bone_count: int = skeleton.get_bone_count() if skeleton_ok else 0
 	print("skeleton=", skeleton.name if skeleton_ok else "NONE", " bones=", bone_count)
 	print("CHECK skeleton_present = ", skeleton_ok)
 	results.append(skeleton_ok)
-	print("CHECK bone_count_", EXPECTED_BONES, " = ", bone_count == EXPECTED_BONES)
-	results.append(bone_count == EXPECTED_BONES)
+	print("CHECK bone_count_", spec.bones, " = ", bone_count == spec.bones)
+	results.append(bone_count == spec.bones)
 
 	# --- Meshes + materials -------------------------------------------------
 	var meshes := model.find_children("*", "MeshInstance3D", true, false)
@@ -80,23 +90,24 @@ func _run() -> void:
 	print("CHECK unit_scale = ", scale_ok)
 	results.append(scale_ok)
 
-	# --- Animation ----------------------------------------------------------
+	# --- Animations ---------------------------------------------------------
 	var players := model.find_children("*", "AnimationPlayer", true, false)
 	var anim_player: AnimationPlayer = players[0] if players.size() > 0 else null
-	var has_anim := anim_player != null and anim_player.has_animation(EXPECTED_ANIM)
 	print("animation_player=", anim_player.name if anim_player else "NONE",
 		" libs=", (anim_player.get_animation_list() if anim_player else []))
-	print("CHECK animation_present = ", has_anim)
-	results.append(has_anim)
+	for clip in REQUIRED_ANIMS:
+		var has_clip := anim_player != null and anim_player.has_animation(clip)
+		print("CHECK anim_", clip, " = ", has_clip)
+		results.append(has_clip)
 
 	var drives := false
-	if skeleton_ok and has_anim:
-		var hand_idx := skeleton.find_bone("hand.R")
+	if skeleton_ok and anim_player != null and anim_player.has_animation(DRIVE_ANIM):
+		var hand_idx := skeleton.find_bone(DRIVE_BONE)
 		if hand_idx >= 0:
 			var before := skeleton.get_bone_global_pose(hand_idx)
-			anim_player.play(EXPECTED_ANIM)
-			# Attack is ~0.87 s; step well into the swing.
-			for i in range(30):
+			anim_player.play(DRIVE_ANIM)
+			# Step well into the swing so a real pose change is observable.
+			for _i in range(30):
 				await physics_frame
 			var after := skeleton.get_bone_global_pose(hand_idx)
 			var delta := (after.origin - before.origin).length()
@@ -105,10 +116,9 @@ func _run() -> void:
 	print("CHECK animation_drives_skeleton = ", drives)
 	results.append(drives)
 
-	# --- Summary ------------------------------------------------------------
-	var all_pass := true
+	model.queue_free()
+
 	for r in results:
 		if not r:
-			all_pass = false
-	print("ALL_TESTS_PASS=", all_pass)
-	quit(0 if all_pass else 1)
+			return false
+	return true
