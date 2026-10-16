@@ -179,3 +179,11 @@ Close both windows to stop the local server. F5/Main.tscn continues to run the l
 The server controls movement, hits, HP, respawn, scoring and match results. This is a
 loopback proof of concept; manual two-client acceptance remains pending. See
 `docs/M4_MULTIPLAYER_PLAN.md` for setup, tests and latency/packet-loss limitations.
+
+## Current M5 multiplayer checkpoint
+
+M4 is owner accepted. M5 defaults to eight clients (4v4); use
+`./tools/start_multiplayer.ps1 -Players 8`, or `-Players 2` for a quick 1v1 check.
+LAN address options are now implemented. See [M5 guide](docs/M5_MATCH_FOUNDATION.md)
+and [QA report](tests/M5_QA_REPORT.md). Automated checks pass; M5 visual playtest is
+pending. M6 assets are being prepared separately; coordinate player-scene integration.

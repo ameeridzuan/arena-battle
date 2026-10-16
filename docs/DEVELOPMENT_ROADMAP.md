@@ -323,7 +323,7 @@ placeholder-only scope; M6/M7 still own polished animation, sound and effects.
 general HUD work. This follow-up makes the baseline player health bar explicit now.
 Opponent overhead health bars are not included in this request.
 
-### M4 — Multiplayer PoC (2 clients; automatically verified, owner playtest pending)
+### M4 — Multiplayer PoC (owner accepted 2026-10-16)
 
 Owner authorized the next task after accepting M3 on 2026-10-16. Scope: one local server
 process and two ENet clients, in a separate `MultiplayerArena.tscn`. Existing Main.tscn
@@ -342,9 +342,13 @@ continues to run the accepted local game. See `M4_MULTIPLAYER_PLAN.md` and ADR-0
 
 **Acceptance:** automated native import, multiplayer integration and M1–M3 regressions;
 then owner two-window playtest of controls, health, combat, score/results and disconnects.
-Manual multiplayer acceptance remains pending. M5 does not start before acceptance.
+Owner subsequently reported “seems to work. can proceed”; M4 is accepted.
 
-### M5 — 4v4 Match Foundation
+### M5 — 4v4 Match Foundation (automatically verified; owner playtest pending)
+
+Implemented: eight-player roster, balanced teams, distinct spawn slots, no friendly
+damage, explicit LAN addresses, server match rules. 206 total automated checks pass.
+See `M5_MATCH_FOUNDATION.md` and `../tests/M5_QA_REPORT.md`.
 - 8-player limit; two teams of four; team spawn points; match start/timer/score/end; test with
   8 clients (or documented mix). Matchmaking/public deployment out of scope.
 
@@ -368,7 +372,6 @@ Manual multiplayer acceptance remains pending. M5 does not start before acceptan
 
 ## Immediate Next Steps
 
-1. Automated M4 import/networking/regression and rendered checks passed; see tests/M4_QA_REPORT.md.
-2. Owner two-window multiplayer playtest using `tools/start_multiplayer.ps1`.
-3. Retain local changes for review; pushing requires separate owner authorization.
-4. Plan M5 only after M4 acceptance; 4v4 and online hosting are out of scope here.
+1. Owner M5 playtest using `tools/start_multiplayer.ps1 -Players 8` (or 2 for quick combat).
+2. Coordinate M6 asset work with the other AI; review shared Player.tscn integration.
+3. Review final test/documentation changes after owner commit 459b0ec. No automatic push.

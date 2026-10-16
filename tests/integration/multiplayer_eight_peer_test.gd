@@ -110,12 +110,13 @@ func _server_test() -> void:
 	_stage("idle")
 	await _seconds(0.4)
 	friend.position = Vector3(-12, 1, 12)
+	# Let physics remove the teammate from the target position before teleporting the enemy.
+	await _seconds(0.15)
 	enemy.position = Vector3(0, 1, -1.5)
 	enemy.get_node("Combatant").respawn_delay = 1.2
 	session.manager.score_limit = 2
 	_stage("enemy", attacker_id)
 	await _seconds(1.0)
-	print("DEBUG combat ", attacker.position, " enemy ", enemy.position, " swings ", session.players[attacker_id].swings, " overlaps ", attacker.get_node("AttackHitbox").get_overlapping_bodies(), " yaw ", attacker.get_node("CameraPivot").rotation.y)
 	_check("enemy_remote_melee_damages", await _wait_until(func(): return enemy.get_health() < 100.0))
 	_check("enemy_kill_scores_for_attacker_team", await _wait_until(func(): return session.manager.score_a == 1))
 	_check("enemy_death_authoritative", enemy.get_node("Combatant").is_dead())
@@ -146,6 +147,7 @@ func _client_test() -> void:
 		teams[record.team] += 1
 	_check("client_observes_balanced_teams", teams == [4, 4])
 	var saw_result := false
+	var saw_full_result := false
 	var deadline := Time.get_ticks_msec() + 70000
 	while session.connected and Time.get_ticks_msec() < deadline:
 		await physics_frame
@@ -155,7 +157,8 @@ func _client_test() -> void:
 			break
 		session.send_controls(Vector2.ZERO, 0.0, false, false, id == attacker and stage in ["friendly", "enemy", "finish", "ended"])
 		if stage == "ended":
+			saw_full_result = saw_full_result or session.players.size() == 8
 			saw_result = session.manager.phase == 2 and session.manager.score_a == 2 and session.winner == 0 and session.hud.get_node("ResultLabel").text == "TEAM A WINS"
 	_check("client_receives_authoritative_team_result", saw_result)
-	_check("client_retains_eight_players_until_done", session.players.size() == 8)
+	_check("client_retains_eight_players_through_result", saw_full_result)
 	_check("client_receives_snapshots", session._last_snapshot_tick > 20)
