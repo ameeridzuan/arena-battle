@@ -360,6 +360,15 @@ See `M5_MATCH_FOUNDATION.md` and `../tests/M5_QA_REPORT.md`.
 
 **Acceptance:** one character model imports correctly and plays basic animations.
 
+**Verification (2026-10-16, Godot 4.7.2 headless):** `player.glb` (procedural chunky-robot
+humanoid, 20-bone rig, `Attack` horizontal-slash action) authored in Blender via the `blender`
+MCP and exported Y-up; `model_import_smoke_test.gd` asserts load / 20 bones / 2 skinned meshes /
+materials / unit scale / `Attack` drives `hand.R` — ALL_TESTS_PASS=true, exit 0. Visual swap into
+`Player.tscn` keeps the `Mesh` node as the transform/visibility/material anchor with the model
+instanced beneath it, mirroring hurt-flash and team tint onto the skinned meshes; M1–M5
+regressions (movement 3, combat 9, match 44, feedback 15, two-client 67, eight-client 68) all
+pass. Conventions: `docs/ART_IMPORT_CONVENTIONS.md`. Manual F5 look-dev (facing/feel) pending.
+
 ### M7 — Expand Content
 - Second character; one ability per character; character select + HUD; sound/effects/improved
   arena art; incremental roster & arena growth.

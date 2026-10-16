@@ -202,6 +202,9 @@ func _spawn_player(id: int, team: int, slot: int = 0) -> CharacterBody3D:
 	var team_material := StandardMaterial3D.new()
 	team_material.albedo_color = Color(0.2, 0.55, 1.0) if team == 0 else Color(1.0, 0.55, 0.15)
 	body.get_node("Mesh").material_override = team_material
+	# M6: tint the authored skinned model under Mesh as well as the anchor node.
+	for sm in body.get_node("Mesh").find_children("*", "MeshInstance3D", true, false):
+		(sm as MeshInstance3D).material_override = team_material
 	if server_mode:
 		body.get_node("Combatant").team_id = team
 		body.get_node("Combatant").spawn_index = slot

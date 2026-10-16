@@ -7,10 +7,7 @@
 [ext_resource type="Script" path="res://scripts/combat/combatant.gd" id="5_cb"]
 
 [ext_resource type="Script" path="res://scripts/player/player_feedback.gd" id="6_feedback"]
-
-[sub_resource type="CapsuleMesh" id="body_mesh"]
-radius = 0.5
-height = 2.0
+[ext_resource type="PackedScene" uid="uid://bpvtr2m0a4iff" path="res://assets/models/player.glb" id="7_model"]
 
 [sub_resource type="CapsuleShape3D" id="body_shape"]
 radius = 0.5
@@ -28,7 +25,9 @@ script = ExtResource("1_pc")
 shape = SubResource("body_shape")
 
 [node name="Mesh" type="MeshInstance3D" parent="."]
-mesh = SubResource("body_mesh")
+
+[node name="Model" parent="Mesh" instance=ExtResource("7_model")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -1, 0)
 
 [node name="CameraPivot" type="Node3D" parent="."]
 script = ExtResource("2_cr")

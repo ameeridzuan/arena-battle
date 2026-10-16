@@ -18,12 +18,20 @@ var _swipe_material: StandardMaterial3D
 var _previous_health: float
 var _flash_remaining: float = 0.0
 var _swipe_remaining: float = 0.0
+# M6: the authored skinned model lives under Mesh; mirror presentation onto it.
+var _skin_meshes: Array[MeshInstance3D] = []
+var _skin_saved: Array[Material] = []
+var _anim: AnimationPlayer
 
 func _ready() -> void:
 	var body := get_parent()
 	_health = body.get_node("Health") as Health
 	_mesh = body.get_node("Mesh") as MeshInstance3D
 	_original_material = _mesh.material_override
+	for sm in _mesh.find_children("*", "MeshInstance3D", true, false):
+		_skin_meshes.append(sm as MeshInstance3D)
+	var anims := _mesh.find_children("*", "AnimationPlayer", true, false)
+	_anim = (anims[0] as AnimationPlayer) if anims.size() > 0 else null
 	_hurt_material = StandardMaterial3D.new()
 	_hurt_material.albedo_color = hurt_color
 	_previous_health = _health.get_health()
@@ -60,14 +68,30 @@ func _on_attack_started(forward: Vector3) -> void:
 	_swipe_remaining = maxf(swipe_duration, 0.01)
 	_swipe_material.albedo_color = swipe_color
 	_swipe.visible = true
+	if _anim != null and _anim.has_animation("Attack"):
+		_anim.play("Attack")
+
+func _apply_override(mat: Material) -> void:
+	# Snapshot current overrides so a team tint applied after _ready survives the flash.
+	_skin_saved.clear()
+	for sm in _skin_meshes:
+		_skin_saved.append(sm.material_override)
+	_mesh.material_override = mat
+	for sm in _skin_meshes:
+		sm.material_override = mat
+
+func _restore_override() -> void:
+	_mesh.material_override = _original_material
+	for i in range(_skin_meshes.size()):
+		_skin_meshes[i].material_override = _skin_saved[i] if i < _skin_saved.size() else null
 
 func _on_health_changed(current: float, _maximum: float) -> void:
 	if current < _previous_health:
 		_flash_remaining = maxf(damage_flash_duration, 0.01)
-		_mesh.material_override = _hurt_material
+		_apply_override(_hurt_material)
 	else:
 		_flash_remaining = 0.0
-		_mesh.material_override = _original_material
+		_restore_override()
 	if current <= 0.0 or current > _previous_health:
 		_swipe_remaining = 0.0
 		_swipe.visible = false
@@ -77,7 +101,7 @@ func _process(delta: float) -> void:
 	if _flash_remaining > 0.0:
 		_flash_remaining = maxf(0.0, _flash_remaining - delta)
 		if _flash_remaining == 0.0:
-			_mesh.material_override = _original_material
+			_restore_override()
 	if _swipe_remaining > 0.0:
 		_swipe_remaining = maxf(0.0, _swipe_remaining - delta)
 		var color := swipe_color
