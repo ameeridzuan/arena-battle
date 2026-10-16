@@ -5,12 +5,18 @@ extends Area3D
 ## On the "attack" input action the script sweeps overlapping bodies within the
 ## configured arc and range and calls apply_damage() on every valid target.
 ##
+## Milestone 3 addition: [member auto_attack] lets an opponent swing on cooldown without
+## reading player input.  Default false keeps the M2 behaviour byte-for-byte identical.
+##
 ## All tunables are exported — no magic numbers.
 
 @export var attack_damage: float = 25.0
 @export var attack_range: float = 2.0
 @export var attack_cooldown: float = 0.6
 @export var attack_arc_deg: float = 120.0
+## When true, attacks every [member attack_cooldown] seconds without reading Input
+## (used by the static M3 opponents).  When false, the "attack" action is required.
+@export var auto_attack: bool = false
 @export var aim_reference_path: NodePath = ^"../CameraPivot"
 
 var _cooldown_remaining: float = 0.0
@@ -33,9 +39,11 @@ func _ready() -> void:
 
 func _physics_process(delta: float) -> void:
 	_cooldown_remaining -= delta
-	if Input.is_action_just_pressed("attack") and _cooldown_remaining <= 0.0:
-		_cooldown_remaining = attack_cooldown
-		_perform_attack()
+	if _cooldown_remaining <= 0.0:
+		# Short-circuit: with auto_attack the Input action is never read (server-safe).
+		if auto_attack or Input.is_action_just_pressed("attack"):
+			_cooldown_remaining = attack_cooldown
+			_perform_attack()
 
 
 func _perform_attack() -> void:

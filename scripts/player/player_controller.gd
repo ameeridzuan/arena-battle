@@ -5,7 +5,10 @@ extends CharacterBody3D
 ##   - camera-relative movement (walk / run)
 ##   - gravity and jumping
 ##   - facing the movement direction
-## Combat, health, respawn and networking are deliberately NOT here (later milestones).
+## Milestone 3 adds ONLY the combat-interface contract (group "damageable" +
+## apply_damage()/get_health() delegates to the child Health node) so enemy hitboxes can
+## damage the player.  Respawn/team logic lives in the Combatant child; attack logic lives
+## in AttackHitbox; networking is still out (M4).  No movement logic was touched.
 ##
 ## Tunables are exported so they can be adjusted in the Inspector without editing code
 ## (no unexplained magic numbers — see docs/TECHNICAL_ARCHITECTURE.md).
@@ -21,6 +24,14 @@ extends CharacterBody3D
 
 @onready var _mesh: Node3D = $Mesh
 @onready var _camera_pivot: Node3D = $CameraPivot
+@onready var _health: Health = get_node_or_null("Health") as Health
+
+
+func _ready() -> void:
+	# Combat interface (TECHNICAL_ARCHITECTURE.md §6.1 / §7): an attackable body MUST be in
+	# the "damageable" group.  The player's own AttackHitbox mask (4) still excludes the
+	# player's layer (2), so this cannot cause a self-hit.
+	add_to_group("damageable")
 
 
 func _physics_process(delta: float) -> void:
@@ -88,3 +99,17 @@ func _face_movement_direction(delta: float) -> void:
 		_mesh.rotation.y = lerp_angle(
 			_mesh.rotation.y, target_yaw, clampf(turn_speed * delta, 0.0, 1.0)
 		)
+
+
+# --- Combat interface (M3) — pure delegation to the Health component ------------------
+
+## Routes damage to the Health child.  [param source] is the attacking body node (the node a
+## future server identifies as the attacker) — see §6.1 / §6.9.
+func apply_damage(amount: float, source: Node) -> void:
+	if _health:
+		_health.apply_damage(amount, source)
+
+
+## Returns current health from the Health child (0.0 when the component is absent).
+func get_health() -> float:
+	return _health.get_health() if _health else 0.0

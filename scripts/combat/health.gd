@@ -13,17 +13,22 @@ signal died()
 
 var _current: float = 0.0
 
+## Milestone 3 — the node that dealt the most recent damage, kept so `combatant.gd`
+## can attribute a kill after `died` fires without changing that signal's signature.
+var last_damage_source: Node = null
+
 
 func _ready() -> void:
 	_current = max_health
 
 
 ## Reduces health by [param amount].  Ignored once health has reached zero.
-## [param _source] is the owning character node that dealt the damage (unused here
-## but required by the combat interface contract).
-func apply_damage(amount: float, _source: Node) -> void:
+## [param source] is the owning character node that dealt the damage (recorded in
+## [member last_damage_source] for Milestone 3 kill attribution).
+func apply_damage(amount: float, source: Node) -> void:
 	if _current <= 0.0:
 		return
+	last_damage_source = source
 	_current = maxf(0.0, _current - amount)
 	health_changed.emit(_current, max_health)
 	if _current == 0.0:
@@ -32,3 +37,12 @@ func apply_damage(amount: float, _source: Node) -> void:
 
 func get_health() -> float:
 	return _current
+
+
+## Milestone 3 — returns the component to its initial state (used on respawn).
+## Named `reset()` deliberately: not `heal()` (partial restore, a future ability) and
+## not `revive()` (a lifecycle concept owned by `combatant.gd`).  See ADR-0010 / §6.5.
+func reset() -> void:
+	_current = max_health
+	last_damage_source = null
+	health_changed.emit(_current, max_health)

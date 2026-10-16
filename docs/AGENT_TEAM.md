@@ -13,8 +13,9 @@
 ## 1. Business Context & Objective
 
 - **Product:** 3D third-person 4v4 battle arena (Godot 4.7.2 + GDScript), Windows-first, server-authoritative.
-- **Current state:** Milestone 0 (foundation) done; **Milestone 1 (playable movement) implemented &
-  headless-verified**. Next: **M2 basic combat**, then M3 loop, M4 multiplayer PoC, M5 4v4, M6 art, M7 content, M8 online.
+- **Current state (2026-10-16):** M1 movement and M2 combat are implemented; approved M3 local
+  gameplay loop is implemented and headless-verified. Manual HUD/feel acceptance remains pending.
+  Next after acceptance: M4 multiplayer PoC, M5 4v4, M6 art, M7 content, M8 online.
 - **Objective of the team:** deliver each milestone to its acceptance criteria with clean separation of
   concerns, verified quality, and no premature/untested complexity.
 - **Constraints:** solo developer + AI agents; lean coordination overhead; strict file-safety & security rules;
@@ -182,12 +183,12 @@ R=Responsible, A=Accountable, C=Consulted, I=Informed
 **Recommendation (Business Owner decision):** Adopt the **Core Team of three (Architect, Gameplay Developer,
 QA Engineer) now**, with the staged activation plan in §4. Do **not** instantiate the deferred specialists yet.
 
-**Next actions (require your approval):**
-1. Approve this team plan and the staged hiring schedule.
-2. Decide whether to **instantiate the Core-3 as real Qoder subagents** now (via the `create-subagent`
-   capability) or keep them as documented roles that I embody per task.
-3. Proceed to **Milestone 2 (basic combat)** staffed by the Core-3: Architect defines the combat interface,
-   Gameplay implements one attack + dummy target with health, QA writes the hit-range/damage test.
+**Codex session (2026-10-16):** The owner requested use of the existing agents and continuation
+from the latest checkpoint. The role definitions in the parent `game_test/.qoder/agents/`
+folder (`architect.md`, `gameplay-developer.md` and `qa-engineer.md`) were loaded into three Codex subagents, preserving
+their existing responsibilities. Architect owns docs, Gameplay owns scenes/scripts and targeted
+fixes, and QA owns tests/evidence. No model defaults or persistent agent configuration were changed.
 
-> Pending from M1: your **manual F5 playtest** (camera/movement feel) and the decision to **push** commit
-> `f9d7bfe` to GitHub.
+**Current next actions:** review the headless-verified M3 diff, and retain manual
+F5 HUD/feel acceptance as an outstanding gate. Start M4 only after local acceptance. Push requires
+the owner's separate authorization.

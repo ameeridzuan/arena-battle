@@ -1,10 +1,46 @@
-[gd_scene format=3]
+[gd_scene load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://scripts/ui/hud.gd" id="1_hud"]
 
 [node name="HUD" type="CanvasLayer"]
+script = ExtResource("1_hud")
 
 [node name="ControlsLabel" type="Label" parent="."]
 offset_left = 16.0
 offset_top = 12.0
 offset_right = 800.0
-offset_bottom = 96.0
-text = "ArenaBattle — Milestone 2\nMove: W / A / S / D     Run: hold Shift     Jump: Space     Attack: Left Mouse\nLook: Mouse     Release / re-capture cursor: Esc"
+offset_bottom = 140.0
+text = "ArenaBattle — Milestone 3 (Local Team Deathmatch)\nMove: W / A / S / D     Run: hold Shift     Jump: Space     Attack: Left Mouse\nLook: Mouse     Release / re-capture cursor: Esc\nFirst team to 5 kills wins — or the higher score when the 3:00 timer ends.\nDie and you respawn at your team spawn point after 3 s."
+
+[node name="ScoreLabel" type="Label" parent="."]
+offset_left = 900.0
+offset_top = 16.0
+offset_right = 1264.0
+offset_bottom = 44.0
+horizontal_alignment = 1
+text = "TEAM A: 0  |  TEAM B: 0"
+
+[node name="TimerLabel" type="Label" parent="."]
+offset_left = 900.0
+offset_top = 48.0
+offset_right = 1264.0
+offset_bottom = 76.0
+horizontal_alignment = 1
+text = "3:00"
+
+[node name="ResultLabel" type="Label" parent="."]
+visible = false
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -300.0
+offset_top = -60.0
+offset_right = 300.0
+offset_bottom = 60.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_font_sizes/font_size = 48
+horizontal_alignment = 1
+vertical_alignment = 1

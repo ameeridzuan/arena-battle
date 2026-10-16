@@ -46,7 +46,7 @@ extends SceneTree
 ##     and the later global_position write reaches the physics server one frame late, so
 ##     move_and_slide()'s recovery pass shoves the player ~1 m sideways and silently invalidates
 ##     every distance/angle under test. CHECK testbed_player_stationary guards against this.
-##   * Health has no heal/reset -> a consumed dummy can never be reused, hence fresh scenes.
+##   * Health.reset() exists in M3; fresh scenes still isolate health, cooldown and lifecycle state.
 ##   * DummyTarget is a StaticBody3D in group "damageable" exposing apply_damage()/get_health().
 ##
 ## Typing note: script-defined members (get_health(), Health.died, attack_range,
@@ -151,9 +151,17 @@ func _setup(dummy_offset: Vector3, spawn_dummy: bool) -> Dictionary:
 	var player: CharacterBody3D = main.get_node("Player")
 	var hitbox: Area3D = player.get_node("AttackHitbox")
 
-	var authored: Node = main.get_node_or_null("DummyTarget")
-	if authored != null:
-		authored.queue_free()
+	# M3 CHANGE (ADR-0010): Main.tscn no longer authors a single "DummyTarget" node. It now
+	# instances TWO static opponents ("Opponent1", "Opponent2") that each carry a Combatant
+	# (team_id=1) and an auto_attack hitbox (collision_mask=2 -> damages the Player). This M2
+	# suite spawns its OWN fresh DummyTarget per case, so free the authored opponents here to
+	# keep the M2 testbed isolated from M3 match / kill-attribution / auto-attack / respawn logic.
+	# They sit ~17 m from the Player, so removing them changes NO M2 geometry or timing
+	# calibration (player settle position, overlap settle, cooldown lag are all unaffected).
+	for opponent_name in ["Opponent1", "Opponent2"]:
+		var authored: Node = main.get_node_or_null(opponent_name)
+		if authored != null:
+			authored.queue_free()
 
 	await _wait(PLAYER_SETTLE_FRAMES)
 	var settled_at: Vector3 = player.global_position
@@ -470,8 +478,8 @@ func _case_5_lethal_and_died() -> void:
 func _case_6_self_hit_exclusion() -> void:
 	print("--- CASE 6: self_hit_exclusion ---")
 	print("  steps: fresh Main with NO dummy at all; read AttackHitbox.get_overlapping_bodies();")
-	print("         assert the Player is absent and is not in group 'damageable'; fire a swing and")
-	print("         assert nothing errors and the Player survives; then spawn a dummy in front and")
+	print("         assert the Player is absent (layer/mask exclusion); fire a swing and assert")
+	print("         nothing errors and the Player survives; then spawn a dummy in front and")
 	print("         re-assert the Player is STILL excluded while the dummy IS detected.")
 	var ctx: Dictionary = await _setup(Vector3.ZERO, false)
 	var main_node: Node3D = ctx["main"]
@@ -487,7 +495,17 @@ func _case_6_self_hit_exclusion() -> void:
 	print("  overlapping_bodies (empty scene)=", _names(bodies))
 	var mask_excludes_player: bool = (hitbox.collision_mask & player.collision_layer) == 0
 	var player_absent_empty: bool = not bodies.has(player)
-	var player_not_damageable: bool = not player.is_in_group("damageable")
+	# M3 SPEC CHANGE (ADR-0010): the Player NOW joins group "damageable" so the static opponents'
+	# auto_attack hitbox (collision_mask=2 -> Player layer) can damage it. The former M2
+	# sub-condition `player_not_damageable` (= NOT in "damageable") is therefore INVALID under the
+	# approved M3 spec and has been REMOVED from the pass conjunction below. Self-hit exclusion was
+	# NEVER guaranteed by group membership -- it is guaranteed by the collision layer/mask: the
+	# Player's own AttackHitbox uses collision_mask=4 (layer 3 DamageableTarget) while the Player
+	# body is on layer 2, so (mask & layer) == 0 and the hitbox can physically never overlap the
+	# Player. That invariant is still asserted, unchanged, by mask_excludes_player +
+	# player_absent_empty + player_absent_with_dummy + no_bodies_when_empty. The line below is kept
+	# purely as INFORMATIONAL diagnostics (expected TRUE under M3); it does NOT affect pass/fail.
+	var player_is_damageable_m3: bool = player.is_in_group("damageable")
 	var no_bodies_when_empty: bool = bodies.is_empty()
 
 	# Firing with nothing but the player present must not error out.
@@ -518,15 +536,19 @@ func _case_6_self_hit_exclusion() -> void:
 			" player_valid=", is_instance_valid(player), " player=", player.global_position,
 			" overlapping=", _names(bodies2))
 
-	var passed: bool = mask_excludes_player and player_absent_empty and player_not_damageable \
+	# NOTE: `player_not_damageable` was REMOVED from this conjunction (M3 spec change, see comment
+	# above). Every collision mask / overlap assertion is retained EXACTLY as in M2 -- none were
+	# weakened. Self-hit exclusion is proven by layer/mask, not by "damageable" group membership.
+	var passed: bool = mask_excludes_player and player_absent_empty \
 			and no_bodies_when_empty and player_ok_after_swing and player_absent_with_dummy \
 			and dummy_present and dummy_took_damage and player_still_ok
-	print("  EXPECTED: Player never in get_overlapping_bodies(), no 'damageable' membership,")
-	print("            both swings complete without script errors, dummy still takes its 25 dmg")
+	print("  EXPECTED: Player never in get_overlapping_bodies() (hitbox mask=4 excludes Player")
+	print("            layer=2), both swings complete without script errors, dummy takes its 25 dmg.")
+	print("            (M3: Player IS in 'damageable' now -- exclusion is by layer/mask, not group.)")
 	print("  ACTUAL:   mask_excludes_player=", mask_excludes_player,
 			" player_absent_empty_scene=", player_absent_empty,
 			" player_absent_with_dummy=", player_absent_with_dummy,
-			" player_not_in_damageable_group=", player_not_damageable,
+			" player_is_damageable_m3(informational)=", player_is_damageable_m3,
 			" no_bodies_when_empty=", no_bodies_when_empty, " dummy_detected=", dummy_present,
 			" player_ok_after_both_swings=", (player_ok_after_swing and player_still_ok),
 			" dummy_health=", "%0.4f" % dummy.get_health())
@@ -552,7 +574,7 @@ func _diagnostic_attack_range_boundary() -> void:
 	print("DIAG centre_distance_2.2m_inside_area=", in_area,
 			" centre_distance_2.2m_took_damage=", damaged,
 			" health=", "%0.4f" % dummy.get_health())
-	print("DIAG note: melee_attacker._perform_attack() has NO explicit distance-vs-attack_range")
-	print("DIAG note: test; range is enforced only by the hit-sphere radius, so a body whose")
-	print("DIAG note: CENTRE is up to attack_range + its own half-extent away can still be hit.")
+	print("DIAG note: melee_attacker._perform_attack() enforces centre-to-centre attack_range.")
+	print("DIAG note: Area3D overlap alone is insufficient; its sphere can overlap a target")
+	print("DIAG note: whose centre is outside attack_range; that target must remain undamaged.")
 	await _teardown(ctx)

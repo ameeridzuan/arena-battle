@@ -1,8 +1,10 @@
-[gd_scene load_steps=7 format=3]
+[gd_scene load_steps=9 format=3]
 
 [ext_resource type="Script" path="res://scripts/player/player_controller.gd" id="1_pc"]
 [ext_resource type="Script" path="res://scripts/player/camera_rig.gd" id="2_cr"]
 [ext_resource type="Script" path="res://scripts/combat/melee_attacker.gd" id="3_ma"]
+[ext_resource type="Script" path="res://scripts/combat/health.gd" id="4_h"]
+[ext_resource type="Script" path="res://scripts/combat/combatant.gd" id="5_cb"]
 
 [sub_resource type="CapsuleMesh" id="body_mesh"]
 radius = 0.5
@@ -41,6 +43,17 @@ collision_layer = 0
 collision_mask = 4
 monitoring = true
 script = ExtResource("3_ma")
+auto_attack = false
 
 [node name="CollisionShape3D" type="CollisionShape3D" parent="AttackHitbox"]
 shape = SubResource("attack_shape")
+
+[node name="Health" type="Node" parent="."]
+script = ExtResource("4_h")
+max_health = 100.0
+
+[node name="Combatant" type="Node" parent="."]
+script = ExtResource("5_cb")
+team_id = 0
+respawn_delay = 3.0
+spawn_index = 0

@@ -459,6 +459,10 @@ func start_match() -> void:
 func register_kill(scorer_team: int, victim_team: int) -> void:
     if phase != Phase.RUNNING:
         return
+    if scorer_team == victim_team:
+        return                                           # TDM awards opposing-team kills only
+    if victim_team != Team.TEAM_A and victim_team != Team.TEAM_B:
+        return                                           # unknown victim — no score
     if scorer_team == Team.TEAM_A:
         score_a += 1
     elif scorer_team == Team.TEAM_B:
@@ -497,9 +501,12 @@ func get_score(team: int) -> int:
 - `_physics_process` (fixed 60 Hz tick) for the timer → deterministic, matches server tick model.
 - `start_match.call_deferred()` ensures all combatants' `_ready()` has fired before the match
   begins (Godot calls `_ready` bottom-up, siblings in tree order; deferred runs after all).
-- `register_kill` is idempotent per-kill (one call per death); `_end_match` is idempotent
-  (guarded by phase check).
+- Combatant calls `register_kill` once per death; the method itself does not deduplicate
+  separate requests. It rejects same-team and invalid-team kills. `_end_match` is idempotent
+  (guarded by phase check). Server-side request validation/deduplication belongs to M4.
 - Draw: `winner = -1`. No overtime in M3.
+- M3 starts fresh matches by reloading the main scene (stop and F5 in the editor).
+  `start_match()` initializes manager state only; it does not reset Combatant end-state latches.
 - No client-only shortcuts (no `get_tree().reload_current_scene()`, no direct node manipulation).
 
 ### 6.8 Combatant component (`scripts/combat/combatant.gd`)
@@ -754,10 +761,20 @@ M3 test: `tests/integration/match_smoke_test.gd` — verifies match lifecycle, s
 
 **M2 regression:** `combat_smoke_test.gd` must still pass after M3 changes. The additions to
 `health.gd` and `melee_attacker.gd` are backward-compatible (no signal/API changes, defaults
-preserve M2 behaviour). The player joining group `"damageable"` does not affect the M2 test
-because the player's own AttackHitbox mask (4) still excludes the player's layer (2).
+preserve M2 behaviour). Regression fixtures must isolate the original combat contract from
+M3 opponent auto-attacks, death/respawn and scene-node changes. The player's own AttackHitbox
+mask (4) still excludes the player's layer (2).
 
 No feature will be reported as "passing" until it has actually been run.
+
+**Verified checkpoint (2026-10-16):** Godot 4.7.2.stable native import and 120-frame
+main-scene headless smoke exited 0 without errors. Movement (3 checks), combat (9 checks)
+and match (44 checks) each passed twice with `ALL_TESTS_PASS=true` and exit 0. Match coverage
+includes lifecycle/respawn, both score-limit winners, all timed outcomes, post-match gates,
+invalid/friendly kills, HUD text/state, null-source degradation and actual runtime inward
+opponent facing. One expected null-source warning is emitted by each match suite.
+See [`../tests/M3_QA_REPORT.md`](../tests/M3_QA_REPORT.md). Visual HUD layout/results
+(AC-M3-11/12) and play feel remain manual acceptance gates.
 
 ## 10. Server-Authoritative Readiness (M4 prep)
 

@@ -93,8 +93,11 @@ environment = SubResource("env")
 
 [node name="SpawnPoints" type="Node3D" parent="."]
 
-[node name="SpawnA" type="Marker3D" parent="SpawnPoints"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -6, 0.5, -6)
+[node name="SpawnA" type="Marker3D" parent="SpawnPoints" groups=["spawn_team_0"]]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -6, 1, -6)
 
-[node name="SpawnB" type="Marker3D" parent="SpawnPoints"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 6, 0.5, 6)
+[node name="SpawnB" type="Marker3D" parent="SpawnPoints" groups=["spawn_team_1"]]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 6, 1, 6)
+
+[node name="SpawnB2" type="Marker3D" parent="SpawnPoints" groups=["spawn_team_1"]]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 8, 1, 4)

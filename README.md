@@ -4,9 +4,9 @@ A third-person 3D platform/action battle arena where **two teams of four players
 in the same arena. Built incrementally, milestone by milestone, with a small testable
 foundation first.
 
-> **Status:** Milestone 1 (Playable 3D Movement) **implemented and headless-verified** with
-> Godot 4.7.2. One arena + one third-person character (walk/run/jump/gravity/collision) is
-> working. Combat (M2) and multiplayer (M4+) are not started. See
+> **Status (2026-10-16):** M1 movement and M2 melee combat are implemented. Approved M3
+> local team deathmatch is implemented and headless-verified; manual HUD/feel acceptance
+> checks remain pending. Multiplayer (M4+) has not started. See
 > [`docs/DEVELOPMENT_ROADMAP.md`](docs/DEVELOPMENT_ROADMAP.md).
 
 ---
@@ -62,14 +62,19 @@ ArenaBattle/
 ├── icon.svg
 ├── project.godot                # Godot 4.7 project: main scene, input map, Forward+, gravity
 ├── scenes/
-│   ├── main/Main.tscn           # entry scene: instances Arena + Player + HUD
+│   ├── main/Main.tscn           # MatchManager + Arena + Player + two opponents + HUD
 │   ├── arena/Arena.tscn         # floor, 4 walls, sun, environment, spawn markers
 │   ├── characters/Player.tscn   # CharacterBody3D + capsule + third-person camera rig
-│   └── ui/HUD.tscn              # controls label
+│   ├── targets/DummyTarget.tscn # static melee opponent with Health + Combatant
+│   └── ui/HUD.tscn              # controls, score, countdown, match result
 ├── scripts/
-│   └── player/                  # player_controller.gd, camera_rig.gd
+│   ├── player/                  # player_controller.gd, camera_rig.gd
+│   ├── combat/                  # health.gd, melee_attacker.gd, combatant.gd
+│   ├── targets/                 # dummy_target.gd feedback
+│   ├── match/                   # match_manager.gd
+│   └── ui/                      # hud.gd display
 ├── tests/
-│   └── integration/movement_smoke_test.gd   # headless floor/movement/jump test
+│   └── integration/             # movement, combat, match smoke suites
 ├── assets/                      # created when first needed (M6+)
 └── resources/                   # created when first needed
 ```
@@ -84,19 +89,43 @@ ArenaBattle/
 1. Open the Godot Project Manager → **Import** → select `project.godot` in this folder
    (Godot 4.7.x recommended).
 2. Press **F5** (or the Play button) to run the main scene `scenes/main/Main.tscn`.
-3. Expected: a capsule placeholder character you can move, turn and jump inside a bounded,
-   lit 30×30 arena, with a third-person mouse-look camera and a controls label.
+3. Expected: one controllable capsule and two static opponents in a bounded, lit 30×30
+   arena, with third-person mouse look, controls, scores and a 3:00 countdown.
+4. Attack opponents to score for TEAM A. Opponents automatically attack when you enter
+   their melee range and forward arc; player deaths score for TEAM B. Dead combatants
+   respawn at their team markers after 3 seconds with full health.
+5. First team to 5 kills wins; otherwise the higher score at time expiry wins (equal scores
+   draw). Attacks, scoring and respawns stop after match end. Stop and press F5 again to
+   start a fresh scene; restarting existing combatants through `start_match()` is unsupported.
 
 ### Automated headless test (no display needed)
 
 From the `ArenaBattle/` folder, using the Godot **console** binary:
 
 ```powershell
-& "<path>\Godot_v4.7.2-stable_win64_console.exe" --headless --path . --script res://tests/integration/movement_smoke_test.gd
+$godotBinary = "<path>\Godot_v4.7.2-stable_win64_console.exe"
+& $godotBinary --headless --path . --import
+& $godotBinary --headless --path . --script res://tests/integration/movement_smoke_test.gd
+& $godotBinary --headless --path . --script res://tests/integration/combat_smoke_test.gd
+& $godotBinary --headless --path . --script res://tests/integration/match_smoke_test.gd
 ```
 
-It verifies floor collision, movement and jump, prints `ALL_TESTS_PASS=true` and exits `0`
-on success (or `1` on failure). Last run: **PASS** (exit 0).
+Each suite prints `ALL_TESTS_PASS=true` and exits `0` on success (`1` on failure).
+Movement covers floor collision, movement and jumping; combat covers health, melee range,
+arc and cooldown; match covers scoring, death, respawn and match endings.
+
+Verified on 2026-10-16 with Godot 4.7.2.stable: movement (3 checks), combat (9 checks) and
+match (44 checks) each passed twice with `ALL_TESTS_PASS=true`, exit 0. Native import and a
+120-frame main-scene smoke run also exited 0 with no errors. Each match run deliberately
+emits one null-source warning for safe-degradation coverage. See
+[`tests/M3_QA_REPORT.md`](tests/M3_QA_REPORT.md) for evidence and remaining manual gates.
+
+### Manual acceptance still required
+
+Run F5 to verify readable score/countdown updates (AC-M3-11), visible correct match results
+(AC-M3-12), and camera/movement/attack feel. Automated label assertions do not verify visual
+layout or play feel. Exercise both victory and draw presentation using temporary Inspector
+values if needed; restore the defaults afterward.
 
 ### Controls
 
@@ -107,6 +136,7 @@ on success (or `1` on failure). Last run: **PASS** (exit 0).
 | Jump          | `Space`                |
 | Camera look   | Mouse move             |
 | Attack (M2)   | Left Mouse Button      |
+| Release / recapture cursor | `Esc`    |
 
 Bindings are defined as **Godot Input Map actions** (see
 [`docs/TECHNICAL_ARCHITECTURE.md`](docs/TECHNICAL_ARCHITECTURE.md)); physical keys are

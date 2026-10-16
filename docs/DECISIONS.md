@@ -162,7 +162,8 @@
      range/arc but never move. Enemy pathfinding/chase is explicitly out of scope for M3.
   4. **Health additions (backward-compatible):** `var last_damage_source: Node` set in
      `apply_damage` for kill attribution; `func reset() -> void` restores to max_health for
-     respawn. No signal signature changes — M2 combat test passes unmodified.
+     respawn. No signal signature changes. M2 test fixtures must isolate the original combat
+     contract from the added M3 opponents and match lifecycle; regression passing is a QA gate.
   5. **melee_attacker addition:** `@export var auto_attack: bool = false`. When true, attacks on
      cooldown without reading Input. Default false preserves M2 behaviour exactly.
   6. **Player joins group `"damageable"`** and gains `apply_damage()`/`get_health()` delegates on
@@ -170,7 +171,8 @@
      `collision_mask = 2` (Player layer) → detects player, never other dummies.
   7. **Kill attribution:** `Health.last_damage_source` → source node's `Combatant.get_team_id()`
      → `MatchManager.register_kill(scorer_team, victim_team)`. Null/missing source degrades
-     safely (no score, warning printed).
+     safely (no score, warning printed). Same-team and invalid-team kill requests do not
+     award points; local validation preserves the TDM contract (ADR-0009).
   8. **Respawn:** disable in place (collision off, mesh hidden, physics_process off), wait
      `respawn_delay` (SceneTree timer), teleport to team spawn marker (group lookup +
      `spawn_index`), `Health.reset()`, re-enable. NOT removed/re-instantiated.
@@ -194,7 +196,9 @@
     would break existing connections); combatant reads it synchronously in the died handler.
   - *Disable-in-place over remove/re-instantiate:* symmetric, stable node tree, no signal
     reconnection overhead, maps to persistent server entities in M4.
-- **Status:** Proposed (2026-10-15). Pending reviewer approval of tunable defaults.
+- **Status:** Adopted. Approved M3 checkpoint resumed on 2026-10-16 at the owner's request;
+  existing tunable defaults retained. Automated QA and manual HUD/feel acceptance are tracked
+  separately in the roadmap; adoption does not mean full milestone acceptance.
 
 ---
 

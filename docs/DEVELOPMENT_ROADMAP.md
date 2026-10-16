@@ -1,7 +1,7 @@
 # Development Roadmap — ArenaBattle
 
 > Milestone 0 document. Complete and verify each milestone before starting the next.
-> Current position: **Milestone 2 done (headless-verified). Milestone 3 spec complete — pending reviewer approval.**
+> Current position (2026-10-16): **M2 headless-verified; approved M3 implemented and headless-verified. Manual HUD/feel acceptance remains pending.**
 
 ## Environment Gate (resolved)
 
@@ -133,7 +133,7 @@ confirmed by the user in the editor.*
 
 ---
 
-### M3 — Local Gameplay Loop 📋 (spec complete — pending approval)
+### M3 — Local Gameplay Loop (approved; headless-verified, manual acceptance pending)
 
 > **Spec:** See `TECHNICAL_ARCHITECTURE.md` §3.5–3.9, §4.3–4.4, §6.5–6.10, §7 (M3 rows), §10 (M3
 > table) and `DECISIONS.md` ADR-0010.
@@ -144,24 +144,24 @@ confirmed by the user in the editor.*
 
 #### Scope checklist
 
-- [ ] `MatchManager` node (`scripts/match/match_manager.gd`) — phase/score/timer/signals.
-- [ ] `Combatant` component (`scripts/combat/combatant.gd`) — team id, death→kill attribution,
+- [x] `MatchManager` node (`scripts/match/match_manager.gd`) — phase/score/timer/signals.
+- [x] `Combatant` component (`scripts/combat/combatant.gd`) — team id, death→kill attribution,
       respawn scheduling, spawn-point group lookup.
-- [ ] `health.gd` additions — `last_damage_source` var + `reset()` method (backward-compatible).
-- [ ] `melee_attacker.gd` addition — `auto_attack` export (default false = M2 behaviour).
-- [ ] `player_controller.gd` minimal additions — `_ready()` group join, `apply_damage()`,
+- [x] `health.gd` additions — `last_damage_source` var + `reset()` method (backward-compatible).
+- [x] `melee_attacker.gd` addition — `auto_attack` export (default false = M2 behaviour).
+- [x] `player_controller.gd` minimal additions — `_ready()` group join, `apply_damage()`,
       `get_health()` delegates. **No movement logic changed.**
-- [ ] `Player.tscn` updated — add Health + Combatant child nodes.
-- [ ] `DummyTarget.tscn` updated — add Combatant + AttackHitbox (auto_attack=true, mask=2).
-- [ ] `Arena.tscn` updated — spawn markers join groups (`spawn_team_0`, `spawn_team_1`);
+- [x] `Player.tscn` updated — add Health + Combatant child nodes.
+- [x] `DummyTarget.tscn` updated — add Combatant + AttackHitbox (auto_attack=true, mask=2).
+- [x] `Arena.tscn` updated — spawn markers join groups (`spawn_team_0`, `spawn_team_1`);
       add SpawnB2 marker; adjust Y to 1.0.
-- [ ] `Main.tscn` updated — add MatchManager node; replace single DummyTarget with 2 Opponent
+- [x] `Main.tscn` updated — add MatchManager node; replace single DummyTarget with 2 Opponent
       instances at team-B spawn positions, oriented toward arena centre.
-- [ ] `HUD.tscn` updated — add ScoreLabel, TimerLabel, ResultLabel; attach `hud.gd`.
-- [ ] `scripts/ui/hud.gd` — connects to MatchManager signals, updates labels. Pure display.
-- [ ] Integration test: `tests/integration/match_smoke_test.gd`.
-- [ ] M2 regression: `combat_smoke_test.gd` still passes (ALL_TESTS_PASS=true).
-- [ ] M1 regression: `movement_smoke_test.gd` still passes.
+- [x] `HUD.tscn` updated — add ScoreLabel, TimerLabel, ResultLabel; attach `hud.gd`.
+- [x] `scripts/ui/hud.gd` — connects to MatchManager signals, updates labels. Pure display.
+- [x] Integration test: `tests/integration/match_smoke_test.gd` — 44 checks, twice, exit 0.
+- [x] M2 regression: `combat_smoke_test.gd` — 9 checks, twice, ALL_TESTS_PASS=true, exit 0.
+- [x] M1 regression: `movement_smoke_test.gd` — 3 checks, twice, ALL_TESTS_PASS=true, exit 0.
 
 #### Out of scope (explicitly excluded from M3)
 
@@ -174,6 +174,23 @@ confirmed by the user in the editor.*
 - **Overtime / tiebreaker** on draw (draw = draw, match ends).
 - **Persistent stats / progression.**
 - **Dynamic opponent count** (fixed at 2 instances in Main.tscn; tunable by editing the scene).
+
+#### Verification checkpoint — 2026-10-16
+
+Godot 4.7.2.stable native import passed (exit 0), followed by two successful runs each of
+movement (3 checks), combat (9 checks) and match (44 checks). Every suite reported
+`ALL_TESTS_PASS=true` and exit 0. A 120-frame main-scene headless smoke run also exited 0.
+There were no errors; each match suite deliberately emits one null-source attribution
+warning for the safe-degradation case. Detailed evidence: [`../tests/M3_QA_REPORT.md`](../tests/M3_QA_REPORT.md).
+
+The resumed work added match lifecycle/respawn/scoring/HUD-state coverage, aligned stale M2
+combat fixtures with the M3 scene, and rejected friendly or invalid-team kill registrations.
+The runtime opponent-facing regression passes with the existing authored scene transforms.
+
+AC-M3-1–10 and AC-M3-15–17 have automated evidence. Code review verified component separation
+and exported gameplay tunables (AC-M3-13/14). HUD text/state assertions supplement testing,
+but visual score/countdown presentation (AC-M3-11), result presentation (AC-M3-12) and play
+feel still require manual F5 acceptance. **Full M3 remains open until those checks pass.**
 
 #### Acceptance criteria
 
@@ -244,7 +261,7 @@ confirmed by the user in the editor.*
 `scripts/targets/dummy_target.gd` (Combatant child handles team/death/respawn; existing feedback
 code untouched), `scripts/player/camera_rig.gd`.
 
-#### Exported tunables & defaults (reviewer confirm/change)
+#### Approved exported tunables & defaults
 
 | Tunable | Location | Default | Notes |
 |---------|----------|---------|-------|
@@ -317,15 +334,10 @@ code untouched), `scripts/player/camera_rig.gd`.
 
 ## Immediate Next Steps
 
-1. **Reviewer approval of M3 spec** — confirm or change the tunable defaults listed above
-   (score_limit, time_limit, respawn_delay, opponent count, static-vs-bot, MatchManager
-   scene-node-vs-autoload, health reset method name). **← GATE: implementation does not begin
-   until approved.**
-2. **Manual F5 playtest (user, M2 carry-over):** walk to the dummy, attack with Left Mouse,
-   confirm the red hit-flash + console `[DummyTarget] health:` prints and that the cooldown
-   feels right (AC-10).
-3. **Gameplay Developer** implements M3 per the file manifest (after approval).
-4. **QA Engineer** writes `match_smoke_test.gd` per the 8 test cases above; re-runs M1/M2
-   regressions.
-5. Optional QA follow-up: extend `combat_smoke_test.gd` to exercise the arc at a non-zero
-   `CameraPivot` yaw (arc must rotate with the camera).
+1. **Manual F5 playtest:** verify score/countdown readability and updates (AC-M3-11), all
+   result labels (AC-M3-12), and camera/movement/melee feel, including M2 hit feedback.
+2. Retain the verified checkpoint locally; remote push remains a separate owner decision.
+   Do not mark full M3 complete until manual acceptance passes.
+3. Start fresh matches by stopping and running the main scene again (F5). Manager-only
+   `start_match()` re-entry does not reset Combatant end-state latches and is unsupported.
+4. Plan M4 only after the local loop is accepted; no networking is included in this checkpoint.
