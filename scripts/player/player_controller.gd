@@ -28,6 +28,7 @@ extends CharacterBody3D
 @onready var _mesh: Node3D = $Mesh
 @onready var _camera_pivot: Node3D = $CameraPivot
 @onready var _health: Health = get_node_or_null("Health") as Health
+@onready var _attack: Node = get_node_or_null("AttackHitbox")
 
 
 func _ready() -> void:
@@ -35,6 +36,11 @@ func _ready() -> void:
 	# the "damageable" group.  The player's own AttackHitbox mask (4) still excludes the
 	# player's layer (2), so this cannot cause a self-hit.
 	add_to_group("damageable")
+	# M6 (attack-facing): snap the visual mesh to the aim direction at the moment of a swing so
+	# the attack always comes out of the character's front. Presentation only — combat still
+	# resolves along the camera-aim forward the hitbox emits; movement-facing resumes afterwards.
+	if _attack != null and _attack.has_signal("attack_started"):
+		_attack.attack_started.connect(_on_attack_started)
 
 
 func _physics_process(delta: float) -> void:
@@ -114,6 +120,14 @@ func _face_movement_direction(delta: float) -> void:
 		_mesh.rotation.y = lerp_angle(
 			_mesh.rotation.y, target_yaw, clampf(turn_speed * delta, 0.0, 1.0)
 		)
+
+
+## M6 (attack-facing): turn the visual mesh to the swing's aim direction instantly, so the
+## model faces where it attacks. [param forward] is the XZ aim direction emitted by the
+## AttackHitbox (camera-forward); the mesh's local +Z is its front, matching _face_movement_direction.
+func _on_attack_started(forward: Vector3) -> void:
+	if _mesh != null and forward.length_squared() > 0.0001:
+		_mesh.rotation.y = atan2(forward.x, forward.z)
 
 
 # --- Combat interface (M3) — pure delegation to the Health component ------------------
