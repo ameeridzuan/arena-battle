@@ -16,12 +16,15 @@ extends CharacterBody3D
 ## M4: server supplies validated controls; replicas never simulate movement.
 @export var external_control: bool = false
 
-## M6 facing toggle. When false (default, option A) the mesh faces the MOVEMENT direction and —
-## because the melee swing travels along the mesh front — the attack follows the character's
-## facing. When true (option B) the mesh tracks the camera-aim, so the attack follows the aim.
-## Single-player only: the toggle key is read in _physics_process(), which networked replicas
-## skip via the external_control early-return (their facing is server-authoritative).
-@export var face_aim_always: bool = false
+## M6 camera toggle (key V). The character ALWAYS faces its movement direction and the melee
+## swing travels along the mesh front, so the attack follows the character in BOTH modes; this
+## flag only changes the CAMERA. When false (default, option A) the camera is free mouse-look.
+## When true (option B) the camera yaw is hard-locked behind the character (mouse horizontal
+## look is overridden; pitch still works). Single-player only: the toggle key is read in
+## _physics_process(), which networked replicas skip via the external_control early-return.
+@export var camera_lock_behind: bool = false
+## How fast the locked camera swings behind the character (per-second lerp rate); higher = snappier.
+@export var camera_lock_speed: float = 12.0
 
 @export_group("Movement")
 @export var walk_speed: float = 6.0        # m/s
@@ -47,10 +50,11 @@ func _ready() -> void:
 func _physics_process(delta: float) -> void:
 	if external_control:
 		return
-	if Input.is_action_just_pressed("toggle_face_aim"):
-		face_aim_always = not face_aim_always
+	if Input.is_action_just_pressed("toggle_camera_lock"):
+		camera_lock_behind = not camera_lock_behind
 	_simulate_movement(delta, _camera_relative_input(), Input.is_action_pressed("run"),
 		Input.is_action_just_pressed("jump"))
+	_update_camera_lock(delta)
 
 
 ## Called only by the authoritative session, with bounded input (never client positions).
@@ -67,7 +71,7 @@ func _simulate_movement(delta: float, direction: Vector3, running: bool, jump_pr
 	if jump_pressed and is_on_floor():
 		velocity.y = jump_velocity
 	move_and_slide()
-	_update_facing(delta)
+	_face_movement_direction(delta)
 
 
 func _apply_gravity(delta: float) -> void:
@@ -125,20 +129,17 @@ func _face_movement_direction(delta: float) -> void:
 		)
 
 
-## Chooses the visual-facing rule: option A (default — face the movement direction) or option B
-## (always face the camera-aim). The melee swing travels along the mesh front either way, so the
-## attack always follows whichever direction this chooses.
-func _update_facing(delta: float) -> void:
-	if face_aim_always:
-		_face_aim_direction()
-	else:
-		_face_movement_direction(delta)
-
-
-## Option B: the mesh's local +Z (its front) tracks the camera-forward. Because the melee swing
-## travels along the mesh front, facing and attack direction are always identical while this is on.
-func _face_aim_direction() -> void:
-	_mesh.rotation.y = _camera_pivot.rotation.y + PI
+## Option B (camera_lock_behind): swing the camera yaw to sit directly behind the character's
+## facing (mesh front +Z), so the camera looks along the direction the character — and therefore
+## the attack — is facing. Mouse horizontal look is overridden here; pitch (CameraTilt) is left
+## untouched. No-op in option A, where the camera stays under free mouse-look.
+func _update_camera_lock(delta: float) -> void:
+	if not camera_lock_behind:
+		return
+	var target_yaw := _mesh.rotation.y + PI
+	_camera_pivot.rotation.y = lerp_angle(
+		_camera_pivot.rotation.y, target_yaw, clampf(camera_lock_speed * delta, 0.0, 1.0)
+	)
 
 
 # --- Combat interface (M3) — pure delegation to the Health component ------------------

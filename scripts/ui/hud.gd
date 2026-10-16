@@ -35,10 +35,10 @@ var _damage_tint: ColorRect
 var _last_health: float = 0.0
 var _tint_remaining: float = 0.0
 
-## M6 facing-mode indicator (single-player only). Bound to the local player's controller.
+## M6 camera-mode indicator (single-player only). Bound to the local player's controller.
 var _facing_label: Label
 var _player_controller
-var _facing_mode_b: bool = false
+var _camera_lock_b: bool = false
 
 var _match_manager: Node
 var _score_label: Label
@@ -171,8 +171,9 @@ func bind_health(health: Health) -> void:
 	_update_facing_label()
 
 
-## Shows the current facing mode and the toggle key. Hidden for networked replicas
-## (external_control), where facing is server-driven and the toggle key is not read.
+## Shows the current camera mode (A = free mouse-look, B = locked behind the character) and the
+## toggle key. Hidden for networked replicas (external_control), where the camera is server-driven
+## and the toggle key is not read.
 func _update_facing_label() -> void:
 	if _facing_label == null:
 		return
@@ -180,11 +181,11 @@ func _update_facing_label() -> void:
 		_facing_label.visible = false
 		return
 	var external = _player_controller.get("external_control")
-	var mode = _player_controller.get("face_aim_always")
+	var mode = _player_controller.get("camera_lock_behind")
 	if external == null or mode == null or external:
 		_facing_label.visible = false
 		return
 	_facing_label.visible = true
-	if bool(mode) != _facing_mode_b:
-		_facing_mode_b = bool(mode)
-		_facing_label.text = "Facing [V]: Aim (B)" if _facing_mode_b else "Facing [V]: Movement (A)"
+	if bool(mode) != _camera_lock_b:
+		_camera_lock_b = bool(mode)
+		_facing_label.text = "Camera [V]: Locked (B)" if _camera_lock_b else "Camera [V]: Free-look (A)"
