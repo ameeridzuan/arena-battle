@@ -37,9 +37,10 @@ func _run() -> void:
 	Input.action_release("attack")
 	await _frames(1)
 	_check("miss_has_swipe", swings[0] == 1 and feedback.get_node("AttackSwipe").visible)
-	var forward: Vector3 = -player.get_node("CameraPivot").global_basis.z
+	# A: the swing (and thus the swipe) follows the Mesh front (+Z), not the camera.
+	var forward: Vector3 = player.get_node("Mesh").global_basis.z
 	var visual_forward: Vector3 = -feedback.get_node("AttackSwipe").global_basis.z
-	_check("swipe_aims_with_camera", forward.dot(visual_forward) > 0.999)
+	_check("swipe_aims_with_facing", forward.dot(visual_forward) > 0.999)
 	Input.action_press("attack")
 	await _frames(1)
 	Input.action_release("attack")

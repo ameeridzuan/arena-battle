@@ -103,6 +103,9 @@ func _server_test() -> void:
 		body.velocity = Vector3.ZERO
 	attacker.position = Vector3(0, 1, 0)
 	friend.position = Vector3(0, 1, -1.5)
+	# A (attack-follows-facing): orient the attacker toward world -Z (its Mesh front) where the
+	# friend/enemy fixtures sit, so its remote swings land. It never moves, so this yaw persists.
+	attacker.get_node("Mesh").rotation.y = PI
 	_stage("friendly", attacker_id)
 	await _seconds(1.0)
 	_check("friendly_remote_swings_execute", session.players[attacker_id].swings > 0)

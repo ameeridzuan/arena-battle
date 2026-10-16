@@ -330,7 +330,9 @@ func _receive_snapshot(tick: int, states: Array, phase: int, a: int, b: int, rem
 		body.get_node("Health").apply_network_state(state.hp, state.max_hp)
 		body.get_node("Mesh").visible = not state.dead
 		if not state.dead and state.swings > record.swings:
-			var forward := Vector3.FORWARD.rotated(Vector3.UP, state.yaw)
+			# A: the swing travels along the server-authoritative Mesh front (+Z), so drive the
+			# remote swipe from mesh_yaw (not the camera yaw) to match the real attack direction.
+			var forward := Vector3.BACK.rotated(Vector3.UP, state.mesh_yaw)
 			body.get_node("PlayerFeedback")._on_attack_started(forward)
 		record.swings = state.swings
 	for id in players.keys():

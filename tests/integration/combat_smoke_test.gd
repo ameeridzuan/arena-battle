@@ -166,6 +166,12 @@ func _setup(dummy_offset: Vector3, spawn_dummy: bool) -> Dictionary:
 	await _wait(PLAYER_SETTLE_FRAMES)
 	var settled_at: Vector3 = player.global_position
 
+	# A (attack-follows-facing): the swing now travels along the Mesh front (+Z), not the camera.
+	# Orient the stationary player to face world -Z so the front/behind/far offsets below (defined
+	# on -Z / +Z) resolve exactly as they did under the old camera-aim convention. The player never
+	# receives movement input here, so _face_movement_direction leaves this yaw untouched.
+	(player.get_node("Mesh") as Node3D).rotation.y = PI
+
 	var dummy: Node3D = null
 	if spawn_dummy:
 		dummy = load(DUMMY_SCENE).instantiate()
@@ -207,9 +213,10 @@ func _xzone(a: Vector3, b: Vector3) -> float:
 
 
 func _aim_forward(player: CharacterBody3D) -> Vector3:
-	var pivot: Node3D = player.get_node("CameraPivot")
-	var basis: Basis = pivot.global_transform.basis
-	var forward := Vector3(-basis.z.x, 0.0, -basis.z.z)
+	# A: the attack direction is the Mesh front (+Z), not the camera. Diagnostics only.
+	var mesh: Node3D = player.get_node("Mesh")
+	var basis: Basis = mesh.global_transform.basis
+	var forward := Vector3(basis.z.x, 0.0, basis.z.z)
 	return forward.normalized() if forward.length_squared() > 0.0001 else Vector3.ZERO
 
 
@@ -220,7 +227,7 @@ func _describe_geometry(ctx: Dictionary) -> void:
 	var dummy: Variant = ctx.get("dummy")
 	var forward := _aim_forward(player)
 	print("  player=", player.global_position, " hitbox=", hitbox.global_position,
-			" cameraPivot_forward=", forward)
+			" mesh_forward=", forward)
 	print("  hitbox collision_layer=", hitbox.collision_layer,
 			" collision_mask=", hitbox.collision_mask,
 			" attack_range=", atk.attack_range, " attack_damage=", atk.attack_damage,

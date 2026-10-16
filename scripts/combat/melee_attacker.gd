@@ -24,6 +24,10 @@ signal attack_started(forward: Vector3)
 ## Network team matches disable friendly damage; preserve local prototype defaults.
 @export var friendly_fire: bool = true
 @export var aim_reference_path: NodePath = ^"../CameraPivot"
+## Which axis of [member aim_reference_path] counts as "forward". False (default) uses -Z, the
+## convention for the camera pivot and the opponent root. True uses +Z, the front of the player's
+## visual Mesh, so the swing travels where the character faces (option A: attack follows facing).
+@export var aim_forward_positive_z: bool = false
 
 var _cooldown_remaining: float = 0.0
 var _aim_ref: Node3D
@@ -63,8 +67,11 @@ func request_attack() -> bool:
 
 func _perform_attack() -> void:
 	var basis := _aim_ref.global_transform.basis
-	# XZ-project the camera pivot's -Z axis (forward direction).
-	var forward := Vector3(-basis.z.x, 0.0, -basis.z.z)
+	# XZ-project the aim reference's forward axis: -Z for the camera pivot / opponent root, or
+	# +Z for the player's visual Mesh front (option A — the swing follows the character's facing).
+	var forward := Vector3(basis.z.x, 0.0, basis.z.z)
+	if not aim_forward_positive_z:
+		forward = -forward
 	if forward.length_squared() < 0.0001:
 		return
 	forward = forward.normalized()

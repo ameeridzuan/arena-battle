@@ -65,6 +65,11 @@ func _position_players(first: Node3D, second: Node3D, target: Vector3) -> void:
 	second.position = target
 	first.velocity = Vector3.ZERO
 	second.velocity = Vector3.ZERO
+	# A (attack-follows-facing): the server swing travels along the attacker's Mesh front (+Z).
+	# Orient the attacker (first) toward world -Z so the fixed target offsets resolve as before:
+	# front/hit = -Z (0 deg), behind = +Z (180 deg, outside arc), far = -Z but beyond range.
+	# second keeps its default Mesh yaw (0 => faces +Z) so it hits first during "simultaneous".
+	(first.get_node("Mesh") as Node3D).rotation.y = PI
 	for record in session.players.values():
 		record.move = Vector2.ZERO
 		record.attack = false

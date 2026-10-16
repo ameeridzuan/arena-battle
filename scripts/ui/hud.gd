@@ -187,4 +187,4 @@ func _update_facing_label() -> void:
 	_facing_label.visible = true
 	if bool(mode) != _facing_mode_b:
 		_facing_mode_b = bool(mode)
-		_facing_label.text = "Facing [V]: Aim (B)" if _facing_mode_b else "Facing [V]: Attack-snap (C)"
+		_facing_label.text = "Facing [V]: Aim (B)" if _facing_mode_b else "Facing [V]: Movement (A)"

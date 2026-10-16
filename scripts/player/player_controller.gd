@@ -16,10 +16,11 @@ extends CharacterBody3D
 ## M4: server supplies validated controls; replicas never simulate movement.
 @export var external_control: bool = false
 
-## M6 facing toggle (option B). When false (default, option C) the mesh faces the movement
-## direction and snaps to the aim only at the moment of a swing. When true the mesh always
-## faces the camera-aim direction. Single-player only: the toggle key is read in
-## _physics_process(), which networked replicas skip via the external_control early-return.
+## M6 facing toggle. When false (default, option A) the mesh faces the MOVEMENT direction and —
+## because the melee swing travels along the mesh front — the attack follows the character's
+## facing. When true (option B) the mesh tracks the camera-aim, so the attack follows the aim.
+## Single-player only: the toggle key is read in _physics_process(), which networked replicas
+## skip via the external_control early-return (their facing is server-authoritative).
 @export var face_aim_always: bool = false
 
 @export_group("Movement")
@@ -34,7 +35,6 @@ extends CharacterBody3D
 @onready var _mesh: Node3D = $Mesh
 @onready var _camera_pivot: Node3D = $CameraPivot
 @onready var _health: Health = get_node_or_null("Health") as Health
-@onready var _attack: Node = get_node_or_null("AttackHitbox")
 
 
 func _ready() -> void:
@@ -42,11 +42,6 @@ func _ready() -> void:
 	# the "damageable" group.  The player's own AttackHitbox mask (4) still excludes the
 	# player's layer (2), so this cannot cause a self-hit.
 	add_to_group("damageable")
-	# M6 (attack-facing): snap the visual mesh to the aim direction at the moment of a swing so
-	# the attack always comes out of the character's front. Presentation only — combat still
-	# resolves along the camera-aim forward the hitbox emits; movement-facing resumes afterwards.
-	if _attack != null and _attack.has_signal("attack_started"):
-		_attack.attack_started.connect(_on_attack_started)
 
 
 func _physics_process(delta: float) -> void:
@@ -130,8 +125,9 @@ func _face_movement_direction(delta: float) -> void:
 		)
 
 
-## Chooses the visual-facing rule: option B (always face the camera-aim) or option C (face the
-## movement direction; _on_attack_started snaps to aim at each swing).
+## Chooses the visual-facing rule: option A (default — face the movement direction) or option B
+## (always face the camera-aim). The melee swing travels along the mesh front either way, so the
+## attack always follows whichever direction this chooses.
 func _update_facing(delta: float) -> void:
 	if face_aim_always:
 		_face_aim_direction()
@@ -139,19 +135,10 @@ func _update_facing(delta: float) -> void:
 		_face_movement_direction(delta)
 
 
-## Option B: the mesh's local +Z (its front) tracks the camera-forward. The camera pivot's yaw
-## maps to the same world direction _on_attack_started snaps to (atan2 of the aim forward), so
-## facing and attack direction are always identical while this mode is on.
+## Option B: the mesh's local +Z (its front) tracks the camera-forward. Because the melee swing
+## travels along the mesh front, facing and attack direction are always identical while this is on.
 func _face_aim_direction() -> void:
 	_mesh.rotation.y = _camera_pivot.rotation.y + PI
-
-
-## M6 (attack-facing): turn the visual mesh to the swing's aim direction instantly, so the
-## model faces where it attacks. [param forward] is the XZ aim direction emitted by the
-## AttackHitbox (camera-forward); the mesh's local +Z is its front, matching _face_movement_direction.
-func _on_attack_started(forward: Vector3) -> void:
-	if _mesh != null and forward.length_squared() > 0.0001:
-		_mesh.rotation.y = atan2(forward.x, forward.z)
 
 
 # --- Combat interface (M3) — pure delegation to the Health component ------------------
