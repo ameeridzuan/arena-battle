@@ -2,7 +2,7 @@ extends Node
 ## Character animation driver (M7 art pass).
 ##
 ## Presentation only: reads the owning body's motion state and plays the authored animations on
-## the character model's AnimationPlayer (found under the `Mesh` anchor). It never mutates
+## one AnimationTree using the model's AnimationPlayer as its clip library. It never mutates
 ## gameplay state, damage, or timing.
 ##
 ## Both character GLBs expose an identical, canonical animation set (Idle / Walk / Run / Jump /
@@ -15,7 +15,7 @@ extends Node
 ## disabled on clients) it falls back to a vertical-velocity heuristic.
 
 ## Horizontal speed (m/s) at or above which Run plays instead of Walk.
-@export var run_speed_threshold: float = 8.0
+@export var run_speed_threshold: float = 2.1
 ## Horizontal speed (m/s) below which Idle plays instead of Walk.
 @export var walk_speed_threshold: float = 0.5
 ## For externally-controlled replicas: |velocity.y| above this counts as airborne (Jump).
@@ -25,7 +25,29 @@ extends Node
 	"Attack_Slash", "Attack_Backhand", "Attack_Overhead", "Attack_Thrust",
 ]
 
-const LOOPED := ["Idle", "Walk", "Run"]
+const MOVE_DIRECTION := preload("res://scripts/player/movement_direction.gd")
+const LOCOMOTION := preload("res://scripts/player/locomotion_library.gd")
+const LOCAL_RESOURCES := preload("res://scripts/player/animation_resources.gd")
+const LAYERS := preload("res://scripts/player/layered_animation.gd")
+const ACTION := preload("res://scripts/player/animation_action.gd")
+## Optional character-specific presentation definitions; empty uses shared melee defaults.
+@export var action_definitions: Array[ACTION] = []
+var _layers: LAYERS
+var _bound_model: Node
+var _manual_preview := false
+var _health: Node
+
+@export_range(0.0, 0.5) var locomotion_blend_s: float = 0.15
+@export_range(0.0, 2.0) var run_hysteresis: float = 0.25
+@export_range(0.0, 0.4) var idle_hysteresis: float = 0.1
+var _locomotion_clip: String = "Idle"
+var _gait_family: String = "Idle"
+var _move_sector: int = 0
+@export_range(0.0, 20.0) var direction_hysteresis_degrees: float = 8.0
+## Review-gallery slow motion; gameplay keeps 1.0.
+var playback_multiplier: float = 1.0
+
+const LOOPED := ["Idle", "Walk", "Run", "Walk_Backward", "Walk_Left", "Walk_Right"]
 const AIRBORNE := "Jump"
 
 var _body: CharacterBody3D
@@ -41,6 +63,9 @@ func _ready() -> void:
 	var hitbox := _body.get_node_or_null("AttackHitbox") if _body != null else null
 	if hitbox != null and hitbox.has_signal("attack_started"):
 		hitbox.attack_started.connect(_on_attack_started)
+	_health = _body.get_node_or_null("Health") if _body != null else null
+	if _health != null:
+		_health.health_changed.connect(_on_health_changed)
 	_locate_animation_player()
 
 
@@ -49,15 +74,27 @@ func _ready() -> void:
 func _locate_animation_player() -> void:
 	if _mesh == null:
 		return
-	var players := _mesh.find_children("*", "AnimationPlayer", true, false)
+	var model: Node = _mesh._model
+	if not is_instance_valid(model):
+		return
+	var players := model.find_children("*", "AnimationPlayer", true, false)
 	if players.is_empty():
 		return
+	if _layers != null:
+		_layers.dispose()
+	_attack_playing = false
+	_attack_index = 0
 	_anim = players[0] as AnimationPlayer
-	_anim.animation_finished.connect(_on_animation_finished)
+	_bound_model = model
 	_configure_loop_modes()
+	_layers = LAYERS.new()
+	_layers.bind(_anim)
+	_layers.tree.active = not _manual_preview
 
 
 func _configure_loop_modes() -> void:
+	LOCAL_RESOURCES.make_local(_anim)
+	LOCOMOTION.install(_anim,int(_mesh.character))
 	for clip in LOOPED:
 		if _anim.has_animation(clip):
 			_anim.get_animation(clip).loop_mode = Animation.LOOP_LINEAR
@@ -66,23 +103,48 @@ func _configure_loop_modes() -> void:
 			_anim.get_animation(clip).loop_mode = Animation.LOOP_NONE
 
 
-func _physics_process(_delta: float) -> void:
-	if _anim == null:
+func _physics_process(delta: float) -> void:
+	if not is_instance_valid(_anim) or _bound_model != _mesh._model:
+		if _layers != null:
+			_layers.dispose()
+		_layers = null
+		_anim = null
+		_attack_playing = false
+		_gait_family = "Idle"
+		_locomotion_clip = "Idle"
+		_move_sector = 0
 		_locate_animation_player()
 		if _anim == null:
 			return
-	if _attack_playing:
+	if _manual_preview:
+		return
+	if _health != null and _health.get_health() <= 0:
+		reset_presentation()
 		return
 	if not _is_grounded():
 		_play(AIRBORNE)
+		_layers.base_speed = 1.0
+		_layers.advance(delta * playback_multiplier)
+		_attack_playing = _layers.action != null
 		return
 	var horizontal := Vector2(_body.velocity.x, _body.velocity.z).length()
-	if horizontal >= run_speed_threshold:
-		_play("Run")
-	elif horizontal >= walk_speed_threshold:
-		_play("Walk")
+	# Enter at the configured threshold; leave only below a lower threshold.
+	# This avoids clip flicker when replicated speed jitters near the boundary.
+	if horizontal >= run_speed_threshold or (_gait_family == "Run" and horizontal >= maxf(walk_speed_threshold, run_speed_threshold - run_hysteresis)):
+		_gait_family = "Run"
+	elif horizontal >= walk_speed_threshold or (_gait_family != "Idle" and horizontal >= maxf(0.0, walk_speed_threshold - idle_hysteresis)):
+		_gait_family = "Walk"
 	else:
-		_play("Idle")
+		_gait_family = "Idle"
+	_locomotion_clip = _select_directional_clip(_gait_family)
+	_play(_locomotion_clip)
+	if _is_gait_clip(_locomotion_clip):
+		var nominal: float = _anim.get_animation(_locomotion_clip).get_meta("nominal_speed_m_s", 1.0)
+		_layers.base_speed = clampf(horizontal / maxf(nominal, 0.1), 0.25, 2.0)
+	else:
+		_layers.base_speed = 1.0
+	_layers.advance(delta * playback_multiplier)
+	_attack_playing = _layers.action != null
 
 
 func _is_grounded() -> bool:
@@ -96,15 +158,25 @@ func _is_grounded() -> bool:
 
 
 func _on_attack_started(_forward: Vector3) -> void:
-	if _anim == null:
+	if not is_instance_valid(_anim) or _bound_model != _mesh._model:
 		_locate_animation_player()
-	if _anim == null or attack_animations.is_empty():
+	if _anim == null or _manual_preview or attack_animations.is_empty():
+		return
+	if _health != null and _health.get_health() <= 0:
 		return
 	var clip := _next_attack_clip()
 	if clip == "":
 		return
-	_attack_playing = true
-	_anim.play(clip)
+	var spec: ACTION
+	for definition in action_definitions:
+		if definition != null and String(definition.clip) == clip:
+			spec = definition
+			break
+	if spec == null:
+		spec = ACTION.new()
+		spec.clip = StringName(clip)
+	_layers.start_action(spec)
+	_attack_playing = _layers.action != null
 
 
 func _next_attack_clip() -> String:
@@ -117,14 +189,64 @@ func _next_attack_clip() -> String:
 	return ""
 
 
-func _on_animation_finished(clip: StringName) -> void:
-	if attack_animations.has(String(clip)):
-		_attack_playing = false
-
-
 func _play(clip: String) -> void:
-	if not _anim.has_animation(clip):
-		return
-	if _anim.current_animation == clip and _anim.is_playing():
-		return
-	_anim.play(clip)
+	_layers.select_base(clip, locomotion_blend_s)
+
+
+func _is_gait_clip(clip: String) -> bool:
+	return clip in ["Walk", "Run", "Walk_Backward", "Walk_Left", "Walk_Right"]
+
+
+func _select_directional_clip(family: String) -> String:
+	if family == "Idle":
+		_move_sector = 0
+		return "Idle"
+	var local: Vector3 = _mesh.global_basis.orthonormalized().inverse() * Vector3(_body.velocity.x, 0, _body.velocity.z)
+	var margin: float = _body.aim_direction_hysteresis_degrees if _body.camera_lock_behind else direction_hysteresis_degrees
+	_move_sector = MOVE_DIRECTION.select(local, _move_sector, margin,
+		not _is_gait_clip(get_locomotion_clip()))
+	# No directional running capture is installed. Aimed side/back movement uses
+	# tactical walking; residual forward-run velocity settles through that pose.
+	if family == "Run" and not (_body.camera_lock_behind and _move_sector != 0):
+		return "Run"
+	if _move_sector != 0:
+		_gait_family = "Walk"
+	return ["Walk", "Walk_Right", "Walk_Backward", "Walk_Left"][_move_sector]
+
+
+func get_locomotion_clip() -> String:
+	return _layers.base_clip if _layers != null else ""
+
+func get_locomotion_position() -> float:
+	return _layers.base_time if _layers != null else 0.0
+
+func get_locomotion_speed() -> float:
+	return _layers.base_speed if _layers != null else 1.0
+
+func get_action_clip() -> String:
+	return String(_layers.action.clip) if _layers != null and _layers.action != null else ""
+
+func reset_presentation() -> void:
+	_attack_playing = false
+	_attack_index = 0
+	_gait_family = "Idle"
+	_locomotion_clip = "Idle"
+	_move_sector = 0
+	if _layers != null:
+		_layers.reset()
+		if not _manual_preview:
+			_layers.evaluate()
+
+## Raw clip gallery owns AnimationPlayer only while the runtime mixer is inactive.
+func set_manual_preview(enabled: bool) -> void:
+	_manual_preview = enabled
+	reset_presentation()
+	if _layers != null:
+		_layers.tree.active = not enabled
+	if not enabled and is_instance_valid(_anim):
+		_anim.stop()
+		_layers.evaluate()
+
+func _on_health_changed(current: float, _maximum: float) -> void:
+	if current <= 0:
+		reset_presentation()

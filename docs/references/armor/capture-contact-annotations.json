@@ -1,0 +1,87 @@
+{
+  "Walk": {
+    "phase_offset_frames": 9,
+    "thresholds": {
+      "ankle_height_above_lowest_m": 0.04,
+      "horizontal_ankle_speed_m_s": 0.3,
+      "smoothing_frames": 3
+    },
+    "events": [
+      {
+        "time_s": 0.0,
+        "event": "right_estimated_stationary_ankle_start",
+        "confidence": "calculated heuristic, not measured ground reaction or heel/toe contact"
+      },
+      {
+        "time_s": 0.025,
+        "event": "right_estimated_stationary_ankle_end",
+        "confidence": "calculated heuristic, not measured ground reaction or heel/toe contact"
+      },
+      {
+        "time_s": 0.10833,
+        "event": "left_estimated_stationary_ankle_start",
+        "confidence": "calculated heuristic, not measured ground reaction or heel/toe contact"
+      },
+      {
+        "time_s": 0.54166,
+        "event": "left_estimated_stationary_ankle_end",
+        "confidence": "calculated heuristic, not measured ground reaction or heel/toe contact"
+      },
+      {
+        "time_s": 0.55833,
+        "event": "left_estimated_stationary_ankle_start",
+        "confidence": "calculated heuristic, not measured ground reaction or heel/toe contact"
+      },
+      {
+        "time_s": 0.58333,
+        "event": "left_estimated_stationary_ankle_end",
+        "confidence": "calculated heuristic, not measured ground reaction or heel/toe contact"
+      },
+      {
+        "time_s": 0.58333,
+        "event": "right_estimated_stationary_ankle_start",
+        "confidence": "calculated heuristic, not measured ground reaction or heel/toe contact"
+      },
+      {
+        "time_s": 0.60833,
+        "event": "right_estimated_stationary_ankle_end",
+        "confidence": "calculated heuristic, not measured ground reaction or heel/toe contact"
+      },
+      {
+        "time_s": 0.65833,
+        "event": "right_estimated_stationary_ankle_start",
+        "confidence": "calculated heuristic, not measured ground reaction or heel/toe contact"
+      }
+    ]
+  },
+  "Run": {
+    "phase_offset_frames": 84,
+    "thresholds": {
+      "ankle_height_above_lowest_m": 0.04,
+      "horizontal_ankle_speed_m_s": 0.3,
+      "smoothing_frames": 3
+    },
+    "events": [
+      {
+        "time_s": 0.075,
+        "event": "left_estimated_stationary_ankle_start",
+        "confidence": "calculated heuristic, not measured ground reaction or heel/toe contact"
+      },
+      {
+        "time_s": 0.19167,
+        "event": "left_estimated_stationary_ankle_end",
+        "confidence": "calculated heuristic, not measured ground reaction or heel/toe contact"
+      },
+      {
+        "time_s": 0.49166,
+        "event": "right_estimated_stationary_ankle_start",
+        "confidence": "calculated heuristic, not measured ground reaction or heel/toe contact"
+      },
+      {
+        "time_s": 0.56666,
+        "event": "right_estimated_stationary_ankle_end",
+        "confidence": "calculated heuristic, not measured ground reaction or heel/toe contact"
+      }
+    ]
+  }
+}

@@ -1,0 +1,17 @@
+{
+  "status": "authored_timing_layout_not_motion_capture_or_joint_animation",
+  "purpose": "Replicate a timing layout on a suitable human rig; observe or author remaining joint motion and support transitions.",
+  "fps": 30,
+  "forward_speed_m_s": 1.2,
+  "cadence_steps_min": 100,
+  "step_length_m": 0.72,
+  "stride_duration_s": 1.2,
+  "stride_distance_m": 1.44,
+  "events": [
+    {"frame": 0, "time_s": 0.0, "event": "left_foot_contact", "root_forward_m": 0.0},
+    {"frame": 18, "time_s": 0.6, "event": "right_foot_contact", "root_forward_m": 0.72},
+    {"frame": 36, "time_s": 1.2, "event": "left_foot_contact_next_cycle", "root_forward_m": 1.44}
+  ],
+  "unknown_until_observed_or_authored": ["toe_off_times", "double_support_duration", "joint_curves", "armor_attachment_motion", "ground_reaction_forces"],
+  "retargeting_note": "The end event duplicates the next cycle start; handle loop boundaries according to the animation system. Do not add an armor speed multiplier without a defined character and equipment basis."
+}

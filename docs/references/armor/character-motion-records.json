@@ -1,0 +1,2044 @@
+[
+  {
+    "schema_version": "1.0",
+    "record_status": "adapted_capture_with_authored_gameplay_defaults",
+    "units": {
+      "mass": "kg",
+      "length": "m",
+      "time": "s",
+      "angle": "degrees"
+    },
+    "character": {
+      "id": "arclight",
+      "body_mass_kg": null,
+      "height_m": null,
+      "leg_length_m": 0.79,
+      "strength_basis": null,
+      "armor_experience": null,
+      "fatigue_state": null,
+      "leg_length_basis": "calculated from current rig thigh/shin rest lengths; not actor anthropometry"
+    },
+    "environment": {
+      "gravity_m_s2": 9.81,
+      "surface": null,
+      "slope_degrees": null,
+      "traction_basis": null
+    },
+    "equipment": [],
+    "motion": {
+      "action": "Walk",
+      "provenance_type": "calculated",
+      "provenance_options": [
+        "observed",
+        "measured",
+        "calculated",
+        "authored",
+        "simulated"
+      ],
+      "source_url_or_file": "35_01.bvh",
+      "source_permission": "CMU free for all uses; converter adds no restrictions",
+      "actor_and_equipment_configuration_id": null,
+      "baseline_pair_id": null,
+      "fps": 120,
+      "duration_s": 1.1166622,
+      "forward_speed_m_s": 1.2,
+      "cadence_steps_min": 109.67558337876571,
+      "step_length_m": 0.6564815775936864,
+      "joint_limits_degrees_and_basis": {},
+      "events": [
+        {
+          "time_s": 0.0,
+          "event": "right_estimated_stationary_ankle_start",
+          "confidence": "calculated heuristic, not measured ground reaction or heel/toe contact"
+        },
+        {
+          "time_s": 0.025,
+          "event": "right_estimated_stationary_ankle_end",
+          "confidence": "calculated heuristic, not measured ground reaction or heel/toe contact"
+        },
+        {
+          "time_s": 0.10833,
+          "event": "left_estimated_stationary_ankle_start",
+          "confidence": "calculated heuristic, not measured ground reaction or heel/toe contact"
+        },
+        {
+          "time_s": 0.54166,
+          "event": "left_estimated_stationary_ankle_end",
+          "confidence": "calculated heuristic, not measured ground reaction or heel/toe contact"
+        },
+        {
+          "time_s": 0.55833,
+          "event": "left_estimated_stationary_ankle_start",
+          "confidence": "calculated heuristic, not measured ground reaction or heel/toe contact"
+        },
+        {
+          "time_s": 0.58333,
+          "event": "left_estimated_stationary_ankle_end",
+          "confidence": "calculated heuristic, not measured ground reaction or heel/toe contact"
+        },
+        {
+          "time_s": 0.58333,
+          "event": "right_estimated_stationary_ankle_start",
+          "confidence": "calculated heuristic, not measured ground reaction or heel/toe contact"
+        },
+        {
+          "time_s": 0.60833,
+          "event": "right_estimated_stationary_ankle_end",
+          "confidence": "calculated heuristic, not measured ground reaction or heel/toe contact"
+        },
+        {
+          "time_s": 0.65833,
+          "event": "right_estimated_stationary_ankle_start",
+          "confidence": "calculated heuristic, not measured ground reaction or heel/toe contact"
+        }
+      ],
+      "observations": [
+        "Source is human capture; original calibration frame excluded.",
+        "Cadence/step length values calculated from a two-step cycle and chosen gameplay speed."
+      ],
+      "authored_changes": [
+        "Rig proportion adaptation",
+        "Horizontal travel removed; pelvis motion retained",
+        "Loop seam closure and contact-phase alignment",
+        "Gameplay speed and playback scaling chosen by owner-approved natural movement direction"
+      ],
+      "uncertainties": [
+        "Exact heel/toe contacts not force-plate verified",
+        "Equipment clearance not validated",
+        "No armor mass/fatigue simulation"
+      ],
+      "contact_estimation": {
+        "ankle_height_above_lowest_m": 0.04,
+        "horizontal_ankle_speed_m_s": 0.3,
+        "smoothing_frames": 3
+      }
+    },
+    "asset": {
+      "file": "assets/animations/locomotion/arclight.tres",
+      "skeleton": "arclight",
+      "bone_mapping": "tools/build_cmu_gaits.gd MAP",
+      "axes_and_handedness": "Godot Y-up, character forward+Z",
+      "root_motion_convention": "gameplay body travel; skeletal pelvis sway/bob only",
+      "frame_range": [
+        134.0,
+        268.0
+      ],
+      "version": "2026-10-19",
+      "phase_offset_frames": 9
+    },
+    "review": {
+      "foot_contacts": null,
+      "balance": null,
+      "joint_clearance": null,
+      "equipment_collisions": null,
+      "timing_and_effort": null
+    },
+    "equipment_status": "mass,fit,clearance and attachment measurements unknown"
+  },
+  {
+    "schema_version": "1.0",
+    "record_status": "adapted_capture_with_authored_gameplay_defaults",
+    "units": {
+      "mass": "kg",
+      "length": "m",
+      "time": "s",
+      "angle": "degrees"
+    },
+    "character": {
+      "id": "arclight",
+      "body_mass_kg": null,
+      "height_m": null,
+      "leg_length_m": 0.79,
+      "strength_basis": null,
+      "armor_experience": null,
+      "fatigue_state": null,
+      "leg_length_basis": "calculated from current rig thigh/shin rest lengths; not actor anthropometry"
+    },
+    "environment": {
+      "gravity_m_s2": 9.81,
+      "surface": null,
+      "slope_degrees": null,
+      "traction_basis": null
+    },
+    "equipment": [],
+    "motion": {
+      "action": "Run",
+      "provenance_type": "calculated",
+      "provenance_options": [
+        "observed",
+        "measured",
+        "calculated",
+        "authored",
+        "simulated"
+      ],
+      "source_url_or_file": "35_17.bvh",
+      "source_permission": "CMU free for all uses; converter adds no restrictions",
+      "actor_and_equipment_configuration_id": null,
+      "baseline_pair_id": null,
+      "fps": 120,
+      "duration_s": 0.7416637,
+      "forward_speed_m_s": 3.8,
+      "cadence_steps_min": 213.34480386266083,
+      "step_length_m": 1.0686925384260746,
+      "joint_limits_degrees_and_basis": {},
+      "events": [
+        {
+          "time_s": 0.075,
+          "event": "left_estimated_stationary_ankle_start",
+          "confidence": "calculated heuristic, not measured ground reaction or heel/toe contact"
+        },
+        {
+          "time_s": 0.19167,
+          "event": "left_estimated_stationary_ankle_end",
+          "confidence": "calculated heuristic, not measured ground reaction or heel/toe contact"
+        },
+        {
+          "time_s": 0.49166,
+          "event": "right_estimated_stationary_ankle_start",
+          "confidence": "calculated heuristic, not measured ground reaction or heel/toe contact"
+        },
+        {
+          "time_s": 0.56666,
+          "event": "right_estimated_stationary_ankle_end",
+          "confidence": "calculated heuristic, not measured ground reaction or heel/toe contact"
+        }
+      ],
+      "observations": [
+        "Source is human capture; original calibration frame excluded.",
+        "Cadence/step length values calculated from a two-step cycle and chosen gameplay speed."
+      ],
+      "authored_changes": [
+        "Rig proportion adaptation",
+        "Horizontal travel removed; pelvis motion retained",
+        "Loop seam closure and contact-phase alignment",
+        "Gameplay speed and playback scaling chosen by owner-approved natural movement direction"
+      ],
+      "uncertainties": [
+        "Exact heel/toe contacts not force-plate verified",
+        "Equipment clearance not validated",
+        "No armor mass/fatigue simulation"
+      ],
+      "contact_estimation": {
+        "ankle_height_above_lowest_m": 0.04,
+        "horizontal_ankle_speed_m_s": 0.3,
+        "smoothing_frames": 3
+      }
+    },
+    "asset": {
+      "file": "assets/animations/locomotion/arclight.tres",
+      "skeleton": "arclight",
+      "bone_mapping": "tools/build_cmu_gaits.gd MAP",
+      "axes_and_handedness": "Godot Y-up, character forward+Z",
+      "root_motion_convention": "gameplay body travel; skeletal pelvis sway/bob only",
+      "frame_range": [
+        31.0,
+        120.0
+      ],
+      "version": "2026-10-19",
+      "phase_offset_frames": 84
+    },
+    "review": {
+      "foot_contacts": null,
+      "balance": null,
+      "joint_clearance": null,
+      "equipment_collisions": null,
+      "timing_and_effort": null
+    },
+    "equipment_status": "mass,fit,clearance and attachment measurements unknown"
+  },
+  {
+    "schema_version": "1.0",
+    "record_status": "adapted_capture_with_authored_gameplay_defaults",
+    "units": {
+      "mass": "kg",
+      "length": "m",
+      "time": "s",
+      "angle": "degrees"
+    },
+    "character": {
+      "id": "ashen_warden",
+      "body_mass_kg": null,
+      "height_m": null,
+      "leg_length_m": 0.79,
+      "strength_basis": null,
+      "armor_experience": null,
+      "fatigue_state": null,
+      "leg_length_basis": "calculated from current rig thigh/shin rest lengths; not actor anthropometry"
+    },
+    "environment": {
+      "gravity_m_s2": 9.81,
+      "surface": null,
+      "slope_degrees": null,
+      "traction_basis": null
+    },
+    "equipment": [],
+    "motion": {
+      "action": "Walk",
+      "provenance_type": "calculated",
+      "provenance_options": [
+        "observed",
+        "measured",
+        "calculated",
+        "authored",
+        "simulated"
+      ],
+      "source_url_or_file": "35_01.bvh",
+      "source_permission": "CMU free for all uses; converter adds no restrictions",
+      "actor_and_equipment_configuration_id": null,
+      "baseline_pair_id": null,
+      "fps": 120,
+      "duration_s": 1.1166622,
+      "forward_speed_m_s": 1.2,
+      "cadence_steps_min": 109.67558337876571,
+      "step_length_m": 0.6564815775936864,
+      "joint_limits_degrees_and_basis": {},
+      "events": [
+        {
+          "time_s": 0.0,
+          "event": "right_estimated_stationary_ankle_start",
+          "confidence": "calculated heuristic, not measured ground reaction or heel/toe contact"
+        },
+        {
+          "time_s": 0.025,
+          "event": "right_estimated_stationary_ankle_end",
+          "confidence": "calculated heuristic, not measured ground reaction or heel/toe contact"
+        },
+        {
+          "time_s": 0.10833,
+          "event": "left_estimated_stationary_ankle_start",
+          "confidence": "calculated heuristic, not measured ground reaction or heel/toe contact"
+        },
+        {
+          "time_s": 0.54166,
+          "event": "left_estimated_stationary_ankle_end",
+          "confidence": "calculated heuristic, not measured ground reaction or heel/toe contact"
+        },
+        {
+          "time_s": 0.55833,
+          "event": "left_estimated_stationary_ankle_start",
+          "confidence": "calculated heuristic, not measured ground reaction or heel/toe contact"
+        },
+        {
+          "time_s": 0.58333,
+          "event": "left_estimated_stationary_ankle_end",
+          "confidence": "calculated heuristic, not measured ground reaction or heel/toe contact"
+        },
+        {
+          "time_s": 0.58333,
+          "event": "right_estimated_stationary_ankle_start",
+          "confidence": "calculated heuristic, not measured ground reaction or heel/toe contact"
+        },
+        {
+          "time_s": 0.60833,
+          "event": "right_estimated_stationary_ankle_end",
+          "confidence": "calculated heuristic, not measured ground reaction or heel/toe contact"
+        },
+        {
+          "time_s": 0.65833,
+          "event": "right_estimated_stationary_ankle_start",
+          "confidence": "calculated heuristic, not measured ground reaction or heel/toe contact"
+        }
+      ],
+      "observations": [
+        "Source is human capture; original calibration frame excluded.",
+        "Cadence/step length values calculated from a two-step cycle and chosen gameplay speed."
+      ],
+      "authored_changes": [
+        "Rig proportion adaptation",
+        "Horizontal travel removed; pelvis motion retained",
+        "Loop seam closure and contact-phase alignment",
+        "Gameplay speed and playback scaling chosen by owner-approved natural movement direction"
+      ],
+      "uncertainties": [
+        "Exact heel/toe contacts not force-plate verified",
+        "Equipment clearance not validated",
+        "No armor mass/fatigue simulation"
+      ],
+      "contact_estimation": {
+        "ankle_height_above_lowest_m": 0.04,
+        "horizontal_ankle_speed_m_s": 0.3,
+        "smoothing_frames": 3
+      }
+    },
+    "asset": {
+      "file": "assets/animations/locomotion/ashen_warden.tres",
+      "skeleton": "ashen_warden",
+      "bone_mapping": "tools/build_cmu_gaits.gd MAP",
+      "axes_and_handedness": "Godot Y-up, character forward+Z",
+      "root_motion_convention": "gameplay body travel; skeletal pelvis sway/bob only",
+      "frame_range": [
+        134.0,
+        268.0
+      ],
+      "version": "2026-10-19",
+      "phase_offset_frames": 9
+    },
+    "review": {
+      "foot_contacts": null,
+      "balance": null,
+      "joint_clearance": null,
+      "equipment_collisions": null,
+      "timing_and_effort": null
+    },
+    "equipment_status": "mass,fit,clearance and attachment measurements unknown"
+  },
+  {
+    "schema_version": "1.0",
+    "record_status": "adapted_capture_with_authored_gameplay_defaults",
+    "units": {
+      "mass": "kg",
+      "length": "m",
+      "time": "s",
+      "angle": "degrees"
+    },
+    "character": {
+      "id": "ashen_warden",
+      "body_mass_kg": null,
+      "height_m": null,
+      "leg_length_m": 0.79,
+      "strength_basis": null,
+      "armor_experience": null,
+      "fatigue_state": null,
+      "leg_length_basis": "calculated from current rig thigh/shin rest lengths; not actor anthropometry"
+    },
+    "environment": {
+      "gravity_m_s2": 9.81,
+      "surface": null,
+      "slope_degrees": null,
+      "traction_basis": null
+    },
+    "equipment": [],
+    "motion": {
+      "action": "Run",
+      "provenance_type": "calculated",
+      "provenance_options": [
+        "observed",
+        "measured",
+        "calculated",
+        "authored",
+        "simulated"
+      ],
+      "source_url_or_file": "35_17.bvh",
+      "source_permission": "CMU free for all uses; converter adds no restrictions",
+      "actor_and_equipment_configuration_id": null,
+      "baseline_pair_id": null,
+      "fps": 120,
+      "duration_s": 0.7416637,
+      "forward_speed_m_s": 3.8,
+      "cadence_steps_min": 213.34480386266083,
+      "step_length_m": 1.0686925384260746,
+      "joint_limits_degrees_and_basis": {},
+      "events": [
+        {
+          "time_s": 0.075,
+          "event": "left_estimated_stationary_ankle_start",
+          "confidence": "calculated heuristic, not measured ground reaction or heel/toe contact"
+        },
+        {
+          "time_s": 0.19167,
+          "event": "left_estimated_stationary_ankle_end",
+          "confidence": "calculated heuristic, not measured ground reaction or heel/toe contact"
+        },
+        {
+          "time_s": 0.49166,
+          "event": "right_estimated_stationary_ankle_start",
+          "confidence": "calculated heuristic, not measured ground reaction or heel/toe contact"
+        },
+        {
+          "time_s": 0.56666,
+          "event": "right_estimated_stationary_ankle_end",
+          "confidence": "calculated heuristic, not measured ground reaction or heel/toe contact"
+        }
+      ],
+      "observations": [
+        "Source is human capture; original calibration frame excluded.",
+        "Cadence/step length values calculated from a two-step cycle and chosen gameplay speed."
+      ],
+      "authored_changes": [
+        "Rig proportion adaptation",
+        "Horizontal travel removed; pelvis motion retained",
+        "Loop seam closure and contact-phase alignment",
+        "Gameplay speed and playback scaling chosen by owner-approved natural movement direction"
+      ],
+      "uncertainties": [
+        "Exact heel/toe contacts not force-plate verified",
+        "Equipment clearance not validated",
+        "No armor mass/fatigue simulation"
+      ],
+      "contact_estimation": {
+        "ankle_height_above_lowest_m": 0.04,
+        "horizontal_ankle_speed_m_s": 0.3,
+        "smoothing_frames": 3
+      }
+    },
+    "asset": {
+      "file": "assets/animations/locomotion/ashen_warden.tres",
+      "skeleton": "ashen_warden",
+      "bone_mapping": "tools/build_cmu_gaits.gd MAP",
+      "axes_and_handedness": "Godot Y-up, character forward+Z",
+      "root_motion_convention": "gameplay body travel; skeletal pelvis sway/bob only",
+      "frame_range": [
+        31.0,
+        120.0
+      ],
+      "version": "2026-10-19",
+      "phase_offset_frames": 84
+    },
+    "review": {
+      "foot_contacts": null,
+      "balance": null,
+      "joint_clearance": null,
+      "equipment_collisions": null,
+      "timing_and_effort": null
+    },
+    "equipment_status": "mass,fit,clearance and attachment measurements unknown"
+  },
+  {
+    "schema_version": "1.0",
+    "record_status": "adapted_capture_preview_only",
+    "units": {
+      "mass": "kg",
+      "length": "m",
+      "time": "s",
+      "angle": "degrees"
+    },
+    "character": {
+      "id": "arclight",
+      "body_mass_kg": null,
+      "height_m": null,
+      "leg_length_m": 0.79,
+      "strength_basis": null,
+      "armor_experience": null,
+      "fatigue_state": null,
+      "leg_length_basis": "calculated from current rig thigh/shin rest lengths; not actor anthropometry"
+    },
+    "environment": {
+      "gravity_m_s2": 9.81,
+      "surface": null,
+      "slope_degrees": null,
+      "traction_basis": null
+    },
+    "equipment": [],
+    "motion": {
+      "action": "BlockLeftCapture",
+      "provenance_type": "calculated",
+      "provenance_options": [
+        "observed",
+        "measured",
+        "calculated",
+        "authored",
+        "simulated"
+      ],
+      "source_url_or_file": "144_07.bvh",
+      "source_permission": "CMU free for all uses; converter adds no restrictions",
+      "actor_and_equipment_configuration_id": null,
+      "baseline_pair_id": null,
+      "fps": 120,
+      "duration_s": 1.8499926,
+      "forward_speed_m_s": null,
+      "cadence_steps_min": null,
+      "step_length_m": null,
+      "joint_limits_degrees_and_basis": {},
+      "events": [],
+      "observations": [
+        "Human capture with calibration frame excluded.",
+        "Source root trajectory retained; motion adapted to current rig."
+      ],
+      "authored_changes": [
+        "Captured joint-direction retargeting",
+        "Independent captured torso/head rotations",
+        "Root travel removed and source trajectory preserved",
+        "Loop closure/contact-phase estimate for cyclic movement only"
+      ],
+      "uncertainties": [
+        "Stationary-ankle/contact timing not force verified",
+        "Equipment/weapon clearance still needs visual review",
+        "Preview one-shots are not authoritative gameplay actions"
+      ],
+      "travel_speed_m_s": null
+    },
+    "asset": {
+      "file": "assets/animations/directional/arclight.tres",
+      "skeleton": "arclight",
+      "bone_mapping": "tools/build_directional_gaits.gd",
+      "axes_and_handedness": "Godot Y-up, character forward+Z",
+      "root_motion_convention": "gameplay body travel; skeletal pelvis sway/bob only",
+      "frame_range": [
+        72.0,
+        294.0
+      ],
+      "version": "2026-10-20",
+      "phase_offset_frames": 0.0
+    },
+    "review": {
+      "foot_contacts": null,
+      "balance": null,
+      "joint_clearance": null,
+      "equipment_collisions": null,
+      "timing_and_effort": null
+    },
+    "equipment_status": "mass,fit,clearance and attachment measurements unknown"
+  },
+  {
+    "schema_version": "1.0",
+    "record_status": "adapted_capture_preview_only",
+    "units": {
+      "mass": "kg",
+      "length": "m",
+      "time": "s",
+      "angle": "degrees"
+    },
+    "character": {
+      "id": "arclight",
+      "body_mass_kg": null,
+      "height_m": null,
+      "leg_length_m": 0.79,
+      "strength_basis": null,
+      "armor_experience": null,
+      "fatigue_state": null,
+      "leg_length_basis": "calculated from current rig thigh/shin rest lengths; not actor anthropometry"
+    },
+    "environment": {
+      "gravity_m_s2": 9.81,
+      "surface": null,
+      "slope_degrees": null,
+      "traction_basis": null
+    },
+    "equipment": [],
+    "motion": {
+      "action": "BlockRightCapture",
+      "provenance_type": "calculated",
+      "provenance_options": [
+        "observed",
+        "measured",
+        "calculated",
+        "authored",
+        "simulated"
+      ],
+      "source_url_or_file": "144_26.bvh",
+      "source_permission": "CMU free for all uses; converter adds no restrictions",
+      "actor_and_equipment_configuration_id": null,
+      "baseline_pair_id": null,
+      "fps": 120,
+      "duration_s": 1.8499926,
+      "forward_speed_m_s": null,
+      "cadence_steps_min": null,
+      "step_length_m": null,
+      "joint_limits_degrees_and_basis": {},
+      "events": [],
+      "observations": [
+        "Human capture with calibration frame excluded.",
+        "Source root trajectory retained; motion adapted to current rig."
+      ],
+      "authored_changes": [
+        "Captured joint-direction retargeting",
+        "Independent captured torso/head rotations",
+        "Root travel removed and source trajectory preserved",
+        "Loop closure/contact-phase estimate for cyclic movement only"
+      ],
+      "uncertainties": [
+        "Stationary-ankle/contact timing not force verified",
+        "Equipment/weapon clearance still needs visual review",
+        "Preview one-shots are not authoritative gameplay actions"
+      ],
+      "travel_speed_m_s": null
+    },
+    "asset": {
+      "file": "assets/animations/directional/arclight.tres",
+      "skeleton": "arclight",
+      "bone_mapping": "tools/build_directional_gaits.gd",
+      "axes_and_handedness": "Godot Y-up, character forward+Z",
+      "root_motion_convention": "gameplay body travel; skeletal pelvis sway/bob only",
+      "frame_range": [
+        72.0,
+        294.0
+      ],
+      "version": "2026-10-20",
+      "phase_offset_frames": 0.0
+    },
+    "review": {
+      "foot_contacts": null,
+      "balance": null,
+      "joint_clearance": null,
+      "equipment_collisions": null,
+      "timing_and_effort": null
+    },
+    "equipment_status": "mass,fit,clearance and attachment measurements unknown"
+  },
+  {
+    "schema_version": "1.0",
+    "record_status": "adapted_capture_preview_only",
+    "units": {
+      "mass": "kg",
+      "length": "m",
+      "time": "s",
+      "angle": "degrees"
+    },
+    "character": {
+      "id": "arclight",
+      "body_mass_kg": null,
+      "height_m": null,
+      "leg_length_m": 0.79,
+      "strength_basis": null,
+      "armor_experience": null,
+      "fatigue_state": null,
+      "leg_length_basis": "calculated from current rig thigh/shin rest lengths; not actor anthropometry"
+    },
+    "environment": {
+      "gravity_m_s2": 9.81,
+      "surface": null,
+      "slope_degrees": null,
+      "traction_basis": null
+    },
+    "equipment": [],
+    "motion": {
+      "action": "RunStartCapture",
+      "provenance_type": "calculated",
+      "provenance_options": [
+        "observed",
+        "measured",
+        "calculated",
+        "authored",
+        "simulated"
+      ],
+      "source_url_or_file": "143_03.bvh",
+      "source_permission": "CMU free for all uses; converter adds no restrictions",
+      "actor_and_equipment_configuration_id": null,
+      "baseline_pair_id": null,
+      "fps": 120,
+      "duration_s": 1.3249947,
+      "forward_speed_m_s": null,
+      "cadence_steps_min": null,
+      "step_length_m": null,
+      "joint_limits_degrees_and_basis": {},
+      "events": [],
+      "observations": [
+        "Human capture with calibration frame excluded.",
+        "Source root trajectory retained; motion adapted to current rig."
+      ],
+      "authored_changes": [
+        "Captured joint-direction retargeting",
+        "Independent captured torso/head rotations",
+        "Root travel removed and source trajectory preserved",
+        "Loop closure/contact-phase estimate for cyclic movement only"
+      ],
+      "uncertainties": [
+        "Stationary-ankle/contact timing not force verified",
+        "Equipment/weapon clearance still needs visual review",
+        "Preview one-shots are not authoritative gameplay actions"
+      ],
+      "travel_speed_m_s": null
+    },
+    "asset": {
+      "file": "assets/animations/directional/arclight.tres",
+      "skeleton": "arclight",
+      "bone_mapping": "tools/build_directional_gaits.gd",
+      "axes_and_handedness": "Godot Y-up, character forward+Z",
+      "root_motion_convention": "gameplay body travel; skeletal pelvis sway/bob only",
+      "frame_range": [
+        78.0,
+        237.0
+      ],
+      "version": "2026-10-20",
+      "phase_offset_frames": 0.0
+    },
+    "review": {
+      "foot_contacts": null,
+      "balance": null,
+      "joint_clearance": null,
+      "equipment_collisions": null,
+      "timing_and_effort": null
+    },
+    "equipment_status": "mass,fit,clearance and attachment measurements unknown"
+  },
+  {
+    "schema_version": "1.0",
+    "record_status": "adapted_capture_preview_only",
+    "units": {
+      "mass": "kg",
+      "length": "m",
+      "time": "s",
+      "angle": "degrees"
+    },
+    "character": {
+      "id": "arclight",
+      "body_mass_kg": null,
+      "height_m": null,
+      "leg_length_m": 0.79,
+      "strength_basis": null,
+      "armor_experience": null,
+      "fatigue_state": null,
+      "leg_length_basis": "calculated from current rig thigh/shin rest lengths; not actor anthropometry"
+    },
+    "environment": {
+      "gravity_m_s2": 9.81,
+      "surface": null,
+      "slope_degrees": null,
+      "traction_basis": null
+    },
+    "equipment": [],
+    "motion": {
+      "action": "RunStopCapture",
+      "provenance_type": "calculated",
+      "provenance_options": [
+        "observed",
+        "measured",
+        "calculated",
+        "authored",
+        "simulated"
+      ],
+      "source_url_or_file": "143_02.bvh",
+      "source_permission": "CMU free for all uses; converter adds no restrictions",
+      "actor_and_equipment_configuration_id": null,
+      "baseline_pair_id": null,
+      "fps": 120,
+      "duration_s": 1.3833278,
+      "forward_speed_m_s": null,
+      "cadence_steps_min": null,
+      "step_length_m": null,
+      "joint_limits_degrees_and_basis": {},
+      "events": [],
+      "observations": [
+        "Human capture with calibration frame excluded.",
+        "Source root trajectory retained; motion adapted to current rig."
+      ],
+      "authored_changes": [
+        "Captured joint-direction retargeting",
+        "Independent captured torso/head rotations",
+        "Root travel removed and source trajectory preserved",
+        "Loop closure/contact-phase estimate for cyclic movement only"
+      ],
+      "uncertainties": [
+        "Stationary-ankle/contact timing not force verified",
+        "Equipment/weapon clearance still needs visual review",
+        "Preview one-shots are not authoritative gameplay actions"
+      ],
+      "travel_speed_m_s": null
+    },
+    "asset": {
+      "file": "assets/animations/directional/arclight.tres",
+      "skeleton": "arclight",
+      "bone_mapping": "tools/build_directional_gaits.gd",
+      "axes_and_handedness": "Godot Y-up, character forward+Z",
+      "root_motion_convention": "gameplay body travel; skeletal pelvis sway/bob only",
+      "frame_range": [
+        2.0,
+        168.0
+      ],
+      "version": "2026-10-20",
+      "phase_offset_frames": 0.0
+    },
+    "review": {
+      "foot_contacts": null,
+      "balance": null,
+      "joint_clearance": null,
+      "equipment_collisions": null,
+      "timing_and_effort": null
+    },
+    "equipment_status": "mass,fit,clearance and attachment measurements unknown"
+  },
+  {
+    "schema_version": "1.0",
+    "record_status": "adapted_capture_preview_only",
+    "units": {
+      "mass": "kg",
+      "length": "m",
+      "time": "s",
+      "angle": "degrees"
+    },
+    "character": {
+      "id": "arclight",
+      "body_mass_kg": null,
+      "height_m": null,
+      "leg_length_m": 0.79,
+      "strength_basis": null,
+      "armor_experience": null,
+      "fatigue_state": null,
+      "leg_length_basis": "calculated from current rig thigh/shin rest lengths; not actor anthropometry"
+    },
+    "environment": {
+      "gravity_m_s2": 9.81,
+      "surface": null,
+      "slope_degrees": null,
+      "traction_basis": null
+    },
+    "equipment": [],
+    "motion": {
+      "action": "TurnLeftCapture",
+      "provenance_type": "calculated",
+      "provenance_options": [
+        "observed",
+        "measured",
+        "calculated",
+        "authored",
+        "simulated"
+      ],
+      "source_url_or_file": "69_18.bvh",
+      "source_permission": "CMU free for all uses; converter adds no restrictions",
+      "actor_and_equipment_configuration_id": null,
+      "baseline_pair_id": null,
+      "fps": 120,
+      "duration_s": 1.8999924,
+      "forward_speed_m_s": null,
+      "cadence_steps_min": null,
+      "step_length_m": null,
+      "joint_limits_degrees_and_basis": {},
+      "events": [],
+      "observations": [
+        "Human capture with calibration frame excluded.",
+        "Source root trajectory retained; motion adapted to current rig."
+      ],
+      "authored_changes": [
+        "Captured joint-direction retargeting",
+        "Independent captured torso/head rotations",
+        "Root travel removed and source trajectory preserved",
+        "Loop closure/contact-phase estimate for cyclic movement only"
+      ],
+      "uncertainties": [
+        "Stationary-ankle/contact timing not force verified",
+        "Equipment/weapon clearance still needs visual review",
+        "Preview one-shots are not authoritative gameplay actions"
+      ],
+      "travel_speed_m_s": null
+    },
+    "asset": {
+      "file": "assets/animations/directional/arclight.tres",
+      "skeleton": "arclight",
+      "bone_mapping": "tools/build_directional_gaits.gd",
+      "axes_and_handedness": "Godot Y-up, character forward+Z",
+      "root_motion_convention": "gameplay body travel; skeletal pelvis sway/bob only",
+      "frame_range": [
+        102.0,
+        330.0
+      ],
+      "version": "2026-10-20",
+      "phase_offset_frames": 0.0
+    },
+    "review": {
+      "foot_contacts": null,
+      "balance": null,
+      "joint_clearance": null,
+      "equipment_collisions": null,
+      "timing_and_effort": null
+    },
+    "equipment_status": "mass,fit,clearance and attachment measurements unknown"
+  },
+  {
+    "schema_version": "1.0",
+    "record_status": "adapted_capture_preview_only",
+    "units": {
+      "mass": "kg",
+      "length": "m",
+      "time": "s",
+      "angle": "degrees"
+    },
+    "character": {
+      "id": "arclight",
+      "body_mass_kg": null,
+      "height_m": null,
+      "leg_length_m": 0.79,
+      "strength_basis": null,
+      "armor_experience": null,
+      "fatigue_state": null,
+      "leg_length_basis": "calculated from current rig thigh/shin rest lengths; not actor anthropometry"
+    },
+    "environment": {
+      "gravity_m_s2": 9.81,
+      "surface": null,
+      "slope_degrees": null,
+      "traction_basis": null
+    },
+    "equipment": [],
+    "motion": {
+      "action": "TurnRightCapture",
+      "provenance_type": "calculated",
+      "provenance_options": [
+        "observed",
+        "measured",
+        "calculated",
+        "authored",
+        "simulated"
+      ],
+      "source_url_or_file": "69_16.bvh",
+      "source_permission": "CMU free for all uses; converter adds no restrictions",
+      "actor_and_equipment_configuration_id": null,
+      "baseline_pair_id": null,
+      "fps": 120,
+      "duration_s": 1.5916603,
+      "forward_speed_m_s": null,
+      "cadence_steps_min": null,
+      "step_length_m": null,
+      "joint_limits_degrees_and_basis": {},
+      "events": [],
+      "observations": [
+        "Human capture with calibration frame excluded.",
+        "Source root trajectory retained; motion adapted to current rig."
+      ],
+      "authored_changes": [
+        "Captured joint-direction retargeting",
+        "Independent captured torso/head rotations",
+        "Root travel removed and source trajectory preserved",
+        "Loop closure/contact-phase estimate for cyclic movement only"
+      ],
+      "uncertainties": [
+        "Stationary-ankle/contact timing not force verified",
+        "Equipment/weapon clearance still needs visual review",
+        "Preview one-shots are not authoritative gameplay actions"
+      ],
+      "travel_speed_m_s": null
+    },
+    "asset": {
+      "file": "assets/animations/directional/arclight.tres",
+      "skeleton": "arclight",
+      "bone_mapping": "tools/build_directional_gaits.gd",
+      "axes_and_handedness": "Godot Y-up, character forward+Z",
+      "root_motion_convention": "gameplay body travel; skeletal pelvis sway/bob only",
+      "frame_range": [
+        1.0,
+        192.0
+      ],
+      "version": "2026-10-20",
+      "phase_offset_frames": 0.0
+    },
+    "review": {
+      "foot_contacts": null,
+      "balance": null,
+      "joint_clearance": null,
+      "equipment_collisions": null,
+      "timing_and_effort": null
+    },
+    "equipment_status": "mass,fit,clearance and attachment measurements unknown"
+  },
+  {
+    "schema_version": "1.0",
+    "record_status": "adapted_capture_runtime_loop",
+    "units": {
+      "mass": "kg",
+      "length": "m",
+      "time": "s",
+      "angle": "degrees"
+    },
+    "character": {
+      "id": "arclight",
+      "body_mass_kg": null,
+      "height_m": null,
+      "leg_length_m": 0.79,
+      "strength_basis": null,
+      "armor_experience": null,
+      "fatigue_state": null,
+      "leg_length_basis": "calculated from current rig thigh/shin rest lengths; not actor anthropometry"
+    },
+    "environment": {
+      "gravity_m_s2": 9.81,
+      "surface": null,
+      "slope_degrees": null,
+      "traction_basis": null
+    },
+    "equipment": [],
+    "motion": {
+      "action": "Walk_Backward",
+      "provenance_type": "calculated",
+      "provenance_options": [
+        "observed",
+        "measured",
+        "calculated",
+        "authored",
+        "simulated"
+      ],
+      "source_url_or_file": "143_39.bvh",
+      "source_permission": "CMU free for all uses; converter adds no restrictions",
+      "actor_and_equipment_configuration_id": null,
+      "baseline_pair_id": null,
+      "fps": 120,
+      "duration_s": 0.6249975,
+      "forward_speed_m_s": null,
+      "cadence_steps_min": null,
+      "step_length_m": null,
+      "joint_limits_degrees_and_basis": {},
+      "events": [],
+      "observations": [
+        "Human capture with calibration frame excluded.",
+        "Source root trajectory retained; motion adapted to current rig."
+      ],
+      "authored_changes": [
+        "Captured joint-direction retargeting",
+        "Independent captured torso/head rotations",
+        "Root travel removed and source trajectory preserved",
+        "Loop closure/contact-phase estimate for cyclic movement only"
+      ],
+      "uncertainties": [
+        "Stationary-ankle/contact timing not force verified",
+        "Equipment/weapon clearance still needs visual review",
+        "Preview one-shots are not authoritative gameplay actions"
+      ],
+      "travel_speed_m_s": 1.2
+    },
+    "asset": {
+      "file": "assets/animations/directional/arclight.tres",
+      "skeleton": "arclight",
+      "bone_mapping": "tools/build_directional_gaits.gd",
+      "axes_and_handedness": "Godot Y-up, character forward+Z",
+      "root_motion_convention": "gameplay body travel; skeletal pelvis sway/bob only",
+      "frame_range": [
+        259.0,
+        334.0
+      ],
+      "version": "2026-10-20",
+      "phase_offset_frames": 56.0
+    },
+    "review": {
+      "foot_contacts": null,
+      "balance": null,
+      "joint_clearance": null,
+      "equipment_collisions": null,
+      "timing_and_effort": null
+    },
+    "equipment_status": "mass,fit,clearance and attachment measurements unknown"
+  },
+  {
+    "schema_version": "1.0",
+    "record_status": "adapted_capture_runtime_loop",
+    "units": {
+      "mass": "kg",
+      "length": "m",
+      "time": "s",
+      "angle": "degrees"
+    },
+    "character": {
+      "id": "arclight",
+      "body_mass_kg": null,
+      "height_m": null,
+      "leg_length_m": 0.79,
+      "strength_basis": null,
+      "armor_experience": null,
+      "fatigue_state": null,
+      "leg_length_basis": "calculated from current rig thigh/shin rest lengths; not actor anthropometry"
+    },
+    "environment": {
+      "gravity_m_s2": 9.81,
+      "surface": null,
+      "slope_degrees": null,
+      "traction_basis": null
+    },
+    "equipment": [],
+    "motion": {
+      "action": "Walk_Left",
+      "provenance_type": "calculated",
+      "provenance_options": [
+        "observed",
+        "measured",
+        "calculated",
+        "authored",
+        "simulated"
+      ],
+      "source_url_or_file": "143_40.bvh",
+      "source_permission": "CMU free for all uses; converter adds no restrictions",
+      "actor_and_equipment_configuration_id": null,
+      "baseline_pair_id": null,
+      "fps": 120,
+      "duration_s": 0.6416641,
+      "forward_speed_m_s": null,
+      "cadence_steps_min": null,
+      "step_length_m": null,
+      "joint_limits_degrees_and_basis": {},
+      "events": [],
+      "observations": [
+        "Human capture with calibration frame excluded.",
+        "Source root trajectory retained; motion adapted to current rig."
+      ],
+      "authored_changes": [
+        "Captured joint-direction retargeting",
+        "Independent captured torso/head rotations",
+        "Root travel removed and source trajectory preserved",
+        "Loop closure/contact-phase estimate for cyclic movement only"
+      ],
+      "uncertainties": [
+        "Stationary-ankle/contact timing not force verified",
+        "Equipment/weapon clearance still needs visual review",
+        "Preview one-shots are not authoritative gameplay actions"
+      ],
+      "travel_speed_m_s": 1.2
+    },
+    "asset": {
+      "file": "assets/animations/directional/arclight.tres",
+      "skeleton": "arclight",
+      "bone_mapping": "tools/build_directional_gaits.gd",
+      "axes_and_handedness": "Godot Y-up, character forward+Z",
+      "root_motion_convention": "gameplay body travel; skeletal pelvis sway/bob only",
+      "frame_range": [
+        759.0,
+        836.0
+      ],
+      "version": "2026-10-20",
+      "phase_offset_frames": 66.0
+    },
+    "review": {
+      "foot_contacts": null,
+      "balance": null,
+      "joint_clearance": null,
+      "equipment_collisions": null,
+      "timing_and_effort": null
+    },
+    "equipment_status": "mass,fit,clearance and attachment measurements unknown"
+  },
+  {
+    "schema_version": "1.0",
+    "record_status": "adapted_capture_runtime_loop",
+    "units": {
+      "mass": "kg",
+      "length": "m",
+      "time": "s",
+      "angle": "degrees"
+    },
+    "character": {
+      "id": "arclight",
+      "body_mass_kg": null,
+      "height_m": null,
+      "leg_length_m": 0.79,
+      "strength_basis": null,
+      "armor_experience": null,
+      "fatigue_state": null,
+      "leg_length_basis": "calculated from current rig thigh/shin rest lengths; not actor anthropometry"
+    },
+    "environment": {
+      "gravity_m_s2": 9.81,
+      "surface": null,
+      "slope_degrees": null,
+      "traction_basis": null
+    },
+    "equipment": [],
+    "motion": {
+      "action": "Walk_Right",
+      "provenance_type": "calculated",
+      "provenance_options": [
+        "observed",
+        "measured",
+        "calculated",
+        "authored",
+        "simulated"
+      ],
+      "source_url_or_file": "143_40.bvh",
+      "source_permission": "CMU free for all uses; converter adds no restrictions",
+      "actor_and_equipment_configuration_id": null,
+      "baseline_pair_id": null,
+      "fps": 120,
+      "duration_s": 0.6916639,
+      "forward_speed_m_s": null,
+      "cadence_steps_min": null,
+      "step_length_m": null,
+      "joint_limits_degrees_and_basis": {},
+      "events": [],
+      "observations": [
+        "Human capture with calibration frame excluded.",
+        "Source root trajectory retained; motion adapted to current rig."
+      ],
+      "authored_changes": [
+        "Captured joint-direction retargeting",
+        "Independent captured torso/head rotations",
+        "Root travel removed and source trajectory preserved",
+        "Loop closure/contact-phase estimate for cyclic movement only"
+      ],
+      "uncertainties": [
+        "Stationary-ankle/contact timing not force verified",
+        "Equipment/weapon clearance still needs visual review",
+        "Preview one-shots are not authoritative gameplay actions"
+      ],
+      "travel_speed_m_s": 1.2
+    },
+    "asset": {
+      "file": "assets/animations/directional/arclight.tres",
+      "skeleton": "arclight",
+      "bone_mapping": "tools/build_directional_gaits.gd",
+      "axes_and_handedness": "Godot Y-up, character forward+Z",
+      "root_motion_convention": "gameplay body travel; skeletal pelvis sway/bob only",
+      "frame_range": [
+        211.0,
+        294.0
+      ],
+      "version": "2026-10-20",
+      "phase_offset_frames": 50.0
+    },
+    "review": {
+      "foot_contacts": null,
+      "balance": null,
+      "joint_clearance": null,
+      "equipment_collisions": null,
+      "timing_and_effort": null
+    },
+    "equipment_status": "mass,fit,clearance and attachment measurements unknown"
+  },
+  {
+    "schema_version": "1.0",
+    "record_status": "adapted_capture_preview_only",
+    "units": {
+      "mass": "kg",
+      "length": "m",
+      "time": "s",
+      "angle": "degrees"
+    },
+    "character": {
+      "id": "ashen_warden",
+      "body_mass_kg": null,
+      "height_m": null,
+      "leg_length_m": 0.79,
+      "strength_basis": null,
+      "armor_experience": null,
+      "fatigue_state": null,
+      "leg_length_basis": "calculated from current rig thigh/shin rest lengths; not actor anthropometry"
+    },
+    "environment": {
+      "gravity_m_s2": 9.81,
+      "surface": null,
+      "slope_degrees": null,
+      "traction_basis": null
+    },
+    "equipment": [],
+    "motion": {
+      "action": "BlockLeftCapture",
+      "provenance_type": "calculated",
+      "provenance_options": [
+        "observed",
+        "measured",
+        "calculated",
+        "authored",
+        "simulated"
+      ],
+      "source_url_or_file": "144_07.bvh",
+      "source_permission": "CMU free for all uses; converter adds no restrictions",
+      "actor_and_equipment_configuration_id": null,
+      "baseline_pair_id": null,
+      "fps": 120,
+      "duration_s": 1.8499926,
+      "forward_speed_m_s": null,
+      "cadence_steps_min": null,
+      "step_length_m": null,
+      "joint_limits_degrees_and_basis": {},
+      "events": [],
+      "observations": [
+        "Human capture with calibration frame excluded.",
+        "Source root trajectory retained; motion adapted to current rig."
+      ],
+      "authored_changes": [
+        "Captured joint-direction retargeting",
+        "Independent captured torso/head rotations",
+        "Root travel removed and source trajectory preserved",
+        "Loop closure/contact-phase estimate for cyclic movement only"
+      ],
+      "uncertainties": [
+        "Stationary-ankle/contact timing not force verified",
+        "Equipment/weapon clearance still needs visual review",
+        "Preview one-shots are not authoritative gameplay actions"
+      ],
+      "travel_speed_m_s": null
+    },
+    "asset": {
+      "file": "assets/animations/directional/ashen_warden.tres",
+      "skeleton": "ashen_warden",
+      "bone_mapping": "tools/build_directional_gaits.gd",
+      "axes_and_handedness": "Godot Y-up, character forward+Z",
+      "root_motion_convention": "gameplay body travel; skeletal pelvis sway/bob only",
+      "frame_range": [
+        72.0,
+        294.0
+      ],
+      "version": "2026-10-20",
+      "phase_offset_frames": 0.0
+    },
+    "review": {
+      "foot_contacts": null,
+      "balance": null,
+      "joint_clearance": null,
+      "equipment_collisions": null,
+      "timing_and_effort": null
+    },
+    "equipment_status": "mass,fit,clearance and attachment measurements unknown"
+  },
+  {
+    "schema_version": "1.0",
+    "record_status": "adapted_capture_preview_only",
+    "units": {
+      "mass": "kg",
+      "length": "m",
+      "time": "s",
+      "angle": "degrees"
+    },
+    "character": {
+      "id": "ashen_warden",
+      "body_mass_kg": null,
+      "height_m": null,
+      "leg_length_m": 0.79,
+      "strength_basis": null,
+      "armor_experience": null,
+      "fatigue_state": null,
+      "leg_length_basis": "calculated from current rig thigh/shin rest lengths; not actor anthropometry"
+    },
+    "environment": {
+      "gravity_m_s2": 9.81,
+      "surface": null,
+      "slope_degrees": null,
+      "traction_basis": null
+    },
+    "equipment": [],
+    "motion": {
+      "action": "BlockRightCapture",
+      "provenance_type": "calculated",
+      "provenance_options": [
+        "observed",
+        "measured",
+        "calculated",
+        "authored",
+        "simulated"
+      ],
+      "source_url_or_file": "144_26.bvh",
+      "source_permission": "CMU free for all uses; converter adds no restrictions",
+      "actor_and_equipment_configuration_id": null,
+      "baseline_pair_id": null,
+      "fps": 120,
+      "duration_s": 1.8499926,
+      "forward_speed_m_s": null,
+      "cadence_steps_min": null,
+      "step_length_m": null,
+      "joint_limits_degrees_and_basis": {},
+      "events": [],
+      "observations": [
+        "Human capture with calibration frame excluded.",
+        "Source root trajectory retained; motion adapted to current rig."
+      ],
+      "authored_changes": [
+        "Captured joint-direction retargeting",
+        "Independent captured torso/head rotations",
+        "Root travel removed and source trajectory preserved",
+        "Loop closure/contact-phase estimate for cyclic movement only"
+      ],
+      "uncertainties": [
+        "Stationary-ankle/contact timing not force verified",
+        "Equipment/weapon clearance still needs visual review",
+        "Preview one-shots are not authoritative gameplay actions"
+      ],
+      "travel_speed_m_s": null
+    },
+    "asset": {
+      "file": "assets/animations/directional/ashen_warden.tres",
+      "skeleton": "ashen_warden",
+      "bone_mapping": "tools/build_directional_gaits.gd",
+      "axes_and_handedness": "Godot Y-up, character forward+Z",
+      "root_motion_convention": "gameplay body travel; skeletal pelvis sway/bob only",
+      "frame_range": [
+        72.0,
+        294.0
+      ],
+      "version": "2026-10-20",
+      "phase_offset_frames": 0.0
+    },
+    "review": {
+      "foot_contacts": null,
+      "balance": null,
+      "joint_clearance": null,
+      "equipment_collisions": null,
+      "timing_and_effort": null
+    },
+    "equipment_status": "mass,fit,clearance and attachment measurements unknown"
+  },
+  {
+    "schema_version": "1.0",
+    "record_status": "adapted_capture_preview_only",
+    "units": {
+      "mass": "kg",
+      "length": "m",
+      "time": "s",
+      "angle": "degrees"
+    },
+    "character": {
+      "id": "ashen_warden",
+      "body_mass_kg": null,
+      "height_m": null,
+      "leg_length_m": 0.79,
+      "strength_basis": null,
+      "armor_experience": null,
+      "fatigue_state": null,
+      "leg_length_basis": "calculated from current rig thigh/shin rest lengths; not actor anthropometry"
+    },
+    "environment": {
+      "gravity_m_s2": 9.81,
+      "surface": null,
+      "slope_degrees": null,
+      "traction_basis": null
+    },
+    "equipment": [],
+    "motion": {
+      "action": "RunStartCapture",
+      "provenance_type": "calculated",
+      "provenance_options": [
+        "observed",
+        "measured",
+        "calculated",
+        "authored",
+        "simulated"
+      ],
+      "source_url_or_file": "143_03.bvh",
+      "source_permission": "CMU free for all uses; converter adds no restrictions",
+      "actor_and_equipment_configuration_id": null,
+      "baseline_pair_id": null,
+      "fps": 120,
+      "duration_s": 1.3249947,
+      "forward_speed_m_s": null,
+      "cadence_steps_min": null,
+      "step_length_m": null,
+      "joint_limits_degrees_and_basis": {},
+      "events": [],
+      "observations": [
+        "Human capture with calibration frame excluded.",
+        "Source root trajectory retained; motion adapted to current rig."
+      ],
+      "authored_changes": [
+        "Captured joint-direction retargeting",
+        "Independent captured torso/head rotations",
+        "Root travel removed and source trajectory preserved",
+        "Loop closure/contact-phase estimate for cyclic movement only"
+      ],
+      "uncertainties": [
+        "Stationary-ankle/contact timing not force verified",
+        "Equipment/weapon clearance still needs visual review",
+        "Preview one-shots are not authoritative gameplay actions"
+      ],
+      "travel_speed_m_s": null
+    },
+    "asset": {
+      "file": "assets/animations/directional/ashen_warden.tres",
+      "skeleton": "ashen_warden",
+      "bone_mapping": "tools/build_directional_gaits.gd",
+      "axes_and_handedness": "Godot Y-up, character forward+Z",
+      "root_motion_convention": "gameplay body travel; skeletal pelvis sway/bob only",
+      "frame_range": [
+        78.0,
+        237.0
+      ],
+      "version": "2026-10-20",
+      "phase_offset_frames": 0.0
+    },
+    "review": {
+      "foot_contacts": null,
+      "balance": null,
+      "joint_clearance": null,
+      "equipment_collisions": null,
+      "timing_and_effort": null
+    },
+    "equipment_status": "mass,fit,clearance and attachment measurements unknown"
+  },
+  {
+    "schema_version": "1.0",
+    "record_status": "adapted_capture_preview_only",
+    "units": {
+      "mass": "kg",
+      "length": "m",
+      "time": "s",
+      "angle": "degrees"
+    },
+    "character": {
+      "id": "ashen_warden",
+      "body_mass_kg": null,
+      "height_m": null,
+      "leg_length_m": 0.79,
+      "strength_basis": null,
+      "armor_experience": null,
+      "fatigue_state": null,
+      "leg_length_basis": "calculated from current rig thigh/shin rest lengths; not actor anthropometry"
+    },
+    "environment": {
+      "gravity_m_s2": 9.81,
+      "surface": null,
+      "slope_degrees": null,
+      "traction_basis": null
+    },
+    "equipment": [],
+    "motion": {
+      "action": "RunStopCapture",
+      "provenance_type": "calculated",
+      "provenance_options": [
+        "observed",
+        "measured",
+        "calculated",
+        "authored",
+        "simulated"
+      ],
+      "source_url_or_file": "143_02.bvh",
+      "source_permission": "CMU free for all uses; converter adds no restrictions",
+      "actor_and_equipment_configuration_id": null,
+      "baseline_pair_id": null,
+      "fps": 120,
+      "duration_s": 1.3833278,
+      "forward_speed_m_s": null,
+      "cadence_steps_min": null,
+      "step_length_m": null,
+      "joint_limits_degrees_and_basis": {},
+      "events": [],
+      "observations": [
+        "Human capture with calibration frame excluded.",
+        "Source root trajectory retained; motion adapted to current rig."
+      ],
+      "authored_changes": [
+        "Captured joint-direction retargeting",
+        "Independent captured torso/head rotations",
+        "Root travel removed and source trajectory preserved",
+        "Loop closure/contact-phase estimate for cyclic movement only"
+      ],
+      "uncertainties": [
+        "Stationary-ankle/contact timing not force verified",
+        "Equipment/weapon clearance still needs visual review",
+        "Preview one-shots are not authoritative gameplay actions"
+      ],
+      "travel_speed_m_s": null
+    },
+    "asset": {
+      "file": "assets/animations/directional/ashen_warden.tres",
+      "skeleton": "ashen_warden",
+      "bone_mapping": "tools/build_directional_gaits.gd",
+      "axes_and_handedness": "Godot Y-up, character forward+Z",
+      "root_motion_convention": "gameplay body travel; skeletal pelvis sway/bob only",
+      "frame_range": [
+        2.0,
+        168.0
+      ],
+      "version": "2026-10-20",
+      "phase_offset_frames": 0.0
+    },
+    "review": {
+      "foot_contacts": null,
+      "balance": null,
+      "joint_clearance": null,
+      "equipment_collisions": null,
+      "timing_and_effort": null
+    },
+    "equipment_status": "mass,fit,clearance and attachment measurements unknown"
+  },
+  {
+    "schema_version": "1.0",
+    "record_status": "adapted_capture_preview_only",
+    "units": {
+      "mass": "kg",
+      "length": "m",
+      "time": "s",
+      "angle": "degrees"
+    },
+    "character": {
+      "id": "ashen_warden",
+      "body_mass_kg": null,
+      "height_m": null,
+      "leg_length_m": 0.79,
+      "strength_basis": null,
+      "armor_experience": null,
+      "fatigue_state": null,
+      "leg_length_basis": "calculated from current rig thigh/shin rest lengths; not actor anthropometry"
+    },
+    "environment": {
+      "gravity_m_s2": 9.81,
+      "surface": null,
+      "slope_degrees": null,
+      "traction_basis": null
+    },
+    "equipment": [],
+    "motion": {
+      "action": "TurnLeftCapture",
+      "provenance_type": "calculated",
+      "provenance_options": [
+        "observed",
+        "measured",
+        "calculated",
+        "authored",
+        "simulated"
+      ],
+      "source_url_or_file": "69_18.bvh",
+      "source_permission": "CMU free for all uses; converter adds no restrictions",
+      "actor_and_equipment_configuration_id": null,
+      "baseline_pair_id": null,
+      "fps": 120,
+      "duration_s": 1.8999924,
+      "forward_speed_m_s": null,
+      "cadence_steps_min": null,
+      "step_length_m": null,
+      "joint_limits_degrees_and_basis": {},
+      "events": [],
+      "observations": [
+        "Human capture with calibration frame excluded.",
+        "Source root trajectory retained; motion adapted to current rig."
+      ],
+      "authored_changes": [
+        "Captured joint-direction retargeting",
+        "Independent captured torso/head rotations",
+        "Root travel removed and source trajectory preserved",
+        "Loop closure/contact-phase estimate for cyclic movement only"
+      ],
+      "uncertainties": [
+        "Stationary-ankle/contact timing not force verified",
+        "Equipment/weapon clearance still needs visual review",
+        "Preview one-shots are not authoritative gameplay actions"
+      ],
+      "travel_speed_m_s": null
+    },
+    "asset": {
+      "file": "assets/animations/directional/ashen_warden.tres",
+      "skeleton": "ashen_warden",
+      "bone_mapping": "tools/build_directional_gaits.gd",
+      "axes_and_handedness": "Godot Y-up, character forward+Z",
+      "root_motion_convention": "gameplay body travel; skeletal pelvis sway/bob only",
+      "frame_range": [
+        102.0,
+        330.0
+      ],
+      "version": "2026-10-20",
+      "phase_offset_frames": 0.0
+    },
+    "review": {
+      "foot_contacts": null,
+      "balance": null,
+      "joint_clearance": null,
+      "equipment_collisions": null,
+      "timing_and_effort": null
+    },
+    "equipment_status": "mass,fit,clearance and attachment measurements unknown"
+  },
+  {
+    "schema_version": "1.0",
+    "record_status": "adapted_capture_preview_only",
+    "units": {
+      "mass": "kg",
+      "length": "m",
+      "time": "s",
+      "angle": "degrees"
+    },
+    "character": {
+      "id": "ashen_warden",
+      "body_mass_kg": null,
+      "height_m": null,
+      "leg_length_m": 0.79,
+      "strength_basis": null,
+      "armor_experience": null,
+      "fatigue_state": null,
+      "leg_length_basis": "calculated from current rig thigh/shin rest lengths; not actor anthropometry"
+    },
+    "environment": {
+      "gravity_m_s2": 9.81,
+      "surface": null,
+      "slope_degrees": null,
+      "traction_basis": null
+    },
+    "equipment": [],
+    "motion": {
+      "action": "TurnRightCapture",
+      "provenance_type": "calculated",
+      "provenance_options": [
+        "observed",
+        "measured",
+        "calculated",
+        "authored",
+        "simulated"
+      ],
+      "source_url_or_file": "69_16.bvh",
+      "source_permission": "CMU free for all uses; converter adds no restrictions",
+      "actor_and_equipment_configuration_id": null,
+      "baseline_pair_id": null,
+      "fps": 120,
+      "duration_s": 1.5916603,
+      "forward_speed_m_s": null,
+      "cadence_steps_min": null,
+      "step_length_m": null,
+      "joint_limits_degrees_and_basis": {},
+      "events": [],
+      "observations": [
+        "Human capture with calibration frame excluded.",
+        "Source root trajectory retained; motion adapted to current rig."
+      ],
+      "authored_changes": [
+        "Captured joint-direction retargeting",
+        "Independent captured torso/head rotations",
+        "Root travel removed and source trajectory preserved",
+        "Loop closure/contact-phase estimate for cyclic movement only"
+      ],
+      "uncertainties": [
+        "Stationary-ankle/contact timing not force verified",
+        "Equipment/weapon clearance still needs visual review",
+        "Preview one-shots are not authoritative gameplay actions"
+      ],
+      "travel_speed_m_s": null
+    },
+    "asset": {
+      "file": "assets/animations/directional/ashen_warden.tres",
+      "skeleton": "ashen_warden",
+      "bone_mapping": "tools/build_directional_gaits.gd",
+      "axes_and_handedness": "Godot Y-up, character forward+Z",
+      "root_motion_convention": "gameplay body travel; skeletal pelvis sway/bob only",
+      "frame_range": [
+        1.0,
+        192.0
+      ],
+      "version": "2026-10-20",
+      "phase_offset_frames": 0.0
+    },
+    "review": {
+      "foot_contacts": null,
+      "balance": null,
+      "joint_clearance": null,
+      "equipment_collisions": null,
+      "timing_and_effort": null
+    },
+    "equipment_status": "mass,fit,clearance and attachment measurements unknown"
+  },
+  {
+    "schema_version": "1.0",
+    "record_status": "adapted_capture_runtime_loop",
+    "units": {
+      "mass": "kg",
+      "length": "m",
+      "time": "s",
+      "angle": "degrees"
+    },
+    "character": {
+      "id": "ashen_warden",
+      "body_mass_kg": null,
+      "height_m": null,
+      "leg_length_m": 0.79,
+      "strength_basis": null,
+      "armor_experience": null,
+      "fatigue_state": null,
+      "leg_length_basis": "calculated from current rig thigh/shin rest lengths; not actor anthropometry"
+    },
+    "environment": {
+      "gravity_m_s2": 9.81,
+      "surface": null,
+      "slope_degrees": null,
+      "traction_basis": null
+    },
+    "equipment": [],
+    "motion": {
+      "action": "Walk_Backward",
+      "provenance_type": "calculated",
+      "provenance_options": [
+        "observed",
+        "measured",
+        "calculated",
+        "authored",
+        "simulated"
+      ],
+      "source_url_or_file": "143_39.bvh",
+      "source_permission": "CMU free for all uses; converter adds no restrictions",
+      "actor_and_equipment_configuration_id": null,
+      "baseline_pair_id": null,
+      "fps": 120,
+      "duration_s": 0.6249975,
+      "forward_speed_m_s": null,
+      "cadence_steps_min": null,
+      "step_length_m": null,
+      "joint_limits_degrees_and_basis": {},
+      "events": [],
+      "observations": [
+        "Human capture with calibration frame excluded.",
+        "Source root trajectory retained; motion adapted to current rig."
+      ],
+      "authored_changes": [
+        "Captured joint-direction retargeting",
+        "Independent captured torso/head rotations",
+        "Root travel removed and source trajectory preserved",
+        "Loop closure/contact-phase estimate for cyclic movement only"
+      ],
+      "uncertainties": [
+        "Stationary-ankle/contact timing not force verified",
+        "Equipment/weapon clearance still needs visual review",
+        "Preview one-shots are not authoritative gameplay actions"
+      ],
+      "travel_speed_m_s": 1.2
+    },
+    "asset": {
+      "file": "assets/animations/directional/ashen_warden.tres",
+      "skeleton": "ashen_warden",
+      "bone_mapping": "tools/build_directional_gaits.gd",
+      "axes_and_handedness": "Godot Y-up, character forward+Z",
+      "root_motion_convention": "gameplay body travel; skeletal pelvis sway/bob only",
+      "frame_range": [
+        259.0,
+        334.0
+      ],
+      "version": "2026-10-20",
+      "phase_offset_frames": 56.0
+    },
+    "review": {
+      "foot_contacts": null,
+      "balance": null,
+      "joint_clearance": null,
+      "equipment_collisions": null,
+      "timing_and_effort": null
+    },
+    "equipment_status": "mass,fit,clearance and attachment measurements unknown"
+  },
+  {
+    "schema_version": "1.0",
+    "record_status": "adapted_capture_runtime_loop",
+    "units": {
+      "mass": "kg",
+      "length": "m",
+      "time": "s",
+      "angle": "degrees"
+    },
+    "character": {
+      "id": "ashen_warden",
+      "body_mass_kg": null,
+      "height_m": null,
+      "leg_length_m": 0.79,
+      "strength_basis": null,
+      "armor_experience": null,
+      "fatigue_state": null,
+      "leg_length_basis": "calculated from current rig thigh/shin rest lengths; not actor anthropometry"
+    },
+    "environment": {
+      "gravity_m_s2": 9.81,
+      "surface": null,
+      "slope_degrees": null,
+      "traction_basis": null
+    },
+    "equipment": [],
+    "motion": {
+      "action": "Walk_Left",
+      "provenance_type": "calculated",
+      "provenance_options": [
+        "observed",
+        "measured",
+        "calculated",
+        "authored",
+        "simulated"
+      ],
+      "source_url_or_file": "143_40.bvh",
+      "source_permission": "CMU free for all uses; converter adds no restrictions",
+      "actor_and_equipment_configuration_id": null,
+      "baseline_pair_id": null,
+      "fps": 120,
+      "duration_s": 0.6416641,
+      "forward_speed_m_s": null,
+      "cadence_steps_min": null,
+      "step_length_m": null,
+      "joint_limits_degrees_and_basis": {},
+      "events": [],
+      "observations": [
+        "Human capture with calibration frame excluded.",
+        "Source root trajectory retained; motion adapted to current rig."
+      ],
+      "authored_changes": [
+        "Captured joint-direction retargeting",
+        "Independent captured torso/head rotations",
+        "Root travel removed and source trajectory preserved",
+        "Loop closure/contact-phase estimate for cyclic movement only"
+      ],
+      "uncertainties": [
+        "Stationary-ankle/contact timing not force verified",
+        "Equipment/weapon clearance still needs visual review",
+        "Preview one-shots are not authoritative gameplay actions"
+      ],
+      "travel_speed_m_s": 1.2
+    },
+    "asset": {
+      "file": "assets/animations/directional/ashen_warden.tres",
+      "skeleton": "ashen_warden",
+      "bone_mapping": "tools/build_directional_gaits.gd",
+      "axes_and_handedness": "Godot Y-up, character forward+Z",
+      "root_motion_convention": "gameplay body travel; skeletal pelvis sway/bob only",
+      "frame_range": [
+        759.0,
+        836.0
+      ],
+      "version": "2026-10-20",
+      "phase_offset_frames": 66.0
+    },
+    "review": {
+      "foot_contacts": null,
+      "balance": null,
+      "joint_clearance": null,
+      "equipment_collisions": null,
+      "timing_and_effort": null
+    },
+    "equipment_status": "mass,fit,clearance and attachment measurements unknown"
+  },
+  {
+    "schema_version": "1.0",
+    "record_status": "adapted_capture_runtime_loop",
+    "units": {
+      "mass": "kg",
+      "length": "m",
+      "time": "s",
+      "angle": "degrees"
+    },
+    "character": {
+      "id": "ashen_warden",
+      "body_mass_kg": null,
+      "height_m": null,
+      "leg_length_m": 0.79,
+      "strength_basis": null,
+      "armor_experience": null,
+      "fatigue_state": null,
+      "leg_length_basis": "calculated from current rig thigh/shin rest lengths; not actor anthropometry"
+    },
+    "environment": {
+      "gravity_m_s2": 9.81,
+      "surface": null,
+      "slope_degrees": null,
+      "traction_basis": null
+    },
+    "equipment": [],
+    "motion": {
+      "action": "Walk_Right",
+      "provenance_type": "calculated",
+      "provenance_options": [
+        "observed",
+        "measured",
+        "calculated",
+        "authored",
+        "simulated"
+      ],
+      "source_url_or_file": "143_40.bvh",
+      "source_permission": "CMU free for all uses; converter adds no restrictions",
+      "actor_and_equipment_configuration_id": null,
+      "baseline_pair_id": null,
+      "fps": 120,
+      "duration_s": 0.6916639,
+      "forward_speed_m_s": null,
+      "cadence_steps_min": null,
+      "step_length_m": null,
+      "joint_limits_degrees_and_basis": {},
+      "events": [],
+      "observations": [
+        "Human capture with calibration frame excluded.",
+        "Source root trajectory retained; motion adapted to current rig."
+      ],
+      "authored_changes": [
+        "Captured joint-direction retargeting",
+        "Independent captured torso/head rotations",
+        "Root travel removed and source trajectory preserved",
+        "Loop closure/contact-phase estimate for cyclic movement only"
+      ],
+      "uncertainties": [
+        "Stationary-ankle/contact timing not force verified",
+        "Equipment/weapon clearance still needs visual review",
+        "Preview one-shots are not authoritative gameplay actions"
+      ],
+      "travel_speed_m_s": 1.2
+    },
+    "asset": {
+      "file": "assets/animations/directional/ashen_warden.tres",
+      "skeleton": "ashen_warden",
+      "bone_mapping": "tools/build_directional_gaits.gd",
+      "axes_and_handedness": "Godot Y-up, character forward+Z",
+      "root_motion_convention": "gameplay body travel; skeletal pelvis sway/bob only",
+      "frame_range": [
+        211.0,
+        294.0
+      ],
+      "version": "2026-10-20",
+      "phase_offset_frames": 50.0
+    },
+    "review": {
+      "foot_contacts": null,
+      "balance": null,
+      "joint_clearance": null,
+      "equipment_collisions": null,
+      "timing_and_effort": null
+    },
+    "equipment_status": "mass,fit,clearance and attachment measurements unknown"
+  }
+]

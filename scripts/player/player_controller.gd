@@ -31,8 +31,14 @@ extends CharacterBody3D
 @export var lock_turn_speed: float = 12.0
 
 @export_group("Movement")
-@export var walk_speed: float = 6.0        # m/s
-@export var run_speed: float = 10.0        # m/s while "run" is held
+@export var walk_speed: float = 1.2        # m/s
+@export var run_speed: float = 3.8        # m/s while "run" is held
+## Authored tactical step speed for side/back movement while aiming and holding run.
+@export var aim_step_run_speed: float = 1.8
+@export_range(0.0, 20.0) var aim_direction_hysteresis_degrees: float = 8.0
+const MOVE_DIRECTION := preload("res://scripts/player/movement_direction.gd")
+var _aim_speed_sector: int = 0
+var _aim_speed_has_direction: bool = false
 @export var acceleration: float = 12.0     # m/s^2 toward target speed
 @export var deceleration: float = 16.0     # m/s^2 when no input (ground friction)
 @export var jump_velocity: float = 8.0     # m/s upward impulse on jump
@@ -70,7 +76,7 @@ func simulate_network_input(delta: float, movement: Vector2, yaw: float,
 
 func _simulate_movement(delta: float, direction: Vector3, running: bool, jump_pressed: bool) -> void:
 	_apply_gravity(delta)
-	_apply_horizontal_movement(direction, run_speed if running else walk_speed, delta)
+	_apply_horizontal_movement(direction, _movement_target_speed(direction, running), delta)
 	if jump_pressed and is_on_floor():
 		velocity.y = jump_velocity
 	move_and_slide()
@@ -78,6 +84,22 @@ func _simulate_movement(delta: float, direction: Vector3, running: bool, jump_pr
 		_face_aim_direction(delta)
 	else:
 		_face_movement_direction(delta)
+
+
+func _movement_target_speed(direction: Vector3, running: bool) -> float:
+	var speed := run_speed if running else walk_speed
+	if not camera_lock_behind or direction.length_squared() <= 0.0001:
+		_aim_speed_sector = 0
+		_aim_speed_has_direction = false
+		return speed
+	# Match animation sectors while remaining independent of lagging visual yaw.
+	var local := direction.rotated(Vector3.UP, -(_camera_pivot.rotation.y + PI))
+	_aim_speed_sector = MOVE_DIRECTION.select(local, _aim_speed_sector,
+		aim_direction_hysteresis_degrees, not _aim_speed_has_direction)
+	_aim_speed_has_direction = true
+	if running and _aim_speed_sector != 0:
+		speed = minf(speed, aim_step_run_speed)
+	return speed
 
 
 func _apply_gravity(delta: float) -> void:

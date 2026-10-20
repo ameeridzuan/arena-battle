@@ -236,3 +236,22 @@
 
 > Q1–Q5 are resolved. Q6 (art direction) is due before M6; Q7/Q8 are standing notes.
 > Q9/Q10 are M3 deferrals recorded for future milestones.
+
+
+## 2026-10-19 — Animation foundation
+
+Use per-player animation copies before runtime loop configuration to prevent shared imported-resource mutations. Apply 0.15 s movement blends and separate enter/exit speed thresholds while preserving attack onset. These are interim presentation changes; import-time loop configuration, memory/performance measurements and authoritative action timing remain pending. Review new clips in the isolated AnimationReviewGallery scene before gameplay integration.
+
+
+## 2026-10-19 — Human gait and natural speeds
+
+Use freely reusable CMU35_01/35_17 human capture adapted to each rig; preserve original model exports and install per-instance runtime locomotion clips. The owner chose natural movement speeds, set to1.2m/s walk and3.8m/s run. Derive playback rate from capture stride travel and preserve normalized phase across Walk/Run. Follow the owner armor reference: no universal armor multiplier or invented equipment masses. Capture-based jump/strafe remain review-only pending state/authority integration.
+
+
+## 2026-10-20 — Directional movement and reference previews
+
+Use captured backward/side walks rather than reversing the accepted forward clip. Select from actual mesh-local velocity with angular hysteresis, per-clip cadence and gait phase continuity. Local aim fast side/back steps use a configurable1.8m/s target while forwardrun3.8m/s is preserved. Starts/stops, turns and blocks remain gallery-only until state and authority contracts exist. Preserve independent head/torso capture rotations for turns and source root travel for future adapters.
+
+## 2026-10-20 — Layered actions without movement-state clip duplication
+
+Use one runtime AnimationTree as the pose writer; AnimationPlayer supplies clips and runs only in explicitly isolated raw gallery mode. Blend the locomotion base continuously with an action filtered to the actual rig's spine descendants, keeping root/pelvis/legs on locomotion. Share existing melee clips across idle/walk/run/strafe rather than authoring their Cartesian product. Independently advance locomotion and action clocks; gait cadence must never speed up attack playback. Current graph uses two phase-aware locomotion slots and an action slot with TimeSeek sampling, driven once per physics update. Data resources declare clip, upper/full-body ownership, priority, interruption and fades. Full-body overrides are explicit; motion and combat authority remain in existing controllers. Death clears actions and model replacement rebuilds bindings. Future persistent guard/aim, additive reactions and server phase synchronization are separate extensions, not mechanics enabled by this change. Visual acceptance and performance measurements remain pending.

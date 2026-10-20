@@ -105,9 +105,13 @@ func _server_test() -> void:
 	session.manager.score_limit = 2
 	_stage("motion")
 	var initial: Vector3 = first.position
-	await _seconds(0.8)
+	# Wait for speed-relative displacement so natural walking and slower CI hosts
+	# both exercise real movement. Still reject a body exceeding configured speed.
+	var motion_started := Time.get_ticks_msec()
+	var moved_enough := await _wait_until(func(): return first.position.distance_to(initial) > first.walk_speed * 0.45, 4.0)
 	var distance: float = first.position.distance_to(initial)
-	_check("server_simulates_bounded_movement", distance > 0.5 and distance < first.run_speed * 1.0)
+	var elapsed: float = (Time.get_ticks_msec() - motion_started) / 1000.0
+	_check("server_simulates_bounded_movement", moved_enough and distance < first.walk_speed * (elapsed + 0.15) and Vector2(first.velocity.x, first.velocity.z).length() <= first.walk_speed + 0.05)
 	_stage("stale")
 	# Input timeout is followed by the controller's normal deceleration to rest.
 	await _seconds(0.8)

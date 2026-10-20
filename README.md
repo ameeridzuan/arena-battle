@@ -187,3 +187,17 @@ M4 is owner accepted. M5 defaults to eight clients (4v4); use
 LAN address options are now implemented. See [M5 guide](docs/M5_MATCH_FOUNDATION.md)
 and [QA report](tests/M5_QA_REPORT.md). Automated checks pass; M5 visual playtest is
 pending. M6 assets are being prepared separately; coordinate player-scene integration.
+
+## Demo 1 checkpoint (2026-10-17)
+
+Portable 1v1 Host/Join build: see `docs/DEMO1_PLAYER_GUIDE.txt`.
+Build with `py tools/build_demo1.py --godot PATH_TO_GODOT_EXE --output OUTPUT_DIR`.
+Current verified status and next hardening work: `docs/DEMO1_CHECKPOINT.md`.
+This checkpoint supersedes the historical M4/M5 status paragraphs above.
+
+
+Current animation checkpoint: [Human walk/run](docs/HUMAN_MOTION_CHECKPOINT.md). Natural movement defaults are1.2m/s walking and3.8m/s running; captured animation cadence follows velocity.
+
+Directional walking and preview-only starts/stops, turns and blocks: [Other animation checkpoint](docs/OTHER_ANIMATION_CHECKPOINT.md).
+
+Layered movement and attacks: [Layered animation checkpoint](docs/LAYERED_ANIMATION_CHECKPOINT.md). Open `AnimationReviewGallery.tscn` and select `Layered/WalkAttack`, `Layered/RunAttack`, `Layered/StrafeAttack` or `Layered/BackwardAttack` to compare both characters. These previews never move the gameplay body or apply damage.

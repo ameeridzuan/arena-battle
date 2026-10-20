@@ -1,0 +1,3 @@
+# Preserve upstream captures and permission notes byte-for-byte, including original whitespace.
+assets/animations/source/*.bvh -text -whitespace
+assets/animations/source/*.txt -text -whitespace

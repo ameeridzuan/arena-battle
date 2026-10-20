@@ -1,5 +1,11 @@
 # Agent Team Plan — ArenaBattle
 
+> **Current animation-team update (2026-10-19):** the owner activated a four-role
+> cosmetic/animation team. See [team charter](COSMETIC_ANIMATION_TEAM.md) and
+> [animation-first plan](CHARACTER_ANIMATION_PLAN.md). Older staffing/status dates
+> below are historical; the project now has character assets and partial M7 content.
+
+
 > **Owner:** Business Owner (you) with the AI acting as Business Owner / Business Analyst.
 > **Purpose:** Recruit, evaluate and organize the AI-agent team that will plan and build the game.
 > **Rule respected:** `FOUNDATION_INSTRUCTIONS.md` §6 — *"Start with three agents. Add more only when

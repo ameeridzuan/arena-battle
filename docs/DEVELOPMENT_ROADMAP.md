@@ -1,5 +1,13 @@
 # Development Roadmap — ArenaBattle
 
+> 2026-10-20 checkpoint: backward/sideways walking is integrated for both rigs; start/stop, left/right turn and block captures are gallery previews. Local aim side/back fast steps use a 1.8 m/s target. See OTHER_ANIMATION_CHECKPOINT.md for scope, tests and pending integration.
+
+> Latest implementation: walk/run now use retargeted CMU human capture on both rigs, with owner-approved1.2/3.8m/s defaults, speed-calibrated cadence and phase-preserving transitions. Jump and sideways capture previews are available. See HUMAN_MOTION_CHECKPOINT.md and HUMAN_MOTION_RESEARCH.md; full animation/physics scope remains open.
+
+> Latest animation batch: eight review-only fall/landing/hit/knockback blockouts per rig are available in AnimationReviewGallery. See REACTION_ANIMATION_CHECKPOINT.md. Final motion polish, runtime triggers and authoritative knockback remain pending.
+
+> 2026-10-19 implementation update: A0/A1 first batch adds the two-character review gallery, 0.15 s locomotion blending, speed-threshold hysteresis and per-player animation resource isolation. See ANIMATION_FOUNDATION_CHECKPOINT.md for validation and remaining work. Full A1 polish and knockback/new-action clips remain open.
+
 > Milestone 0 document. Complete and verify each milestone before starting the next.
 > Current position (2026-10-16): **M3 including player feedback/health HUD manually accepted by owner on 2026-10-16. M4 two-client PoC is implemented and automatically verified; manual multiplayer acceptance is pending.**
 
@@ -369,9 +377,123 @@ instanced beneath it, mirroring hurt-flash and team tint onto the skinned meshes
 regressions (movement 3, combat 9, match 44, feedback 15, two-client 67, eight-client 68) all
 pass. Conventions: `docs/ART_IMPORT_CONVENTIONS.md`. Manual F5 look-dev (facing/feel) pending.
 
-### M7 — Expand Content
-- Second character; one ability per character; character select + HUD; sound/effects/improved
-  arena art; incremental roster & arena growth.
+### M7 — Expand Content (partial; M7.1 hardening in progress)
+
+**Analysis reconciled 2026-10-19.** Detailed findings are in
+[`PROGRESS_ASSESSMENT_M7.md`](PROGRESS_ASSESSMENT_M7.md); the implemented Demo 1
+fixes, verification evidence and corrections to that assessment are recorded in
+[`DEMO1_CHECKPOINT.md`](DEMO1_CHECKPOINT.md). The assessment is a backlog, not a
+record that every proposed fix has been implemented.
+
+Two character models and animation are implemented. The original M7 scope also
+requires abilities, character selection, HUD, sound, effects and improved arena art;
+that full milestone is **not complete**. M5/M6 manual acceptance remains unrecorded.
+
+#### Demo 1 — Portable multiplayer preview (built; physical LAN acceptance pending)
+
+- [x] Windows x64 EXE/resource-pack ZIP with no Godot installation required.
+- [x] Host/Join menu, LAN IP display, default 1v1, and return-to-menu flow.
+- [x] Separate background server; its shutdown on host exit was verified.
+- [x] Packaged host and packaged client joined a running two-player match locally.
+- [x] Menu rendered and inspected; import/export and automated checks passed.
+- [ ] Owner tests the same package on two physical PCs and records connection,
+	  controls, combat feedback, health, respawn, results and disconnect behavior.
+
+**Evidence from 2026-10-17:** 258 assertions passed (103 existing local, 20 new
+hardening, 67 two-client and 68 eight-client). The packaged smoke test is additional
+evidence. These checks were not rerun for this documentation-only update. Physical
+LAN, human play feel and FPS acceptance are not established by headless tests.
+
+#### M7.1 — Foundation and presentation hardening (in progress)
+
+Completed initial batch:
+
+- [x] Network snapshots trigger both authored attack animation and swipe feedback.
+- [x] Each melee hitbox owns its collision shape before applying its attack range.
+- [x] Invalid damage and replicated health values are rejected without corrupting
+	  health, kill attribution or signals.
+- [x] Garbled multiplayer status text corrected.
+- [x] Regression coverage for attack clip cycling, stale/duplicate/dead snapshots,
+	  shape independence and invalid health inputs.
+- [x] Current checkpoint and roadmap distinguish delivered work from pending scope.
+
+Remaining work, in implementation order:
+
+1. **Finish documentation reconciliation:** align architecture, ADRs and art-import
+   conventions with the implementation. Prediction/interpolation must not be
+   documented as existing features. Preserve historical evidence as historical.
+2. **Finish resource isolation:** configure animation loop modes at import time,
+   remove runtime changes to shared imported animations, and verify fresh imports.
+3. **Model/presentation contracts:** stable `Mesh/Model` path; validated, idempotent
+   model selection; model-change notification; animation/feedback rebinding; correct
+   death/respawn presentation. Test the visible model, not only its empty anchor.
+4. **Authoritative attack timing (approved Option B):** implement server-owned
+   windup, active and recovery phases; align animation with the gameplay phases.
+   Demo 1 still uses instant-hit timing. Verify timing, cooldown, cancellation and
+   post-match behavior before changing the acceptance status.
+5. **Performance and headless-server work:** measure mesh/draw-call/frame and
+   bandwidth budgets, strip unnecessary server presentation, and coordinate asset
+   optimization/re-export. Record budget failures rather than relaxing targets to
+   make existing assets appear compliant.
+6. **Remaining hygiene and coverage:** complete applicable assessment fixes, run
+   local/two-client/eight-client regressions, and record visual/performance results.
+
+**Acceptance:** required fixes and regression coverage complete; remaining risks
+documented; owner visual/combat-feel playtest and performance evidence recorded.
+Do not mark M7.1 complete solely because the existing automated suite passes.
+
+**Assessment corrections to preserve:** the dedicated server is separate from
+the players, so eight players require eight ENet client slots, not seven. If adopting
+Git LFS, track assets with `.gitattributes`; do not ignore required assets. Import-time
+loop settings establish a no-runtime-mutation contract, not intrinsic immutability.
+
+#### Animation-first cosmetic track (owner requested 2026-10-19; planned)
+
+Active planning team: [COSMETIC_ANIMATION_TEAM.md](COSMETIC_ANIMATION_TEAM.md).
+Detailed coverage, proposed contracts and acceptance gates:
+[CHARACTER_ANIMATION_PLAN.md](CHARACTER_ANIMATION_PLAN.md).
+
+- **A0:** audit both rigs/clips, record baseline and build the review-gallery plan.
+- **A1:** polish idle/walk/run, starts/stops, turns, jump/fall/land for both characters.
+- **A2:** smooth aim entry/exit and directional strafing in the V-toggle lock view.
+- **A3:** polish melee phases, directional knockback/recovery, reactions, death/respawn and transitions; finish the
+  relevant M7.1 resource/rebinding and authoritative timing prerequisites.
+- **A4:** animation-only blockouts for locked-view magic/energy projectiles, one skill family
+  per character, block, parry and dash. Preview coverage is not gameplay completion.
+- **A5:** integrate accepted actions with gameplay/server authority; network aim-mode,
+  pitch, grounded state, action identity/variant/phase and lifecycle are prerequisites.
+- **A6:** visible-model polish, limited VFX/audio hooks, two-client visual review and
+  measured eight-player performance before release acceptance.
+
+Prioritize animation over extra effects. Ranged requires lock/aim view; current V
+toggle is local-only and must be integrated into multiplayer before ranged ships.
+No target-lock feature is implied. Magic/energy projectiles are selected. Specific spells, casting focus, bindings,
+defense costs/windows and dash balance are open design details; locomotion work can
+proceed without them. Parry, block, dash and ranged are planned, not implemented.
+Character-specific skill gameplay follows M7.2 identity; preview work may start earlier.
+
+#### M7.2 — Character identity and selection (planned)
+
+- Server-assigned and replicated character identity, then character selection UI
+  and corresponding HUD. Current mapping is viewer-relative: self Arclight, others
+  Ashen Warden; it is not synchronized character selection.
+- Specify and implement after M7.1 acceptance. Verify every peer agrees on each
+  player's selected character and clients cannot change authoritative identity.
+
+#### M7.3 — Abilities and content (planned)
+
+- One distinct ability per character, server validation and data configuration.
+- Locked-view magic/energy projectile attacks, parry, block, dash and knockback
+  reactions with animation-first prototypes;
+  enable gameplay only after action/authority contracts and tests are in place.
+- Audio, authored effects, HUD improvements and arena art, added incrementally.
+- Define detailed acceptance criteria after the hardening/identity foundations.
+
+#### M7.4 / M8 preparation — Network smoothing (separate planned work)
+
+- Specify interpolation/prediction with dedicated latency, packet-loss and bandwidth
+  tests. Neither is implemented in Demo 1; keep this separate from M7.1 presentation
+  fixes and from a claim of public-online readiness.
 
 ### M8 — Online Readiness (separate phase)
 - Dedicated server; lobby/matchmaking; auth; monitoring & crash reporting; rate limits & abuse
@@ -381,6 +503,11 @@ pass. Conventions: `docs/ART_IMPORT_CONVENTIONS.md`. Manual F5 look-dev (facing/
 
 ## Immediate Next Steps
 
-1. Owner M5 playtest using `tools/start_multiplayer.ps1 -Players 8` (or 2 for quick combat).
-2. Coordinate M6 asset work with the other AI; review shared Player.tscn integration.
-3. Review final test/documentation changes after owner commit 459b0ec. No automatic push.
+1. Start cosmetic A0/A1: audit clips/rigs and establish a review gallery, then polish
+   both characters' locomotion before producing the complete future-action set.
+2. Continue M7.1 resource isolation, stable model rebinding and timing contracts that
+   support the animation track. Keep new action gameplay separate from previews.
+3. Follow A2-A6 for aim, melee/lifecycle, ranged/skill/block/parry/dash/knockback animations and
+   authoritative integration. See CHARACTER_ANIMATION_PLAN.md for exact gates.
+4. Record Demo 1 physical-LAN and M5/M6 visual acceptance when actually tested;
+   these remain pending and do not block isolated animation authoring/preview.

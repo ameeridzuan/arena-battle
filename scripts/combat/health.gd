@@ -29,7 +29,7 @@ func _ready() -> void:
 ## [param source] is the owning character node that dealt the damage (recorded in
 ## [member last_damage_source] for Milestone 3 kill attribution).
 func apply_damage(amount: float, source: Node) -> void:
-	if network_replica or _current <= 0.0:
+	if network_replica or _current <= 0.0 or not is_finite(amount) or amount <= 0.0:
 		return
 	last_damage_source = source
 	_current = maxf(0.0, _current - amount)
@@ -55,7 +55,7 @@ func reset() -> void:
 
 ## Presentation-only state application. Not an RPC; server-owned session is the caller.
 func apply_network_state(current: float, maximum: float) -> void:
-	if not network_replica:
+	if not network_replica or not is_finite(current) or not is_finite(maximum) or maximum <= 0.0:
 		return
 	var next := clampf(current, 0.0, maximum)
 	if is_equal_approx(next, _current) and is_equal_approx(maximum, max_health):

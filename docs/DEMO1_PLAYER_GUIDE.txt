@@ -1,0 +1,35 @@
+DEMO 1 - ArenaBattle multiplayer preview
+Windows x64. No installation or Godot setup needed.
+
+1. Extract the ENTIRE ZIP to a folder. Keep Demo 1.exe and Demo 1.pck together.
+2. Both players run Demo 1.exe from their extracted copies.
+3. Host clicks "Host 1v1". Share the host PC's LAN IPv4 address with the friend.
+4. Friend enters that IP and clicks "Join host". Both players must use this build.
+5. The match starts once both clients join. Five kills or three minutes ends it.
+
+Use your own trusted LAN/Wi-Fi. If Windows asks, allow Demo 1 on your private
+network. UDP port 24560 must reach the host. Guest Wi-Fi may isolate devices.
+127.0.0.1 means this same computer; a friend on another PC needs your LAN IP.
+If several addresses appear, use the active Wi-Fi/Ethernet address (ipconfig).
+This build has no matchmaking, authentication, internet relay, or NAT traversal.
+Different homes are not plug-and-play. Do not disable a firewall to connect.
+Office-managed PCs remain subject to workplace software/network policies.
+
+WASD move, Shift run, Space jump, mouse look, left click attack.
+V switches camera mode. Esc releases/re-captures the cursor.
+Press Esc to click "Return to menu" for another match.
+Closing the host or returning to menu stops its background server.
+Closing a client ends a running session. Restart/return to menu for a new match.
+
+If hosting fails, close any previous host using UDP 24560 and try again.
+Server log: %APPDATA%\Godot\app_userdata\Demo 1\demo1-server.log
+
+This unsigned preview uses the installed Godot 4.7.2 Windows executable as a
+portable runtime with a separately exported resource pack. It is larger than
+a template-based release build, but no editor installation is required.
+Godot's executable metadata/icon remain present. Engine licenses accompany it.
+
+Current characters are viewer-relative: each player sees their own character as
+Arclight and the opponent as Ashen Warden. Team identity is shown by a marker.
+Character selection, combat animation timing polish and performance optimization
+are not finished. This is a playtest preview, not a completed M7 release.

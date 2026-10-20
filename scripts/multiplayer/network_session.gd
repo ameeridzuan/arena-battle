@@ -81,7 +81,7 @@ func _ready() -> void:
 		hud = HUD.instantiate()
 		hud.player_health_path = NodePath("")
 		add_child(hud)
-		hud.get_node("ControlsLabel").text = "ArenaBattle â€” Team multiplayer\nWASD: move | Shift: run | Space: jump | Left click: attack\nMouse: look | Esc: release/re-capture cursor"
+		hud.get_node("ControlsLabel").text = "ArenaBattle - Team multiplayer\nWASD: move | Shift: run | Space: jump | Left click: attack\nMouse: look | Esc: release/re-capture cursor"
 	var layer := CanvasLayer.new()
 	add_child(layer)
 	_status_label = Label.new()
@@ -354,7 +354,7 @@ func _receive_snapshot(tick: int, states: Array, phase: int, a: int, b: int, rem
 			# A: the swing travels along the server-authoritative Mesh front (+Z), so drive the
 			# remote swipe from mesh_yaw (not the camera yaw) to match the real attack direction.
 			var forward := Vector3.BACK.rotated(Vector3.UP, state.mesh_yaw)
-			body.get_node("PlayerFeedback")._on_attack_started(forward)
+			body.get_node("AttackHitbox").attack_started.emit(forward)
 		record.swings = state.swings
 	for id in players.keys():
 		if not present.has(id):
@@ -378,7 +378,7 @@ func _on_peer_disconnected(id: int) -> void:
 	_remove_player(id)
 	if manager.phase == 1:
 		manager._end_match(-1)
-		status_text = "Player disconnected â€” session ended. Restart server and clients."
+		status_text = "Player disconnected - session ended. Restart server and clients."
 	elif manager.phase == 0:
 		status_text = _waiting_status()
 	_broadcast_snapshot()
@@ -390,7 +390,7 @@ func _on_match_ended(result: int) -> void:
 		record.jump = false
 		record.attack = false
 		record.body.velocity = Vector3.ZERO
-	status_text = "Match ended â€” restart server and clients for a fresh match."
+	status_text = "Match ended - restart server and clients for a fresh match."
 
 func _on_connection_failed() -> void:
 	connected = false
@@ -400,7 +400,7 @@ func _on_connection_failed() -> void:
 
 func _on_server_disconnected() -> void:
 	connected = false
-	status_text = "Server disconnected â€” session stopped. Restart server and clients."
+	status_text = "Server disconnected - session stopped. Restart server and clients."
 	_delayed_inputs.clear()
 	for id in players.keys():
 		_remove_player(id)

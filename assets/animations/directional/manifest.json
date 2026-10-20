@@ -1,0 +1,240 @@
+{
+	"arclight": {
+		"BlockLeftCapture": {
+			"duration": 1.8499926,
+			"nominal_speed_m_s": 0.045308807849835,
+			"phase_offset_frames": 0.0,
+			"source": "144_07.bvh",
+			"source_end": 294.0,
+			"source_start": 72.0,
+			"source_travel_direction": [
+				-0.684429407119751,
+				0.0,
+				1.22303485870361
+			]
+		},
+		"BlockRightCapture": {
+			"duration": 1.8499926,
+			"nominal_speed_m_s": 0.0345150026726833,
+			"phase_offset_frames": 0.0,
+			"source": "144_26.bvh",
+			"source_end": 294.0,
+			"source_start": 72.0,
+			"source_travel_direction": [
+				-0.479989618062973,
+				0.0,
+				0.953658044338226
+			]
+		},
+		"RunStartCapture": {
+			"duration": 1.3249947,
+			"nominal_speed_m_s": 2.72489836372353,
+			"phase_offset_frames": 0.0,
+			"source": "143_03.bvh",
+			"source_end": 237.0,
+			"source_start": 78.0,
+			"source_travel_direction": [
+				4.57419538497925,
+				0.0,
+				59.6994209289551
+			]
+		},
+		"RunStopCapture": {
+			"duration": 1.3833278,
+			"nominal_speed_m_s": 2.72632570809491,
+			"phase_offset_frames": 0.0,
+			"source": "143_02.bvh",
+			"source_end": 168.0,
+			"source_start": 2.0,
+			"source_travel_direction": [
+				-7.76741027832031,
+				0.0,
+				62.0589256286621
+			]
+		},
+		"TurnLeftCapture": {
+			"duration": 1.8999924,
+			"nominal_speed_m_s": 0.0388218089712097,
+			"phase_offset_frames": 0.0,
+			"source": "69_18.bvh",
+			"source_end": 330.0,
+			"source_start": 102.0,
+			"source_travel_direction": [
+				0.545319437980652,
+				0.0,
+				-1.29908311367035
+			]
+		},
+		"TurnRightCapture": {
+			"duration": 1.5916603,
+			"nominal_speed_m_s": 0.13380013245603,
+			"phase_offset_frames": 0.0,
+			"source": "69_16.bvh",
+			"source_end": 192.0,
+			"source_start": 1.0,
+			"source_travel_direction": [
+				3.02462935447693,
+				0.0,
+				2.72002410888672
+			]
+		},
+		"Walk_Backward": {
+			"duration": 0.6249975,
+			"nominal_speed_m_s": 1.40580471141137,
+			"phase_offset_frames": 56.0,
+			"source": "143_39.bvh",
+			"source_end": 334.0,
+			"source_start": 259.0,
+			"source_travel_direction": [
+				0.528743207454681,
+				0.0,
+				-14.561089515686
+			]
+		},
+		"Walk_Left": {
+			"duration": 0.6416641,
+			"nominal_speed_m_s": 1.39879708486348,
+			"phase_offset_frames": 66.0,
+			"source": "143_40.bvh",
+			"source_end": 836.0,
+			"source_start": 759.0,
+			"source_travel_direction": [
+				-14.6077442169189,
+				0.0,
+				-2.85783934593201
+			]
+		},
+		"Walk_Right": {
+			"duration": 0.6916639,
+			"nominal_speed_m_s": 1.53378705604819,
+			"phase_offset_frames": 50.0,
+			"source": "143_40.bvh",
+			"source_end": 294.0,
+			"source_start": 211.0,
+			"source_travel_direction": [
+				16.5405025482178,
+				0.0,
+				-5.99342966079712
+			]
+		}
+	},
+	"ashen_warden": {
+		"BlockLeftCapture": {
+			"duration": 1.8499926,
+			"nominal_speed_m_s": 0.045308807849835,
+			"phase_offset_frames": 0.0,
+			"source": "144_07.bvh",
+			"source_end": 294.0,
+			"source_start": 72.0,
+			"source_travel_direction": [
+				-0.684429407119751,
+				0.0,
+				1.22303485870361
+			]
+		},
+		"BlockRightCapture": {
+			"duration": 1.8499926,
+			"nominal_speed_m_s": 0.0345150026726833,
+			"phase_offset_frames": 0.0,
+			"source": "144_26.bvh",
+			"source_end": 294.0,
+			"source_start": 72.0,
+			"source_travel_direction": [
+				-0.479989618062973,
+				0.0,
+				0.953658044338226
+			]
+		},
+		"RunStartCapture": {
+			"duration": 1.3249947,
+			"nominal_speed_m_s": 2.72489836372353,
+			"phase_offset_frames": 0.0,
+			"source": "143_03.bvh",
+			"source_end": 237.0,
+			"source_start": 78.0,
+			"source_travel_direction": [
+				4.57419538497925,
+				0.0,
+				59.6994209289551
+			]
+		},
+		"RunStopCapture": {
+			"duration": 1.3833278,
+			"nominal_speed_m_s": 2.72632570809491,
+			"phase_offset_frames": 0.0,
+			"source": "143_02.bvh",
+			"source_end": 168.0,
+			"source_start": 2.0,
+			"source_travel_direction": [
+				-7.76741027832031,
+				0.0,
+				62.0589256286621
+			]
+		},
+		"TurnLeftCapture": {
+			"duration": 1.8999924,
+			"nominal_speed_m_s": 0.0388218089712097,
+			"phase_offset_frames": 0.0,
+			"source": "69_18.bvh",
+			"source_end": 330.0,
+			"source_start": 102.0,
+			"source_travel_direction": [
+				0.545319437980652,
+				0.0,
+				-1.29908311367035
+			]
+		},
+		"TurnRightCapture": {
+			"duration": 1.5916603,
+			"nominal_speed_m_s": 0.13380013245603,
+			"phase_offset_frames": 0.0,
+			"source": "69_16.bvh",
+			"source_end": 192.0,
+			"source_start": 1.0,
+			"source_travel_direction": [
+				3.02462935447693,
+				0.0,
+				2.72002410888672
+			]
+		},
+		"Walk_Backward": {
+			"duration": 0.6249975,
+			"nominal_speed_m_s": 1.40580471141137,
+			"phase_offset_frames": 56.0,
+			"source": "143_39.bvh",
+			"source_end": 334.0,
+			"source_start": 259.0,
+			"source_travel_direction": [
+				0.528743207454681,
+				0.0,
+				-14.561089515686
+			]
+		},
+		"Walk_Left": {
+			"duration": 0.6416641,
+			"nominal_speed_m_s": 1.39879708486348,
+			"phase_offset_frames": 66.0,
+			"source": "143_40.bvh",
+			"source_end": 836.0,
+			"source_start": 759.0,
+			"source_travel_direction": [
+				-14.6077442169189,
+				0.0,
+				-2.85783934593201
+			]
+		},
+		"Walk_Right": {
+			"duration": 0.6916639,
+			"nominal_speed_m_s": 1.53378705604819,
+			"phase_offset_frames": 50.0,
+			"source": "143_40.bvh",
+			"source_end": 294.0,
+			"source_start": 211.0,
+			"source_travel_direction": [
+				16.5405025482178,
+				0.0,
+				-5.99342966079712
+			]
+		}
+	}
+}

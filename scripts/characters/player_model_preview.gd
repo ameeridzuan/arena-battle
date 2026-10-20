@@ -23,6 +23,7 @@ func _start_animation() -> void:
 	if not player.has_animation(ANIM_NAME):
 		push_warning("PlayerModelPreview: animation '%s' not found." % ANIM_NAME)
 		return
+	preload("res://scripts/player/animation_resources.gd").make_local(player)
 	var anim: Animation = player.get_animation(ANIM_NAME)
 	anim.loop_mode = Animation.LOOP_LINEAR
 	player.play(ANIM_NAME)

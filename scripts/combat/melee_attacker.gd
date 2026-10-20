@@ -39,6 +39,7 @@ func _ready() -> void:
 	for child in get_children():
 		if child is CollisionShape3D:
 			var col := child as CollisionShape3D
+			col.shape = col.shape.duplicate()
 			var shape: Shape3D = col.shape
 			if shape is SphereShape3D:
 				(shape as SphereShape3D).radius = attack_range

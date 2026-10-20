@@ -1,0 +1,61 @@
+{
+  "schema_version": "1.0",
+  "record_status": "blank_template_not_measurements",
+  "units": {"mass": "kg", "length": "m", "time": "s", "angle": "degrees"},
+  "character": {
+    "id": null,
+    "body_mass_kg": null,
+    "height_m": null,
+    "leg_length_m": null,
+    "strength_basis": null,
+    "armor_experience": null,
+    "fatigue_state": null
+  },
+  "environment": {"gravity_m_s2": 9.81, "surface": null, "slope_degrees": null, "traction_basis": null},
+  "equipment": [
+    {
+      "id": "replace_with_one_record_per_item",
+      "type": null,
+      "mass_kg": null,
+      "dimensions_m": {"x": null, "y": null, "z": null},
+      "center_of_mass_local_m": [null, null, null],
+      "local_coordinate_definition": null,
+      "attachment_bone_or_body_region": null,
+      "attachment_transform": null,
+      "material_and_construction": null,
+      "fit_and_padding": null,
+      "articulation_and_clearance": null,
+      "stiffness_damping_basis": null,
+      "mass_provenance": null
+    }
+  ],
+  "motion": {
+    "action": null,
+    "provenance_type": null,
+    "provenance_options": ["observed", "measured", "calculated", "authored", "simulated"],
+    "source_url_or_file": null,
+    "source_permission": null,
+    "actor_and_equipment_configuration_id": null,
+    "baseline_pair_id": null,
+    "fps": null,
+    "duration_s": null,
+    "forward_speed_m_s": null,
+    "cadence_steps_min": null,
+    "step_length_m": null,
+    "joint_limits_degrees_and_basis": {},
+    "events": [{"time_s": null, "event": null, "confidence": null}],
+    "observations": [],
+    "authored_changes": [],
+    "uncertainties": []
+  },
+  "asset": {
+    "file": null,
+    "skeleton": null,
+    "bone_mapping": null,
+    "axes_and_handedness": null,
+    "root_motion_convention": null,
+    "frame_range": null,
+    "version": null
+  },
+  "review": {"foot_contacts": null, "balance": null, "joint_clearance": null, "equipment_collisions": null, "timing_and_effort": null}
+}

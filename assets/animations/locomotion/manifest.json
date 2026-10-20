@@ -1,0 +1,62 @@
+{
+	"arclight": {
+		"JumpCapture": {
+			"duration": 2.6333228,
+			"nominal_speed_m_s": 0.0195934205718575,
+			"source": "16_01.bvh",
+			"source_end": 319.0,
+			"source_start": 3.0
+		},
+		"Run": {
+			"duration": 0.7416637,
+			"nominal_speed_m_s": 2.8818790468674,
+			"source": "35_17.bvh",
+			"source_end": 120.0,
+			"source_start": 31.0
+		},
+		"StrafeCapture": {
+			"duration": 7.999968,
+			"nominal_speed_m_s": 0.0161859932937212,
+			"source": "143_40.bvh",
+			"source_end": 963.0,
+			"source_start": 3.0
+		},
+		"Walk": {
+			"duration": 1.1166622,
+			"nominal_speed_m_s": 1.17579260333821,
+			"source": "35_01.bvh",
+			"source_end": 268.0,
+			"source_start": 134.0
+		}
+	},
+	"ashen_warden": {
+		"JumpCapture": {
+			"duration": 2.6333228,
+			"nominal_speed_m_s": 0.0195934205718575,
+			"source": "16_01.bvh",
+			"source_end": 319.0,
+			"source_start": 3.0
+		},
+		"Run": {
+			"duration": 0.7416637,
+			"nominal_speed_m_s": 2.8818790468674,
+			"source": "35_17.bvh",
+			"source_end": 120.0,
+			"source_start": 31.0
+		},
+		"StrafeCapture": {
+			"duration": 7.999968,
+			"nominal_speed_m_s": 0.0161859932937212,
+			"source": "143_40.bvh",
+			"source_end": 963.0,
+			"source_start": 3.0
+		},
+		"Walk": {
+			"duration": 1.1166622,
+			"nominal_speed_m_s": 1.17579260333821,
+			"source": "35_01.bvh",
+			"source_end": 268.0,
+			"source_start": 134.0
+		}
+	}
+}
