@@ -320,3 +320,59 @@ loading the complete roster; loading grace is separate from input timeout.
 A mirrored arena preserves spawns and central duel space while adding terraces,
 variable-rise stairs, low vaults and opposing wall-jump lanes.
 See ONEVONE_PARKOUR_BUILD.md for exact checks, packaging and limitations.
+
+## 2026-10-27 — Astra Yao as an Arclight skin
+
+Keep the two-character gameplay roster and add Astra Yao as an independent
+cosmetic selection on Arclight. Convert the supplied PMX model and textures to
+GLB; reuse Arclight's bone axes, animations and sword, fitting bone translations
+to Astra's anatomy. Fit shared animation libraries per instance so source
+animations remain unchanged. K requests skin changes locally or through the
+server; snapshots carry skin separately from character identity. Preserve
+source credits/terms and keep secondary MMD physics out of this integration.
+See ASTRA_YAO_SKIN.md for controls, conversion, validation and model terms.
+
+## 2026-10-27 — Warm sun and Astra secondary motion
+
+The owner requested warm sunlight to brown the skin appearance, and spring
+mechanics for hair and cloth. Retain PMX secondary bone weights and hierarchy
+while leaving the 20 gameplay bones under the existing animation/IK systems.
+Use native SpringBoneSimulator3D chains with body colliders and a final local
+rotation limiter after terrain/traversal modifiers. Reset inertia on teleports,
+abrupt turns and health transitions. Keep this cosmetic simulation local on
+each viewer; it does not grant movement or damage authority. Replace the arena's
+upward-facing white light with downward warm sunlight and warm ambient fill,
+and apply the same lighting values to the movement course and review stage.
+
+## 2026-10-27 — Graceful Astra poses with preserved contact paths
+
+The owner requested a more graceful Astra animation style while preserving
+speed, hitbox and attack range. Add a cosmetic SkeletonModifier3D layer on
+Astra alone, after terrain/contact poses and before secondary springs. Preserve
+the incoming sword-hand transform with a constrained arm; constrain the casting
+hand during casting and feet during grounded locomotion. Keep the original
+animation clips/clocks and all movement/combat settings. Bypass styling during
+parkour contacts and death. Compare original/styled trajectories at multiple
+phases across 15 clips, including all melee attacks, directional gaits and casts.
+
+## 2026-10-27 — Yixuan as an Ashen Warden skin
+
+Add Yixuan as cosmetic ID 2 on Warden (character ID 1), using the supplied PMX
+body/textures and Warden's longsword. Reuse the PMX converter, graceful pose
+layer and spring solver with a Yixuan bone prefix. Clone Astra's complete base,
+locomotion and action animation set per instance, remap its skeleton paths and
+fit translation tracks to Yixuan; keep default Warden's animation setup intact.
+K toggles the current character's own skin. Remember each character's selection
+separately and validate character/skin pairs before model or snapshot changes.
+See YIXUAN_SKIN.md for source terms, setup and validation.
+
+## 2026-10-27 — Damped Yixuan secondary motion
+
+The owner found Yixuan's copied spring behavior too shaky. Her dense chains
+can amplify Astra's per-joint bend limits across 20 joints. Give Yixuan a
+separate high-drag, low-force, zero-wind profile with smaller collision radii.
+Budget bending across the entire strand and apply time-based smoothing plus
+angular rate limits after the native solver. Cache zero-time evaluations and
+reset the filter with inertia on teleports/health transitions. Keep Astra's
+settings and limiter branch intact. Verify settling against frozen primary
+bones so ongoing idle animation is not mistaken for residual physics jitter.

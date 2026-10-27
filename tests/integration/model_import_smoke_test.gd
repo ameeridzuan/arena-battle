@@ -15,6 +15,8 @@ extends SceneTree
 const MODELS := [
 	{"name": "arclight", "scene": "res://assets/models/arclight.glb", "bones": 20},
 	{"name": "ashen_warden", "scene": "res://assets/models/ashen_warden.glb", "bones": 26},
+	{"name": "astra_yao", "scene": "res://assets/models/astra_yao.glb", "bones": 222},
+	{"name": "yixuan", "scene": "res://assets/models/yixuan.glb", "bones": 207},
 ]
 ## Canonical clips both models must expose (shared by scripts/player/character_animation.gd).
 const REQUIRED_ANIMS := ["Idle", "Walk", "Run", "Jump", "Attack_Slash"]

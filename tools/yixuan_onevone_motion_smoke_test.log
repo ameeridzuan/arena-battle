@@ -1,0 +1,44 @@
+Godot Engine v4.7.2.stable.mono.official.ed1daf0bf - https://godotengine.org
+
+M4_SERVER_READY port=24835 players=2 bind=127.0.0.1
+CHECK elevated routes cannot jump through the arena boundary = true
+CHECK match uses adaptive stair and parkour controller = true
+CHECK server owns action requests and clocks = true
+CHECK character identities are consistent by team = true
+CHECK server accepts blade-contact attack = true
+CHECK attack windup grants no immediate damage = true
+CHECK server blade contact applies 25 damage exactly once = true
+CHECK undefined action bits are rejected = true
+CHECK nonfinite camera pitch rejected = true
+CHECK bounded remote dodge request accepted = true
+CHECK server starts directional dodge = true
+CHECK server moves dodge body through collision = true
+CHECK dodge spam cannot bypass active action or cooldown = true
+CHECK bounded remote parry request accepted = true
+CHECK server starts parry window = true
+CHECK validated frontal melee is deflected by server parry = true
+CHECK bounded remote cast request accepted = true
+CHECK server starts cast and cooldown = true
+CHECK cast spam rejected by authoritative cooldown = true
+CHECK server creates traveling spell for replication = true
+CHECK authoritative spell impact starts burn = true
+CHECK server burn delivers three timed damage ticks = true
+CHECK new terrace supports ledge grab from central court = true
+CHECK serialized snapshot preserves hanging state and grip anchors = true
+CHECK replica cannot grant damage = true
+CHECK match uses faster approved climb = true
+CHECK match climb finishes standing on terrace = true
+CHECK varied-height stairs reach upper terrace = true
+CHECK new jump lane supports controlled wall slide = true
+CHECK wall slide contact plane reaches replica = true
+CHECK new jump lane permits upward outward wall jump = true
+CHECK wall jump pose reaches replica = true
+CHECK remote skin request accepted = true
+CHECK authority equips Astra without changing character = true
+CHECK serialized Astra appearance reaches replica = true
+CHECK remote Warden skin request accepted = true
+CHECK authority equips Yixuan on Warden = true
+CHECK Yixuan animation and skin reach replica = true
+CHECK death cancels traversal and action state = true
+CHECK match end rejects new abilities = true
+CHECKS=40 ALL_TESTS_PASS=true

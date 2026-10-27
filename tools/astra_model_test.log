@@ -1,0 +1,60 @@
+Godot Engine v4.7.2.stable.mono.official.ed1daf0bf - https://godotengine.org
+
+--- MODEL arclight ---
+CHECK model_loads = true
+skeleton=Skeleton3D bones=20
+CHECK skeleton_present = true
+CHECK bone_count_20 = true
+mesh_count=135
+CHECK meshes_present = true
+material_slots=135
+CHECK materials_present = true
+model_scale=(1.0, 1.0, 1.0)
+CHECK unit_scale = true
+animation_player=AnimationPlayer libs=["Attack_Backhand", "Attack_Combo", "Attack_Overhead", "Attack_Slash", "Attack_Thrust", "Idle", "Jump", "Run", "Walk"]
+CHECK anim_Idle = true
+CHECK anim_Walk = true
+CHECK anim_Run = true
+CHECK anim_Jump = true
+CHECK anim_Attack_Slash = true
+hand_delta=0.7873997092247
+CHECK animation_drives_skeleton = true
+--- MODEL ashen_warden ---
+CHECK model_loads = true
+skeleton=Skeleton3D bones=26
+CHECK skeleton_present = true
+CHECK bone_count_26 = true
+mesh_count=214
+CHECK meshes_present = true
+material_slots=214
+CHECK materials_present = true
+model_scale=(1.0, 1.0, 1.0)
+CHECK unit_scale = true
+animation_player=AnimationPlayer libs=["Attack_Backhand", "Attack_Combo", "Attack_Overhead", "Attack_Slash", "Attack_Thrust", "Idle", "Jump", "Run", "Walk"]
+CHECK anim_Idle = true
+CHECK anim_Walk = true
+CHECK anim_Run = true
+CHECK anim_Jump = true
+CHECK anim_Attack_Slash = true
+hand_delta=0.59910637140274
+CHECK animation_drives_skeleton = true
+--- MODEL astra_yao ---
+CHECK model_loads = true
+skeleton=Skeleton3D bones=222
+CHECK skeleton_present = true
+CHECK bone_count_222 = true
+mesh_count=13
+CHECK meshes_present = true
+material_slots=29
+CHECK materials_present = true
+model_scale=(1.0, 1.0, 1.0)
+CHECK unit_scale = true
+animation_player=AnimationPlayer libs=["Attack_Backhand", "Attack_Combo", "Attack_Overhead", "Attack_Slash", "Attack_Thrust", "Idle", "Jump", "Run", "Walk"]
+CHECK anim_Idle = true
+CHECK anim_Walk = true
+CHECK anim_Run = true
+CHECK anim_Jump = true
+CHECK anim_Attack_Slash = true
+hand_delta=0.55546206235886
+CHECK animation_drives_skeleton = true
+ALL_TESTS_PASS=true

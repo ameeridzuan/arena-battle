@@ -1,5 +1,9 @@
 # ArenaBattle — 3D 4v4 Battle Arena
 
+**Character skins:** press **K** to toggle **Astra Yao** on Arclight or **Yixuan**
+on Ashen Warden. **Tab** switches characters and remembers each skin choice.
+See [Astra setup](docs/ASTRA_YAO_SKIN.md) and [Yixuan setup](docs/YIXUAN_SKIN.md) for controls, model credits and verification.
+
 **Updated 1v1:** Host/Join now includes adaptive stairs, climbing/shimmying, wall slides/jumps, blade-contact attacks, casting/burn, dash/dodge and parry on a mirrored parkour arena. See [build and verification](docs/ONEVONE_PARKOUR_BUILD.md).
 
 **Character movement course:** open `scenes/characters/MotionTestCourse.tscn`

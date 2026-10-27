@@ -65,7 +65,7 @@ func _build_menu() -> void:
 	message.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	menu.add_child(message)
 	var controls := Label.new()
-	controls.text = "WASD move | Shift run | Space jump / wall jump | Click melee\nE grab / climb | A/D shimmy | C drop | Q dash / dodge | F parry\nV aim | R cast + burn | Tab character | Esc cursor\nExplore the terraces and wall-jump lanes. Close host to stop server."
+	controls.text = "WASD move | Shift run | Space jump / wall jump | Click melee\nE grab / climb | A/D shimmy | C drop | Q dash / dodge | F parry\nV aim | R cast + burn | Tab character | K skin | Esc cursor\nExplore the terraces and wall-jump lanes. Close host to stop server."
 	menu.add_child(controls)
 	var quit_button := Button.new()
 	quit_button.text = "Quit"

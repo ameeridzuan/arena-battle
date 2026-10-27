@@ -1,0 +1,18 @@
+Godot Engine v4.7.2.stable.mono.official.ed1daf0bf - https://godotengine.org
+
+CHECK hair/clothing bones retained beside gameplay bones = true
+CHECK native spring chains configured = true
+CHECK head torso and thigh collision shapes = true
+CHECK springs and limits run after terrain and traversal modifiers = true
+CHECK spring solver never owns gameplay bones = true
+CHECK all restored secondary bones belong to chains = true
+CHECK rendered mesh has real spring-bone weights = true
+CHECK native simulation advances over time = true
+CHECK hair and cloth visibly respond to motion = true
+CHECK spring poses remain finite under motion and settling = true
+CHECK hair and cloth swings stay within silhouette limits = true
+CHECK teleport resets inertia = true
+CHECK warm sunlight shines down onto character = true
+CHECK ambient fill preserves warm sun contrast = true
+CHECK switching skin cleans up simulation = true
+ASTRA_SPRING_CHECKS=15 FAILURES=0 SAMPLES=546 HAIR_ANGLE=0.55850583314896 CLOTH_ANGLE=0.69813197851181

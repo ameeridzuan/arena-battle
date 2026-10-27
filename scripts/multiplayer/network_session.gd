@@ -19,6 +19,7 @@ const DODGE := 4
 const PARRY := 8
 const CAST := 16
 const SWITCH := 32
+const SKIN := 64
 const SERVER_ID := 1
 const LOOPBACK := "127.0.0.1"
 const MAX_PLAYERS := 8
@@ -70,7 +71,7 @@ var _local_aim := false
 var _local_ready_sent := false
 
 func _ready() -> void:
-	for binding in [["traversal_interact", KEY_E], ["traversal_drop", KEY_C], ["motion_dodge", KEY_Q], ["motion_parry", KEY_F], ["motion_cast", KEY_R], ["motion_switch_character", KEY_TAB]]:
+	for binding in [["traversal_interact", KEY_E], ["traversal_drop", KEY_C], ["motion_dodge", KEY_Q], ["motion_parry", KEY_F], ["motion_cast", KEY_R], ["motion_switch_character", KEY_TAB], ["motion_switch_skin", KEY_K]]:
 		if not InputMap.has_action(binding[0]):
 			InputMap.add_action(binding[0])
 			var key := InputEventKey.new()
@@ -105,7 +106,7 @@ func _ready() -> void:
 		hud = HUD.instantiate()
 		hud.player_health_path = NodePath("")
 		add_child(hud)
-		hud.get_node("ControlsLabel").text = "1v1 Parkour Arena | WASD move | Shift run | Space jump / wall jump\nE grab / climb | A/D shimmy | C drop | Click melee / jump attack\nV aim | R cast + burn | Q dash / dodge | F parry | Tab character | Esc cursor"
+		hud.get_node("ControlsLabel").text = "1v1 Parkour Arena | WASD move | Shift run | Space jump / wall jump\nE grab / climb | A/D shimmy | C drop | Click melee / jump attack\nV aim | R cast + burn | Q dash / dodge | F parry | Tab character | K skin | Esc cursor"
 	var layer := CanvasLayer.new()
 	add_child(layer)
 	_status_label = Label.new()
@@ -160,7 +161,7 @@ func _physics_process(delta: float) -> void:
 				var buttons := 0
 				var captured := Input.mouse_mode == Input.MOUSE_MODE_CAPTURED
 				if captured:
-					for binding in [["traversal_interact", INTERACT], ["traversal_drop", DROP], ["motion_dodge", DODGE], ["motion_parry", PARRY], ["motion_cast", CAST], ["motion_switch_character", SWITCH]]:
+					for binding in [["traversal_interact", INTERACT], ["traversal_drop", DROP], ["motion_dodge", DODGE], ["motion_parry", PARRY], ["motion_cast", CAST], ["motion_switch_character", SWITCH], ["motion_switch_skin", SKIN]]:
 						if Input.is_action_just_pressed(binding[0]):
 							buttons |= int(binding[1])
 				send_controls(Input.get_vector("move_left", "move_right", "move_forward", "move_back"),
@@ -351,7 +352,7 @@ func _accept_input(id: int, sequence: int, movement: Vector2, yaw: float, runnin
 	record.tokens -= 1.0
 	if (sequence < 0 or sequence > 2147483647 or sequence <= record.seq
 		or sequence > record.seq + MAX_SEQUENCE_ADVANCE or not movement.is_finite()
-		or movement.length_squared() > 1.001 or not is_finite(yaw) or buttons < 0 or buttons > 63
+		or movement.length_squared() > 1.001 or not is_finite(yaw) or buttons < 0 or buttons > 127
 		or not is_finite(pitch) or absf(pitch) > 1.5):
 		rejected_inputs += 1
 		return false
@@ -398,6 +399,8 @@ func _server_step(delta: float) -> void:
 		var direction := Vector3(record.move.x, 0, record.move.y).rotated(Vector3.UP, record.yaw)
 		if buttons & SWITCH:
 			motion.switch_character()
+		elif buttons & SKIN:
+			motion.switch_skin()
 		elif buttons & DODGE:
 			motion.request_dodge(direction)
 		elif buttons & PARRY:

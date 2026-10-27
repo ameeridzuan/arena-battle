@@ -62,6 +62,7 @@ func _ready() -> void:
 	_register_key("motion_dodge", KEY_Q)
 	_register_key("motion_parry", KEY_F)
 	_register_key("motion_switch_character", KEY_TAB)
+	_register_key("motion_switch_skin", KEY_K)
 	if not network_driven:
 		_show_controls.call_deferred()
 
@@ -76,7 +77,7 @@ func _register_key(action: StringName, key: Key) -> void:
 func _show_controls() -> void:
 	var help := get_node_or_null("../../HUD/ControlsLabel") as Label
 	if help != null:
-		help.text = "LOCAL MOTION TEST | WASD: move | Shift: run | Space: jump | Left click: melee\nSpace + left click: jump attack | Weapon sparks confirm contact\nV then R: fire + burn | Q + forward: dash | Q + side/back: dodge | Q alone: backstep\nF: timed frontal parry | Tab: switch character | Esc: release cursor\nReact to enemies' orange STRIKE windup. Spell: 20 damage + 3 burn/second for 3 seconds."
+		help.text = "LOCAL MOTION TEST | WASD: move | Shift: run | Space: jump | Left click: melee\nSpace + left click: jump attack | Weapon sparks confirm contact\nV then R: fire + burn | Q + forward: dash | Q + side/back: dodge | Q alone: backstep\nF: timed frontal parry | Tab: switch character | K: skin | Esc: release cursor\nReact to enemies' orange STRIKE windup. Spell: 20 damage + 3 burn/second for 3 seconds."
 	var layer := CanvasLayer.new()
 	layer.layer = 10
 	add_child(layer)
@@ -117,6 +118,8 @@ func _physics_process(delta: float) -> void:
 		return
 	if captured and Input.is_action_just_pressed("motion_switch_character"):
 		switch_character()
+	elif captured and Input.is_action_just_pressed("motion_switch_skin"):
+		switch_skin()
 	elif captured and Input.is_action_just_pressed("motion_dodge"):
 		request_dodge(_body._camera_relative_input())
 	elif captured and Input.is_action_just_pressed("motion_parry"):
@@ -307,6 +310,15 @@ func switch_character() -> void:
 	_driver._physics_process(0.0)
 	_notice = "Character switched. V: aim, R: cast, Q + direction: dash/dodge, F: parry."
 
+func switch_skin() -> void:
+	if not _can_act():
+		return
+	var mesh: Node = _body.get_node("Mesh")
+	cancel_motion()
+	mesh.toggle_skin()
+	_driver._physics_process(0.0)
+	_notice = "Skin: %s. K: change skin." % mesh.get_display_name()
+
 func _cancel_cast(clear_pose: bool = true) -> void:
 	_cast_token += 1
 	_cast_elapsed = -1.0
@@ -359,4 +371,4 @@ func _update_status() -> void:
 	if _status == null:
 		return
 	_reticle.visible = _can_act() and _body.camera_lock_behind
-	_status.text = "%s | Cast: %s | Dash/dodge: %s | Parry: %s\n%s" % ["Arclight" if int(_body.get_node("Mesh").character) == 0 else "Ashen Warden", "ready" if _cast_cooldown <= 0.0 else "%.1f s" % _cast_cooldown, "ready" if _dodge_cooldown <= 0.0 else "%.1f s" % _dodge_cooldown, "ready" if _parry_cooldown <= 0.0 else "%.1f s" % _parry_cooldown, _notice]
+	_status.text = "%s | K: skin | Cast: %s | Dash/dodge: %s | Parry: %s\n%s" % [_body.get_node("Mesh").get_display_name(), "ready" if _cast_cooldown <= 0.0 else "%.1f s" % _cast_cooldown, "ready" if _dodge_cooldown <= 0.0 else "%.1f s" % _dodge_cooldown, "ready" if _parry_cooldown <= 0.0 else "%.1f s" % _parry_cooldown, _notice]

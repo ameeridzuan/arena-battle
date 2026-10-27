@@ -31,7 +31,8 @@ sky_material = SubResource("sky_mat")
 background_mode = 2
 sky = SubResource("sky")
 ambient_light_source = 3
-ambient_light_energy = 1.0
+ambient_light_color = Color(0.72, 0.57, 0.43, 1)
+ambient_light_energy = 0.35
 tonemap_mode = 2
 glow_enabled = false
 
@@ -85,7 +86,10 @@ shape = SubResource("wall_ew_shape")
 mesh = SubResource("wall_ew_mesh")
 
 [node name="DirectionalLight3D" type="DirectionalLight3D" parent="."]
-transform = Transform3D(1, 0, 0, 0, 0.5736, 0.8192, 0, -0.8192, 0.5736, 0, 12, 0)
+position = Vector3(0, 12, 0)
+rotation_degrees = Vector3(-40, -25, 0)
+light_color = Color(1, 0.72, 0.46, 1)
+light_energy = 1.15
 shadow_enabled = true
 
 [node name="WorldEnvironment" type="WorldEnvironment" parent="."]

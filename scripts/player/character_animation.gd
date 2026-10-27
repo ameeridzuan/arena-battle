@@ -94,9 +94,16 @@ func _locate_animation_player() -> void:
 
 
 func _configure_loop_modes() -> void:
+	var yixuan: bool = int(_mesh.character) == 1 and int(_mesh.cosmetic_skin) == 2
+	var skin_retarget := preload("res://scripts/player/skin_animation_retarget.gd")
+	if yixuan:
+		skin_retarget.copy_base_clips(_anim, _mesh.ARCLIGHT_SCENE)
 	LOCAL_RESOURCES.make_local(_anim)
-	LOCOMOTION.install(_anim,int(_mesh.character))
-	ACTION_LIBRARY.install(_anim, int(_mesh.character))
+	var motion_character: int = 0 if yixuan else int(_mesh.character)
+	LOCOMOTION.install(_anim, motion_character)
+	ACTION_LIBRARY.install(_anim, motion_character)
+	if _mesh.has_graceful_skin():
+		skin_retarget.fit_shared_libraries(_anim, _mesh.ARCLIGHT_SCENE, yixuan)
 	for clip in LOOPED:
 		if _anim.has_animation(clip):
 			_anim.get_animation(clip).loop_mode = Animation.LOOP_LINEAR

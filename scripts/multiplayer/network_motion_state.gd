@@ -14,15 +14,16 @@ static func capture(body: CharacterBody3D) -> Dictionary:
 		var spec: Resource = driver._layers.action
 		action = [String(spec.clip), driver._layers.action_time, spec.playback_speed, spec.layer, spec.blend_in_s, spec.blend_out_s]
 	var health: Health = body.get_node("Health")
-	return {"character": int(body.get_node("Mesh").character), "grounded": body.is_motion_grounded(), "aim": body.camera_lock_behind,
+	return {"character": int(body.get_node("Mesh").character), "skin": int(body.get_node("Mesh").cosmetic_skin), "grounded": body.is_motion_grounded(), "aim": body.camera_lock_behind,
 		"traversal": traversal, "action": action, "burn": body.get_node("BurnStatus").is_burning(), "damage_kind": String(health.last_damage_kind),
 		"step_revision": body.step_revision, "step_height": body.network_step_height}
 
 static func apply(body: CharacterBody3D, state: Dictionary) -> void:
 	var mesh: Node = body.get_node("Mesh")
 	var character: int = int(state.get("character", mesh.character))
-	if character in [0, 1] and int(mesh.character) != character:
-		mesh.set_character(character)
+	var skin: int = int(state.get("skin", 0))
+	if mesh.is_skin_valid(character, skin) and (int(mesh.character) != character or int(mesh.cosmetic_skin) != skin):
+		mesh.set_appearance(character, skin)
 		body.get_node("CharacterAnimation")._physics_process(0.0)
 		body.stair_presentation._bind_model()
 	body.replicated_grounded = bool(state.get("grounded", false))

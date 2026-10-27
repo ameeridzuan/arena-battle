@@ -104,13 +104,14 @@ func _build_world() -> void:
 	environment.background_mode = Environment.BG_COLOR
 	environment.background_color = Color(0.08, 0.12, 0.18)
 	environment.ambient_light_source = Environment.AMBIENT_SOURCE_COLOR
-	environment.ambient_light_color = Color(0.7, 0.8, 1.0)
-	environment.ambient_light_energy = 0.65
+	environment.ambient_light_color = Color(0.72, 0.57, 0.43)
+	environment.ambient_light_energy = 0.35
 	world.environment = environment
 	add_child(world)
 	var sun := DirectionalLight3D.new()
 	sun.rotation_degrees = Vector3(-55, -25, 0)
-	sun.light_energy = 1.4
+	sun.light_color = Color(1.0, 0.72, 0.46)
+	sun.light_energy = 1.15
 	sun.shadow_enabled = true
 	add_child(sun)
 	_box("RecoveryFloor", Vector3(64, 1, 60), Vector3(0, -0.5, 0), INK)
