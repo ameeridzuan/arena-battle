@@ -29,7 +29,7 @@ for offset, scenario in enumerate(['gameplay', 'disconnect', 'timeout', 'unavail
             report = logs / f'{scenario}-{role}.json'
             output = (logs / f'{scenario}-{role}.log').open('w', encoding='utf-8')
             files.append(output)
-            command = [args.godot, '--headless', '--path', str(project), '--script',
+            command = [args.godot, '--headless', '--max-fps', '60', '--path', str(project), '--script',
                        'res://tests/integration/multiplayer_peer_test.gd', '--',
                        f'--role={role}', f'--scenario={scenario}', f'--report={report}',
                        f'--port={24670 + offset}', '--players=2']

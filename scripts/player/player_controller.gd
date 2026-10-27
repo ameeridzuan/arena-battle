@@ -75,6 +75,11 @@ func simulate_network_input(delta: float, movement: Vector2, yaw: float,
 
 
 func _simulate_movement(delta: float, direction: Vector3, running: bool, jump_pressed: bool) -> void:
+	if is_stunned():
+		_apply_gravity(delta)
+		velocity.x = 0; velocity.z = 0
+		move_and_slide()
+		return
 	_apply_gravity(delta)
 	_apply_horizontal_movement(direction, _movement_target_speed(direction, running), delta)
 	if jump_pressed and is_on_floor():
@@ -84,6 +89,10 @@ func _simulate_movement(delta: float, direction: Vector3, running: bool, jump_pr
 		_face_aim_direction(delta)
 	else:
 		_face_movement_direction(delta)
+
+func is_stunned() -> bool:
+	var status := get_node_or_null("StunStatus")
+	return status != null and status.is_stunned()
 
 
 func _movement_target_speed(direction: Vector3, running: bool) -> float:

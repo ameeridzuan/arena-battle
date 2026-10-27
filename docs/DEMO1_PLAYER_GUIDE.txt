@@ -1,11 +1,16 @@
-DEMO 1 - ArenaBattle 1v1 Parkour Arena (23 October 2026)
+DEMO 1 - ArenaBattle Team Lobby + Character Skills (27 October 2026)
 Windows x64. No installation or Godot setup needed.
 
 1. Extract the ENTIRE ZIP to a folder. Keep Demo 1.exe and Demo 1.pck together.
-2. Both players run Demo 1.exe from their extracted copies.
-3. Host clicks "Host 1v1". Share the host PC's LAN IPv4 address with the friend.
-4. Friend enters that IP and clicks "Join host". Both players must use this build.
-5. The match starts once both clients join. Five kills or three minutes ends it.
+2. All players run Demo 1.exe from their extracted copies.
+3. Host clicks "Host lobby (up to 4 players)". Share the host PC's LAN IPv4 address.
+4. Friends enter that IP and click "Join host". Everyone must use this same build.
+5. In the waiting lobby, choose Team A/Blue or Team B/Orange and a character.
+6. Each player clicks Ready. The host then clicks Start 1v1, 2v1/1v2, or 2v2.
+   Only two players are required, with at least one per team. Max two per team.
+   Empty slots stay empty; there are no bots. Five kills or three minutes ends it.
+   Joining, leaving or changing a selection clears Ready for everyone.
+   If the host leaves, return to menu and create a new lobby. No host migration.
 
 Use your own trusted LAN/Wi-Fi. If Windows asks, allow Demo 1 on your private
 network. UDP port 24560 must reach the host. Guest Wi-Fi may isolate devices.
@@ -19,8 +24,11 @@ WASD move, Shift run, Space jump / wall jump, mouse look.
 E grabs/climbs a ledge; A/D shimmy; C drops.
 Left click: timed blade attack; jump + left click: overhead attack.
 Q + forward: dash; Q + side/back: dodge; Q alone: backstep.
-F: timed frontal parry. V: aim view; R: fire spell (20 impact + 3 burn x 3).
-Tab: switch Arclight / Ashen Warden. Both players see the same character.
+F: timed frontal melee parry (does not block spells). V: aim view; R: fire spell (20 impact + 3 burn x 3).
+G: character skill. Arclight throws Pulse Grenade (4-second enemy stun, 18-second cooldown).
+Ashen Warden equips Flame Scythe for 20 seconds (40-second cooldown); hits inflict burn.
+The HUD shows skill cooldown and remaining weapon duration.
+Tab: switch Arclight / Ashen Warden. All players see the same selected character.
 Esc releases/re-captures the cursor.
 
 NEW TERRAIN: blue/amber terraces on the sides have 1.8 m climbable faces
@@ -39,7 +47,7 @@ portable runtime with a separately exported resource pack. It is larger than
 a template-based release build, but no editor installation is required.
 Godot's executable metadata/icon remain present. Engine licenses accompany it.
 
-Team A starts as Arclight; Team B starts as Ashen Warden. Tab switches are
-server-approved and replicated to both clients. Movement, blade contacts,
+Choose Arclight or Ashen Warden in the lobby; teammates may use the same character.
+Tab switches during play remain server-approved and replicated to all clients. Movement, blade contacts,
 parry windows, cooldowns, spell/burn damage and scoring run on the server.
 This is a playtest preview; human LAN/feel acceptance remains separate.

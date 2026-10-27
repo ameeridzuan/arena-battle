@@ -97,6 +97,7 @@ func _configure_loop_modes() -> void:
 	LOCAL_RESOURCES.make_local(_anim)
 	LOCOMOTION.install(_anim,int(_mesh.character))
 	ACTION_LIBRARY.install(_anim, int(_mesh.character))
+	preload("res://scripts/player/skill_animations.gd").install(_anim)
 	for clip in LOOPED:
 		if _anim.has_animation(clip):
 			_anim.get_animation(clip).loop_mode = Animation.LOOP_LINEAR

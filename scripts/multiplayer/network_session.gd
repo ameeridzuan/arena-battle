@@ -3,6 +3,8 @@ extends Node3D
 ## Clients send bounded controls; only the server simulates gameplay and writes outcomes.
 
 signal snapshot_received
+signal lobby_updated
+const LOBBY_SCREEN := preload("res://scripts/multiplayer/waiting_lobby.gd")
 const PLAYER := preload("res://scenes/characters/Player.tscn")
 const HUD := preload("res://scenes/ui/HUD.tscn")
 const MATCH := preload("res://scripts/match/match_manager.gd")
@@ -13,12 +15,14 @@ const WEAPON := preload("res://scripts/combat/local_weapon_attacker.gd")
 const MOTION_STATE := preload("res://scripts/multiplayer/network_motion_state.gd")
 const BOLT := preload("res://scripts/characters/test_energy_bolt.gd")
 const IMPACT := preload("res://scripts/combat/weapon_impact.gd")
+const GRENADE := preload("res://scripts/combat/stun_grenade.gd")
 const INTERACT := 1
 const DROP := 2
 const DODGE := 4
 const PARRY := 8
 const CAST := 16
 const SWITCH := 32
+const SKILL := 64
 const SERVER_ID := 1
 const LOOPBACK := "127.0.0.1"
 const MAX_PLAYERS := 8
@@ -32,6 +36,18 @@ const MAX_SEQUENCE_ADVANCE := 1024
 @export var server_address: String = LOOPBACK
 ## Two-player mode remains available for quick regression/playtests.
 @export var required_players: int = 8
+## Opt-in preserves the existing direct 2/8-player regression sessions.
+@export var lobby_enabled: bool = false
+var host_token: String = ""
+var _server_host_token: String = ""
+var lobby_host_id: int = 0
+var lobby_roster: Array = []
+var lobby_notice: String = ""
+var lobby_start_reason: String = "Waiting for players to connect."
+var _lobby_screen: CanvasLayer
+var _lobby_revision: int = 0
+var _last_lobby_revision: int = -1
+var _lobby_request_times: Dictionary = {}
 @export var snapshot_hz: float = 20.0
 @export var input_timeout_ms: int = 250
 @export var input_rate_limit: float = 90.0
@@ -63,6 +79,7 @@ var _delayed_inputs: Array[Dictionary] = []
 ## Tests drive the same send_controls API without keyboard state.
 var capture_local_controls: bool = true
 var _bolts: Dictionary = {}
+var _grenades: Dictionary = {}
 var _impacts: Array = []
 var _impact_sequence := 0
 var _last_impact := 0
@@ -70,14 +87,18 @@ var _local_aim := false
 var _local_ready_sent := false
 
 func _ready() -> void:
-	for binding in [["traversal_interact", KEY_E], ["traversal_drop", KEY_C], ["motion_dodge", KEY_Q], ["motion_parry", KEY_F], ["motion_cast", KEY_R], ["motion_switch_character", KEY_TAB]]:
+	for binding in [["traversal_interact", KEY_E], ["traversal_drop", KEY_C], ["motion_dodge", KEY_Q], ["motion_parry", KEY_F], ["motion_cast", KEY_R], ["motion_switch_character", KEY_TAB], ["character_skill", KEY_G]]:
 		if not InputMap.has_action(binding[0]):
 			InputMap.add_action(binding[0])
 			var key := InputEventKey.new()
 			key.physical_keycode = binding[1]
 			InputMap.action_add_event(binding[0], key)
 	for arg in OS.get_cmdline_user_args():
-		if arg == "--server":
+		if arg == "--lobby":
+			lobby_enabled = true
+		elif arg.begins_with("--lobby-token="):
+			_server_host_token = arg.trim_prefix("--lobby-token=")
+		elif arg == "--server":
 			server_mode = true
 		elif arg.begins_with("--port="):
 			port = arg.get_slice("=", 1).to_int()
@@ -89,10 +110,12 @@ func _ready() -> void:
 			required_players = arg.trim_prefix("--players=").to_int()
 		elif arg.begins_with("--input-delay-ms="):
 			simulated_input_delay_ms = clampi(arg.get_slice("=", 1).to_int(), 0, 1000)
-	if required_players not in [2, 8] or port < 1024 or port > 65535:
-		push_error("Use --players=2 or --players=8 and a port from 1024 to 65535.")
+	if required_players not in [2, 4, 8] or port < 1024 or port > 65535:
+		push_error("Use --players=2, --players=4 or --players=8 and a port from 1024 to 65535.")
 		get_tree().quit(1)
 		return
+	if lobby_enabled:
+		required_players = 4
 	manager = Node.new()
 	manager.set_script(MATCH if server_mode else REPLICA_MATCH)
 	manager.name = "MatchManager"
@@ -105,7 +128,11 @@ func _ready() -> void:
 		hud = HUD.instantiate()
 		hud.player_health_path = NodePath("")
 		add_child(hud)
-		hud.get_node("ControlsLabel").text = "1v1 Parkour Arena | WASD move | Shift run | Space jump / wall jump\nE grab / climb | A/D shimmy | C drop | Click melee / jump attack\nV aim | R cast + burn | Q dash / dodge | F parry | Tab character | Esc cursor"
+		hud.get_node("ControlsLabel").text = "Team Parkour Arena | WASD move | Shift run | Space jump / wall jump\nE grab / climb | A/D shimmy | C drop | Click melee / jump attack\nG character skill | V aim | R cast + burn | Q dash / dodge | F parry | Tab character | Esc cursor"
+	if lobby_enabled and not server_mode:
+		_lobby_screen = CanvasLayer.new()
+		_lobby_screen.set_script(LOBBY_SCREEN)
+		add_child(_lobby_screen)
 	var layer := CanvasLayer.new()
 	add_child(layer)
 	_status_label = Label.new()
@@ -150,7 +177,7 @@ func _physics_process(delta: float) -> void:
 		if _peer.get_peer(SERVER_ID).get_state() != ENetPacketPeer.STATE_CONNECTED:
 			_delayed_inputs.clear()
 			return
-		if capture_local_controls:
+		if capture_local_controls and (not lobby_enabled or manager.phase == 1):
 			var local: Dictionary = players.get(multiplayer.get_unique_id(), {})
 			if not local.is_empty():
 				var body: Node3D = local.body
@@ -160,7 +187,7 @@ func _physics_process(delta: float) -> void:
 				var buttons := 0
 				var captured := Input.mouse_mode == Input.MOUSE_MODE_CAPTURED
 				if captured:
-					for binding in [["traversal_interact", INTERACT], ["traversal_drop", DROP], ["motion_dodge", DODGE], ["motion_parry", PARRY], ["motion_cast", CAST], ["motion_switch_character", SWITCH]]:
+					for binding in [["traversal_interact", INTERACT], ["traversal_drop", DROP], ["motion_dodge", DODGE], ["motion_parry", PARRY], ["motion_cast", CAST], ["motion_switch_character", SWITCH], ["character_skill", SKILL]]:
 						if Input.is_action_just_pressed(binding[0]):
 							buttons |= int(binding[1])
 				send_controls(Input.get_vector("move_left", "move_right", "move_forward", "move_back"),
@@ -188,6 +215,8 @@ func _process(_delta: float) -> void:
 		if players.has(_local_peer_id):
 			team_text = "You: TEAM %s | " % ("A" if players[_local_peer_id].team == 0 else "B")
 		_status_label.text = team_text + status_text + (" | RTT: %d ms | control delay: %d ms" % [rtt_ms, simulated_input_delay_ms] if connected and not server_mode else "")
+		if players.has(_local_peer_id):
+			_status_label.text += "\n" + players[_local_peer_id].body.get_node("CharacterSkills").describe()
 
 func _on_connected() -> void:
 	print("NETWORK_CONNECTED")
@@ -195,10 +224,10 @@ func _on_connected() -> void:
 	_local_peer_id = multiplayer.get_unique_id()
 	_peer.get_peer(SERVER_ID).set_timeout(16, 10000, 60000)
 	status_text = "Connected; waiting for the roster..."
-	_register_player.rpc_id(SERVER_ID)
+	_register_player.rpc_id(SERVER_ID, host_token)
 
 @rpc("any_peer", "call_remote", "reliable", 1)
-func _register_player() -> void:
+func _register_player(claim: String = "") -> void:
 	if not server_mode:
 		return
 	var id := multiplayer.get_remote_sender_id()
@@ -222,11 +251,16 @@ func _register_player() -> void:
 	if slot >= TEAM_SIZE:
 		_peer.disconnect_peer(id)
 		return
+	if lobby_enabled and lobby_host_id == 0 and (_server_host_token.is_empty() or claim == _server_host_token):
+		lobby_host_id = id
 	var body := _spawn_player(id, team, slot)
 	players[id] = {"body": body, "team": team, "slot": slot, "seq": -1,
 		"move": Vector2.ZERO, "yaw": body.get_node("CameraPivot").rotation.y, "run": false, "jump": false, "attack": false,
 		"last_input": Time.get_ticks_msec(), "bucket_time": Time.get_ticks_msec(), "tokens": input_burst_limit,
-		"ready": false, "swings": 0, "buttons": 0, "aim": false, "pitch": 0.0}
+		"ready": false, "lobby_ready": false, "swings": 0, "buttons": 0, "aim": false, "pitch": 0.0}
+	if lobby_enabled:
+		_invalidate_lobby_ready()
+		_publish_lobby()
 	status_text = _waiting_status()
 	_broadcast_snapshot()
 
@@ -238,7 +272,11 @@ func _client_ready() -> void:
 	if not players.has(id):
 		return
 	players[id].ready = true
-	_peer.get_peer(id).set_timeout(8, 5000, 15000)
+	if not lobby_enabled:
+		_peer.get_peer(id).set_timeout(8, 5000, 15000)
+	if lobby_enabled:
+		_publish_lobby()
+		return
 	var all_ready := players.size() == required_players
 	for record in players.values():
 		all_ready = all_ready and bool(record.get("ready", false))
@@ -250,6 +288,8 @@ func _client_ready() -> void:
 	_broadcast_snapshot()
 
 func _waiting_status() -> String:
+	if lobby_enabled:
+		return "Lobby: %d/4 connected | waiting for host to start" % players.size()
 	if players.size() == required_players:
 		return "Loading characters - waiting for both clients to be ready..."
 	return "Waiting for players: %d/%d | %s:%d" % [players.size(), required_players, bind_address, port]
@@ -260,6 +300,7 @@ func _spawn_player(id: int, team: int, slot: int = 0) -> CharacterBody3D:
 	body.network_presentation_only = not server_mode
 	body.name = str(id)
 	body.external_control = true
+	body.get_node("CharacterSkills").network_authority = server_mode
 	body.collision_mask = 3
 	var attack: Node = body.get_node("AttackHitbox")
 	attack.set_script(WEAPON)
@@ -275,8 +316,8 @@ func _spawn_player(id: int, team: int, slot: int = 0) -> CharacterBody3D:
 	attack.friendly_fire = false
 	attack.collision_mask = 2
 	var camera: Node3D = body.get_node("CameraPivot")
-	camera.local_input_enabled = not server_mode and id == _local_peer_id
-	body.get_node("CameraPivot/CameraTilt/Camera3D").current = camera.local_input_enabled
+	camera.local_input_enabled = not server_mode and id == _local_peer_id and (not lobby_enabled or manager.phase == 1)
+	body.get_node("CameraPivot/CameraTilt/Camera3D").current = not server_mode and id == _local_peer_id
 	# Both viewers use the authority's character identity, so rig poses and blade lengths match.
 	# Team defaults are Arclight/Warden; accepted Tab switches replicate in snapshots.
 	var mesh: Node = body.get_node("Mesh")
@@ -331,6 +372,25 @@ func send_controls(movement: Vector2, yaw: float, running: bool, jump: bool, att
 		return
 	_delayed_inputs.append({"due": Time.get_ticks_msec() + simulated_input_delay_ms,
 		"seq": _sequence, "move": movement, "yaw": yaw, "run": running, "jump": jump, "attack": attack, "buttons": buttons, "aim": aim, "pitch": pitch})
+	# Critical one-shot skill edges also travel reliably. Both paths share a token.
+	if buttons & SKILL and not buttons & (SWITCH | DODGE | PARRY | CAST):
+		_request_character_skill.rpc_id(SERVER_ID,_sequence)
+
+@rpc("any_peer", "call_remote", "reliable", 1)
+func _request_character_skill(sequence: int) -> void:
+	if server_mode:
+		_try_character_skill(multiplayer.get_remote_sender_id(),sequence)
+
+func _try_character_skill(id: int, sequence: int) -> bool:
+	if not server_mode or not players.has(id) or sequence < 0 or sequence > 2147483647: return false
+	var record: Dictionary = players[id]
+	if sequence <= int(record.get("skill_sequence_used",-1)) or sequence > int(record.seq)+MAX_SEQUENCE_ADVANCE: return false
+	record.skill_sequence_used = sequence
+	var now := Time.get_ticks_msec()
+	if now-int(record.get("skill_request_time",-1000)) < 100: return false
+	record.skill_request_time = now
+	if manager.phase != 1 or record.body.get_node("Combatant").is_dead(): return false
+	return record.body.get_node("CharacterSkills").request_skill()
 
 @rpc("any_peer", "call_remote", "unreliable_ordered", 1)
 func _submit_input(sequence: int, movement: Vector2, yaw: float, running: bool, jump: bool, attack: bool, buttons: int = 0, aim: bool = false, pitch: float = 0.0) -> void:
@@ -351,7 +411,7 @@ func _accept_input(id: int, sequence: int, movement: Vector2, yaw: float, runnin
 	record.tokens -= 1.0
 	if (sequence < 0 or sequence > 2147483647 or sequence <= record.seq
 		or sequence > record.seq + MAX_SEQUENCE_ADVANCE or not movement.is_finite()
-		or movement.length_squared() > 1.001 or not is_finite(yaw) or buttons < 0 or buttons > 63
+		or movement.length_squared() > 1.001 or not is_finite(yaw) or buttons < 0 or buttons > 127
 		or not is_finite(pitch) or absf(pitch) > 1.5):
 		rejected_inputs += 1
 		return false
@@ -365,6 +425,7 @@ func _accept_input(id: int, sequence: int, movement: Vector2, yaw: float, runnin
 	record.jump = record.jump or jump
 	record.attack = record.attack or attack
 	record.buttons = int(record.get("buttons", 0)) | buttons
+	if buttons & SKILL: record.pending_skill_sequence = sequence
 	record.aim = aim
 	record.pitch = pitch
 	record.last_input = now
@@ -404,6 +465,8 @@ func _server_step(delta: float) -> void:
 			motion.request_parry()
 		elif buttons & CAST:
 			motion.request_cast()
+		elif buttons & SKILL:
+			_try_character_skill(int(String(body.name)),int(record.get("pending_skill_sequence",record.seq)))
 		body.network_interact = bool(buttons & INTERACT)
 		body.network_drop = bool(buttons & DROP)
 		body.simulate_network_input(delta, record.move, record.yaw, record.run, record.jump)
@@ -459,6 +522,10 @@ func _receive_snapshot(tick: int, states: Variant, phase: int, a: int, b: int, r
 			players[id] = {"body": _spawn_player(id, state.team, state.slot), "team": state.team, "slot": state.slot, "swings": state.swings}
 		var record: Dictionary = players[id]
 		var body: CharacterBody3D = record.body
+		if record.team != state.team or record.slot != state.slot:
+			record.team = state.team
+			record.slot = state.slot
+			_set_team_marker(body, state.team)
 		body.position = state.position
 		body.velocity = state.velocity
 		body.get_node("Mesh").rotation.y = state.mesh_yaw
@@ -479,12 +546,22 @@ func _receive_snapshot(tick: int, states: Variant, phase: int, a: int, b: int, r
 		if not present.has(id):
 			_remove_player(id)
 	_apply_effects(effects)
+	var previous_phase: int = manager.phase
 	manager.apply_state(phase, a, b, remaining, result)
+	if lobby_enabled and players.has(_local_peer_id):
+		players[_local_peer_id].body.get_node("CameraPivot").local_input_enabled = phase != 0
+		if phase == 1 and previous_phase != 1:
+			_peer.get_peer(SERVER_ID).set_timeout(8, 5000, 15000)
+		if phase == 2 and previous_phase != 2:
+			Input.mouse_mode = Input.MOUSE_MODE_VISIBLE
+		if phase == 1 and previous_phase != 1 and capture_local_controls:
+			Input.mouse_mode = Input.MOUSE_MODE_CAPTURED
 	winner = result
 	status_text = message
-	if connected and not _local_ready_sent and players.size() == required_players:
+	if connected and not _local_ready_sent and (players.has(_local_peer_id) if lobby_enabled else players.size() == required_players):
 		_local_ready_sent = true
-		_peer.get_peer(SERVER_ID).set_timeout(8, 5000, 15000)
+		if not lobby_enabled:
+			_peer.get_peer(SERVER_ID).set_timeout(8, 5000, 15000)
 		_client_ready.rpc_id(SERVER_ID)
 	snapshot_received.emit()
 
@@ -497,9 +574,15 @@ func _remove_player(id: int) -> void:
 	players.erase(id)
 
 func _on_peer_disconnected(id: int) -> void:
+	print("NETWORK_PEER_DISCONNECTED=", id)
 	if not server_mode:
 		return
 	_remove_player(id)
+	if lobby_enabled and manager.phase == 0:
+		if id == lobby_host_id:
+			lobby_host_id = 0
+		_invalidate_lobby_ready()
+		_publish_lobby()
 	if manager.phase == 1:
 		manager._end_match(-1)
 		status_text = "Player disconnected - session ended. Restart server and clients."
@@ -557,10 +640,14 @@ func _capture_effects() -> Array:
 	for bolt in get_tree().get_nodes_in_group("motion_test_bolts"):
 		if is_ancestor_of(bolt) and not bolt.is_queued_for_deletion():
 			bolts.append([bolt.get_instance_id(), bolt.global_position, bolt.direction])
-	return [bolts, _impacts]
+	var grenades: Array = []
+	for grenade in get_tree().get_nodes_in_group("skill_grenades"):
+		if is_ancestor_of(grenade) and not grenade.presentation_only and not grenade.is_queued_for_deletion():
+			grenades.append([grenade.get_instance_id(),grenade.global_position,grenade.exploded,grenade.burst_left])
+	return [bolts, _impacts, grenades]
 
 func _apply_effects(effects: Array) -> void:
-	if effects.size() != 2:
+	if effects.size() < 2:
 		return
 	var present: Array = []
 	for shot in effects[0]:
@@ -588,3 +675,162 @@ func _apply_effects(effects: Array) -> void:
 		effect.air_attack = hit[3]
 		add_child(effect)
 		effect.global_position = hit[1]
+	var active: Array = []
+	if effects.size() > 2:
+		for state in effects[2]:
+			var id: int = state[0]
+			active.append(id)
+			if not _grenades.has(id):
+				var grenade := Node3D.new(); grenade.set_script(GRENADE)
+				grenade.presentation_only = true
+				add_child(grenade)
+				_grenades[id] = grenade
+			_grenades[id].present_state(state[1],state[2],state[3])
+	for id in _grenades.keys():
+		if not active.has(id):
+			if is_instance_valid(_grenades[id]): _grenades[id].queue_free()
+			_grenades.erase(id)
+
+
+# Lobby requests always derive ownership from the RPC sender, never a supplied player ID.
+func select_lobby(team: int, character: int, ready: bool) -> void:
+	if connected and lobby_enabled:
+		_lobby_select.rpc_id(SERVER_ID, team, character, ready)
+
+func start_lobby_match() -> void:
+	if connected and lobby_enabled:
+		_lobby_start.rpc_id(SERVER_ID)
+
+@rpc("any_peer", "call_remote", "reliable", 1)
+func _lobby_select(team: int, character: int, ready: bool) -> void:
+	if server_mode and _allow_lobby_request(multiplayer.get_remote_sender_id()):
+		_accept_lobby_selection(multiplayer.get_remote_sender_id(), team, character, ready)
+
+func _allow_lobby_request(id: int) -> bool:
+	var now := Time.get_ticks_msec()
+	if now - int(_lobby_request_times.get(id, -1000)) < 100:
+		return false
+	_lobby_request_times[id] = now
+	return true
+
+func _accept_lobby_selection(id: int, team: int, character: int, ready: bool) -> bool:
+	if not server_mode or not lobby_enabled or manager.phase != 0 or not players.has(id):
+		return false
+	if team not in [0, 1] or character not in [0, 1]:
+		return false
+	var record: Dictionary = players[id]
+	if record.team != team:
+		var count := 0
+		for other in players.values():
+			if other.team == team:
+				count += 1
+		if count >= 2:
+			_lobby_feedback.rpc_id(id, "That team already has two players.")
+			return false
+	var mesh: Node = record.body.get_node("Mesh")
+	var changed: bool = record.team != team or int(mesh.character) != character
+	if changed:
+		record.team = team
+		if int(mesh.character) != character:
+			mesh.set_character(character)
+			record.body.get_node("CharacterAnimation")._physics_process(0.0)
+			record.body.stair_presentation._bind_model()
+		_assign_lobby_spawns()
+		_invalidate_lobby_ready()
+	record.lobby_ready = ready and bool(record.ready) and not changed
+	_publish_lobby()
+	_broadcast_snapshot()
+	return true
+
+func _assign_lobby_spawns() -> void:
+	var slots := [0, 0]
+	for record in players.values():
+		var team: int = record.team
+		record.slot = slots[team]
+		slots[team] += 1
+		var body: Node3D = record.body
+		var combatant: Node = body.get_node("Combatant")
+		combatant.team_id = team
+		combatant.spawn_index = record.slot
+		combatant._resolve_spawn_point()
+		var spawns := get_tree().get_nodes_in_group("spawn_team_%d" % team)
+		body.global_position = spawns[record.slot].global_position
+		body.velocity = Vector3.ZERO
+		_set_team_marker(body, team)
+
+func _set_team_marker(body: Node3D, team: int) -> void:
+	var marker: MeshInstance3D = body.get_node("Mesh/TeamMarker")
+	marker.material_override.albedo_color = TEAM_COLORS[team]
+
+func _invalidate_lobby_ready() -> void:
+	for record in players.values():
+		record.lobby_ready = false
+
+func _lobby_block_reason() -> String:
+	if players.size() < 2:
+		return "Waiting for another player. You can start with 2, 3 or 4 players."
+	var counts := [0, 0]
+	for record in players.values():
+		counts[record.team] += 1
+	if counts[0] == 0 or counts[1] == 0:
+		return "Choose at least one player on each team."
+	if counts[0] > 2 or counts[1] > 2 or players.size() > 4:
+		return "Each team can have at most two players."
+	for record in players.values():
+		if not record.ready:
+			return "Waiting for characters to finish loading."
+		if not record.lobby_ready:
+			return "Waiting for every player to mark Ready."
+	if lobby_host_id == 0:
+		return "Host left. Return to menu and host a new lobby."
+	return ""
+
+@rpc("any_peer", "call_remote", "reliable", 1)
+func _lobby_start() -> void:
+	if server_mode and _allow_lobby_request(multiplayer.get_remote_sender_id()):
+		_accept_lobby_start(multiplayer.get_remote_sender_id())
+
+func _accept_lobby_start(id: int) -> bool:
+	if not server_mode or not lobby_enabled or manager.phase != 0 or id != lobby_host_id:
+		return false
+	if not _lobby_block_reason().is_empty():
+		return false
+	for peer_id in players:
+		_peer.get_peer(peer_id).set_timeout(8, 5000, 15000)
+	manager.start_match()
+	var counts := [0, 0]
+	for record in players.values():
+		counts[record.team] += 1
+	status_text = "%dv%d match running" % [counts[0], counts[1]]
+	_publish_lobby()
+	_broadcast_snapshot()
+	return true
+
+func _publish_lobby() -> void:
+	_lobby_revision += 1
+	lobby_roster = []
+	for id in players:
+		var record: Dictionary = players[id]
+		lobby_roster.append({"id": id, "team": record.team,
+			"character": int(record.body.get_node("Mesh").character),
+			"loaded": bool(record.ready), "ready": bool(record.lobby_ready)})
+	lobby_start_reason = _lobby_block_reason()
+	for id in players:
+		if multiplayer.get_peers().has(id):
+			_receive_lobby.rpc_id(id, _lobby_revision, lobby_roster, lobby_host_id, lobby_start_reason)
+
+@rpc("authority", "call_remote", "reliable", 1)
+func _receive_lobby(revision: int, roster: Array, host_id: int, reason: String) -> void:
+	if server_mode or revision <= _last_lobby_revision:
+		return
+	_last_lobby_revision = revision
+	lobby_roster = roster
+	lobby_host_id = host_id
+	lobby_start_reason = reason
+	lobby_notice = ""
+	lobby_updated.emit()
+
+@rpc("authority", "call_remote", "reliable", 1)
+func _lobby_feedback(message: String) -> void:
+	lobby_notice = message
+	lobby_updated.emit()

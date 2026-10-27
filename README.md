@@ -215,3 +215,8 @@ Magic casting and directional dodge previews: [Casting/dodge checkpoint](docs/CA
 Local adaptive movement: [stairs, climbing and wall-jump controls](docs/ADAPTIVE_TRAVERSAL.md).
 
 Human parkour references and traversal authoring blueprint: [Parkour motion template](docs/PARKOUR_MOTION_TEMPLATE.md). Research/template only; live integration remains a separate animation revision.
+
+
+Current team lobby: run `scenes/multiplayer/Demo1.tscn` with F6. Host/Join, choose a character and team, mark Ready, then the host starts 1v1, 2v1 or 2v2 (2–4 players). See [team lobby guide](docs/TEAM_LOBBY.md).
+
+Press **G** for character skills in local play and lobby matches: Arclight uses Pulse Grenade; Ashen Warden uses Flame Scythe. [Skill effects and cooldowns](docs/CHARACTER_SKILLS.md).

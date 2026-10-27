@@ -1,4 +1,4 @@
-[gd_scene load_steps=13 format=3]
+[gd_scene load_steps=15 format=3]
 
 [ext_resource type="Script" path="res://scripts/player/player_controller.gd" id="1_pc"]
 [ext_resource type="Script" path="res://scripts/player/camera_rig.gd" id="2_cr"]
@@ -11,6 +11,8 @@
 [ext_resource type="Script" path="res://scripts/player/character_animation.gd" id="9_canim"]
 [ext_resource type="Script" path="res://scripts/combat/damage_feedback.gd" id="10_damage"]
 [ext_resource type="Script" path="res://scripts/combat/burn_status.gd" id="11_burn"]
+[ext_resource type="Script" path="res://scripts/combat/stun_status.gd" id="12_stun"]
+[ext_resource type="Script" path="res://scripts/combat/character_skills.gd" id="13_skills"]
 
 [sub_resource type="CapsuleShape3D" id="body_shape"]
 radius = 0.5
@@ -74,3 +76,9 @@ script = ExtResource("10_damage")
 
 [node name="BurnStatus" type="Node3D" parent="."]
 script = ExtResource("11_burn")
+
+[node name="StunStatus" type="Node3D" parent="."]
+script = ExtResource("12_stun")
+
+[node name="CharacterSkills" type="Node3D" parent="."]
+script = ExtResource("13_skills")

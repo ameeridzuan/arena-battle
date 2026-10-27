@@ -16,6 +16,7 @@ static func capture(body: CharacterBody3D) -> Dictionary:
 	var health: Health = body.get_node("Health")
 	return {"character": int(body.get_node("Mesh").character), "grounded": body.is_motion_grounded(), "aim": body.camera_lock_behind,
 		"traversal": traversal, "action": action, "burn": body.get_node("BurnStatus").is_burning(), "damage_kind": String(health.last_damage_kind),
+		"skills": body.get_node("CharacterSkills").capture_state(), "stun": body.get_node("StunStatus").remaining,
 		"step_revision": body.step_revision, "step_height": body.network_step_height}
 
 static func apply(body: CharacterBody3D, state: Dictionary) -> void:
@@ -44,6 +45,8 @@ static func apply(body: CharacterBody3D, state: Dictionary) -> void:
 		body.stair_presentation.on_step(float(state.get("step_height", 0.0)))
 	var burn: Node = body.get_node("BurnStatus")
 	burn._embers.emitting = bool(state.get("burn", false)) and body.get_health() > 0.0
+	body.get_node("CharacterSkills").apply_network_state(state.get("skills",[0.0,0.0,0.0]))
+	body.get_node("StunStatus").apply_network_state(float(state.get("stun",0.0)))
 	var driver: Node = body.get_node("CharacterAnimation")
 	var action: Array = state.get("action", [])
 	if action.is_empty() or body.get_health() <= 0.0:

@@ -76,7 +76,7 @@ func _register_key(action: StringName, key: Key) -> void:
 func _show_controls() -> void:
 	var help := get_node_or_null("../../HUD/ControlsLabel") as Label
 	if help != null:
-		help.text = "LOCAL MOTION TEST | WASD: move | Shift: run | Space: jump | Left click: melee\nSpace + left click: jump attack | Weapon sparks confirm contact\nV then R: fire + burn | Q + forward: dash | Q + side/back: dodge | Q alone: backstep\nF: timed frontal parry | Tab: switch character | Esc: release cursor\nReact to enemies' orange STRIKE windup. Spell: 20 damage + 3 burn/second for 3 seconds."
+		help.text = "LOCAL MOTION TEST | WASD move | Shift run | Space jump | Click melee\nG: Pulse Grenade / Flame Scythe | Tab: switch character\nV then R: fire + burn | Q + direction: dash/dodge | F: parry\nE: grab/climb | C: drop | Space + click: jump attack | Esc: cursor"
 	var layer := CanvasLayer.new()
 	layer.layer = 10
 	add_child(layer)
@@ -340,7 +340,10 @@ func _suppress_melee() -> void:
 func _restore_melee() -> void:
 	if not _melee_suppressed:
 		return
-	if _melee_was_enabled and _can_act():
+	if _melee_was_enabled:
+		# Stun/death may interrupt a cast while melee is temporarily suppressed.
+		# Keep the pending restore until the actor can act again.
+		if not _can_act(): return
 		_melee.set_physics_process(true)
 	_melee_suppressed = false
 

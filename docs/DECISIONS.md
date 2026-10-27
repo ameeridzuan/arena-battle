@@ -320,3 +320,7 @@ loading the complete roster; loading grace is separate from input timeout.
 A mirrored arena preserves spawns and central duel space while adding terraces,
 variable-rise stairs, low vaults and opposing wall-jump lanes.
 See ONEVONE_PARKOUR_BUILD.md for exact checks, packaging and limitations.
+
+
+### 2026-10-27 — Four-player waiting lobby
+Demo1 now uses an explicit host-start lobby with server-validated teams (two per side), character selection and separate loading/Ready flags. Start accepts 1v1, 2v1/1v2 or 2v2 with both teams populated. Roster/selection changes clear readiness. A process-lifetime random owner claim distinguishes the host from joining clients; no host migration or mid-match join is introduced. Legacy direct two/eight-player auto-start tests remain supported. See TEAM_LOBBY.md.

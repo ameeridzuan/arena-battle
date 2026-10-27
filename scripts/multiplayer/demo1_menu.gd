@@ -8,6 +8,7 @@ var message: Label
 var menu: VBoxContainer
 var back: Button
 var reported_running := false
+var _host_token := ""
 
 func _ready() -> void:
 	_build_menu()
@@ -42,14 +43,14 @@ func _build_menu() -> void:
 	title.add_theme_font_size_override("font_size", 38)
 	menu.add_child(title)
 	var description := Label.new()
-	description.text = "1v1 Parkour Arena - two Windows PCs on the same LAN\nHost starts a match; your friend joins using your LAN IP."
+	description.text = "Team Parkour Arena - up to four players on the same LAN\nHost a lobby, choose teams and characters, then play 1v1, 2v1 or 2v2."
 	menu.add_child(description)
 	address = LineEdit.new()
 	address.placeholder_text = "Host IP address (for example 192.168.1.20)"
 	address.text = "127.0.0.1"
 	menu.add_child(address)
 	var host := Button.new()
-	host.text = "Host 1v1"
+	host.text = "Host lobby (up to 4 players)"
 	host.pressed.connect(_host)
 	menu.add_child(host)
 	var join := Button.new()
@@ -65,13 +66,14 @@ func _build_menu() -> void:
 	message.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	menu.add_child(message)
 	var controls := Label.new()
-	controls.text = "WASD move | Shift run | Space jump / wall jump | Click melee\nE grab / climb | A/D shimmy | C drop | Q dash / dodge | F parry\nV aim | R cast + burn | Tab character | Esc cursor\nExplore the terraces and wall-jump lanes. Close host to stop server."
+	controls.text = "WASD move | Shift run | Space jump / wall jump | Click melee\nE grab / climb | A/D shimmy | C drop | Q dash / dodge | F parry\nG character skill | V aim | R cast + burn | Tab character | Esc cursor\nExplore the terraces and wall-jump lanes. Close host to stop server."
 	menu.add_child(controls)
 	var quit_button := Button.new()
 	quit_button.text = "Quit"
 	quit_button.pressed.connect(func(): get_tree().quit())
 	menu.add_child(quit_button)
 	var overlay := CanvasLayer.new()
+	overlay.layer = 10
 	add_child(overlay)
 	back = Button.new()
 	back.text = "Return to menu"
@@ -96,7 +98,8 @@ func _host() -> void:
 		child_args.append_array(["--main-pack", pack])
 	else:
 		child_args.append_array(["--path", ProjectSettings.globalize_path("res://"), "res://scenes/multiplayer/Demo1.tscn"])
-	child_args.append_array(["--log-file", ProjectSettings.globalize_path("user://demo1-server.log"), "--", "--server", "--bind=*", "--players=2"])
+	_host_token = Crypto.new().generate_random_bytes(24).hex_encode()
+	child_args.append_array(["--log-file", ProjectSettings.globalize_path("user://demo1-server.log"), "--", "--server", "--bind=*", "--players=4", "--lobby", "--lobby-token=" + _host_token])
 	server_pid = OS.create_process(OS.get_executable_path(), child_args, false)
 	if server_pid < 0:
 		menu.get_parent().visible = true
@@ -114,7 +117,10 @@ func _host() -> void:
 func _enter_session(ip: String, dedicated: bool = false) -> void:
 	visible = false
 	session = SESSION.instantiate()
-	session.required_players = 2
+	session.required_players = 4
+	session.lobby_enabled = true
+	if not dedicated:
+		session.host_token = _host_token
 	if not dedicated:
 		session.server_address = ip
 	get_tree().root.add_child(session)
@@ -146,6 +152,7 @@ func _stop_server() -> void:
 	if server_pid > 0 and OS.is_process_running(server_pid):
 		OS.kill(server_pid)
 	server_pid = -1
+	_host_token = ""
 
 func _exit_tree() -> void:
 	_stop_server()

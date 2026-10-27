@@ -23,7 +23,7 @@ func _ready() -> void:
 		_manager.match_ended.connect(func(_winner: int): cancel_windup())
 
 func _physics_process(delta: float) -> void:
-	if external_control or _owner_body.get_health() <= 0.0 or (_manager != null and _manager.get_phase() == 2):
+	if external_control or _is_stunned() or _owner_body.get_health() <= 0.0 or (_manager != null and _manager.get_phase() == 2):
 		cancel_windup()
 		return
 	_cooldown_remaining = maxf(0.0, _cooldown_remaining - delta)
@@ -37,7 +37,7 @@ func _physics_process(delta: float) -> void:
 		start_windup()
 
 func start_windup() -> bool:
-	if not is_physics_processing() or external_control or _owner_body.get_health() <= 0.0 or _windup_remaining >= 0.0 or _cooldown_remaining > 0.0 or (_manager != null and _manager.get_phase() == 2):
+	if not is_physics_processing() or external_control or _is_stunned() or _owner_body.get_health() <= 0.0 or _windup_remaining >= 0.0 or _cooldown_remaining > 0.0 or (_manager != null and _manager.get_phase() == 2):
 		return false
 	_windup_remaining = maxf(0.01, windup_s)
 	_cooldown_remaining = _windup_remaining + attack_cooldown

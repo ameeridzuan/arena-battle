@@ -60,7 +60,7 @@ func run() -> void:
 	second.position = Vector3(6, 1.01, 6)
 	await tick(6)
 
-	check(not session._accept_input(42, 0, Vector2.ZERO, 0, false, false, false, 64), "undefined action bits are rejected")
+	check(not session._accept_input(42, 0, Vector2.ZERO, 0, false, false, false, 128), "undefined action bits are rejected")
 	check(not session._accept_input(42, 0, Vector2.ZERO, 0, false, false, false, 0, true, NAN), "nonfinite camera pitch rejected")
 	check(session._accept_input(42, 0, Vector2.ZERO, 0, false, false, false, session.DODGE), "bounded remote dodge request accepted")
 	session._server_step(1.0 / 60.0)

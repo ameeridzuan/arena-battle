@@ -50,6 +50,7 @@ func _ready() -> void:
 
 func _physics_process(delta: float) -> void:
 	_cooldown_remaining -= delta
+	if _is_stunned(): return
 	if not external_control and _cooldown_remaining <= 0.0:
 		# Short-circuit: with auto_attack the Input action is never read (server-safe).
 		if auto_attack or Input.is_action_just_pressed("attack"):
@@ -59,7 +60,7 @@ func _physics_process(delta: float) -> void:
 
 ## Server-side request uses the same cooldown and hit-validation path as local attacks.
 func request_attack() -> bool:
-	if not is_physics_processing() or _cooldown_remaining > 0.0:
+	if not is_physics_processing() or _is_stunned() or _cooldown_remaining > 0.0:
 		return false
 	_cooldown_remaining = attack_cooldown
 	_perform_attack()
@@ -67,6 +68,7 @@ func request_attack() -> bool:
 
 
 func _perform_attack() -> void:
+	if _is_stunned(): return
 	var basis := _aim_ref.global_transform.basis
 	# XZ-project the aim reference's forward axis: -Z for the camera pivot / opponent root, or
 	# +Z for the player's visual Mesh front (option A — the swing follows the character's facing).
@@ -107,3 +109,8 @@ func _perform_attack() -> void:
 			body.receive_melee_hit(attack_damage, _owner_body)
 		else:
 			body.apply_damage(attack_damage, _owner_body)
+
+func _is_stunned() -> bool:
+	if not is_instance_valid(_owner_body): return false
+	var status := _owner_body.get_node_or_null("StunStatus")
+	return status != null and status.is_stunned()

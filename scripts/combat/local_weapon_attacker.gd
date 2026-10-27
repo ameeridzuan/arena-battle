@@ -23,6 +23,14 @@ var _previous: Array[Vector3] = []
 var _trail: MeshInstance3D
 var _trail_mesh: ImmediateMesh
 var _capture_was_active := false
+var _scythe_combo := 0
+
+func _scythe_active() -> bool:
+	var skills := _owner_body.get_node_or_null("CharacterSkills")
+	return skills != null and skills.is_scythe_active()
+
+func _contact_window() -> Vector2:
+	return Vector2(.25,.95) if _scythe_active() else Vector2(contact_start_phase,contact_end_phase)
 
 func owns_animation_action() -> bool:
 	return true
@@ -61,7 +69,7 @@ func _ready() -> void:
 
 func _live() -> bool:
 	var health: Health = _owner_body.get_node("Health")
-	return (network_authority or (not external_control and not _owner_body.external_control)) and not health.network_replica and health.get_health() > 0.0 and (_manager == null or _manager.get_phase() != 2) and (not _owner_body.has_method("allows_motion_actions") or _owner_body.allows_motion_actions())
+	return not _is_stunned() and (network_authority or (not external_control and not _owner_body.external_control)) and not health.network_replica and health.get_health() > 0.0 and (_manager == null or _manager.get_phase() != 2) and (not _owner_body.has_method("allows_motion_actions") or _owner_body.allows_motion_actions())
 
 func _physics_process(delta: float) -> void:
 	var captured := not external_control and Input.mouse_mode == Input.MOUSE_MODE_CAPTURED
@@ -81,7 +89,8 @@ func _physics_process(delta: float) -> void:
 		_elapsed += delta
 		var segment := get_weapon_segment()
 		var phase := _elapsed / _duration
-		if phase >= contact_start_phase and phase <= contact_end_phase and segment.size() == 2:
+		var window := _contact_window()
+		if phase >= window.x and phase <= window.y and segment.size() == 2:
 			_sweep(segment)
 		else:
 			_trail.visible = false
@@ -98,9 +107,12 @@ func request_attack() -> bool:
 	if is_jump_attack and _air_used:
 		return false
 	var clip: String = "Attack_Overhead" if is_jump_attack else _driver._next_attack_clip()
+	if _scythe_active():
+		clip = "Skills/Scythe_Cleave" if is_jump_attack else ["Skills/Scythe_Reap","Skills/Scythe_Return"][_scythe_combo % 2]
 	if clip.is_empty() or not is_instance_valid(_driver._anim) or not _driver._anim.has_animation(clip):
 		return false
 	_duration = air_duration_s if is_jump_attack else ground_duration_s
+	if _scythe_active(): _duration = 1.05 if is_jump_attack else .85
 	var spec := ACTION.new()
 	spec.clip = StringName(clip)
 	spec.priority = 20
@@ -110,6 +122,7 @@ func request_attack() -> bool:
 	if not _driver.present_action(spec):
 		return false
 	current_clip = clip
+	if _scythe_active(): _scythe_combo += 1
 	_elapsed = 0.0
 	_cooldown_remaining = maxf(attack_cooldown, _duration + 0.05)
 	_hit_rids.clear()
@@ -134,6 +147,10 @@ func get_weapon_segment() -> Array[Vector3]:
 	if hand < 0:
 		return result
 	var pose := skeleton.global_transform * skeleton.get_bone_global_pose(hand)
+	if _scythe_active():
+		result.append(pose*Vector3(0,.07,-1.42))
+		result.append(pose*Vector3(.94,.07,-.88))
+		return result
 	# Blade vertices transformed by their hand.R skin bind (see checkpoint).
 	var warden: bool = int(_mesh.character) == 1
 	result.append(pose * Vector3(0, 0.07, -0.12 if warden else -0.111))
@@ -230,7 +247,7 @@ func _valid_target(target: Node) -> bool:
 	toward.y = 0.0
 	var forward := _mesh.global_basis.z
 	forward.y = 0.0
-	return toward.length() <= attack_range and (toward.length_squared() < 0.0001 or forward.normalized().dot(toward.normalized()) >= cos(deg_to_rad(attack_arc_deg * 0.5)))
+	return toward.length() <= attack_range + (.8 if _scythe_active() else 0.0) and (toward.length_squared() < 0.0001 or forward.normalized().dot(toward.normalized()) >= cos(deg_to_rad(attack_arc_deg * 0.5)))
 
 func _impact(point: Vector3, normal: Vector3) -> void:
 	impact_presented.emit(point, normal, is_jump_attack)
@@ -260,14 +277,15 @@ func present_network_trail() -> void:
 	if not _owner_body.get_node("Health").network_replica:
 		return
 	var clip: String = _driver.get_action_clip()
-	if not clip.begins_with("Attack_") or _driver._layers == null or _driver._layers.action == null:
+	if (not clip.begins_with("Attack_") and not clip.begins_with("Skills/Scythe_")) or _driver._layers == null or _driver._layers.action == null:
 		_trail.visible = false
 		_previous.clear()
 		return
 	var segment := get_weapon_segment()
 	var length: float = _driver._anim.get_animation(clip).length
 	var phase: float = _driver._layers.action_time / maxf(length, 0.001)
-	if segment.size() == 2 and _previous.size() == 2 and phase >= contact_start_phase and phase <= contact_end_phase:
+	var window := _contact_window()
+	if segment.size() == 2 and _previous.size() == 2 and phase >= window.x and phase <= window.y:
 		_draw_trail(segment)
 	else:
 		_trail.visible = false

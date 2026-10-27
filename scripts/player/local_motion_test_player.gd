@@ -38,6 +38,11 @@ func _ready() -> void:
 		manager.match_ended.connect(func(_winner: int): reset_traversal())
 
 func _simulate_movement(delta: float, direction: Vector3, running: bool, jump_pressed: bool) -> void:
+	if is_stunned():
+		_apply_gravity(delta)
+		velocity.x = 0; velocity.z = 0
+		move_and_slide()
+		return
 	var captured := Input.mouse_mode == Input.MOUSE_MODE_CAPTURED
 	if traversal_enabled and traversal_motor.simulate(delta, direction, jump_pressed, network_interact or (not external_control and captured and Input.is_action_just_pressed("traversal_interact")), network_drop or (not external_control and captured and Input.is_action_just_pressed("traversal_drop"))):
 		return
@@ -71,7 +76,7 @@ func get_traversal_mode() -> String:
 	return traversal_motor.mode_name()
 
 func allows_motion_actions() -> bool:
-	return traversal_motor.pose_name() == "normal" and traversal_motor.wall_push_left <= 0.0
+	return not is_stunned() and traversal_motor.pose_name() == "normal" and traversal_motor.wall_push_left <= 0.0
 
 func reset_traversal() -> void:
 	traversal_motor.reset()
