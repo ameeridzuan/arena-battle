@@ -103,4 +103,7 @@ func _perform_attack() -> void:
 		var angle := forward.angle_to(to_body.normalized())
 		if angle > half_arc_rad:
 			continue
-		body.apply_damage(attack_damage, _owner_body)
+		if body.has_method("receive_melee_hit"):
+			body.receive_melee_hit(attack_damage, _owner_body)
+		else:
+			body.apply_damage(attack_damage, _owner_body)

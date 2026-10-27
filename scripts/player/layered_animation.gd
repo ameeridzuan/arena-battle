@@ -87,6 +87,8 @@ func select_base(clip: String, blend_s: float) -> void:
 func start_action(spec: ACTION) -> bool:
 	if spec == null:
 		return false
+	if not is_finite(spec.playback_speed) or spec.playback_speed <= 0.0:
+		return false
 	if not player.has_animation(spec.clip):
 		return false
 	if spec.layer == ACTION.Layer.UPPER_BODY and mask_paths.is_empty():
@@ -96,7 +98,7 @@ func start_action(spec: ACTION) -> bool:
 		return false
 	action = spec
 	action_time = 0.0
-	action_weight = 0.0
+	action_weight = 1.0 if spec.blend_in_s <= 0.0 else 0.0
 	_action_node.animation = spec.clip
 	_overlay.filter_enabled = spec.layer == ACTION.Layer.UPPER_BODY
 	evaluate()
@@ -126,13 +128,13 @@ func advance(delta: float) -> void:
 	_previous_time = _advance_time(String(_previous.animation), _previous_time, delta * _previous_speed)
 	_blend_elapsed += delta
 	if action != null:
-		action_time += delta
+		action_time += delta * action.playback_speed
 		var length := player.get_animation(action.clip).length
 		if action_time >= length:
 			cancel_action()
 		else:
-			var fade_in := minf(1.0, action_time / maxf(action.blend_in_s, 0.0001))
-			var fade_out := minf(1.0, (length - action_time) / maxf(action.blend_out_s, 0.0001))
+			var fade_in := minf(1.0, action_time / action.playback_speed / maxf(action.blend_in_s, 0.0001))
+			var fade_out := minf(1.0, (length - action_time) / action.playback_speed / maxf(action.blend_out_s, 0.0001))
 			action_weight = minf(fade_in, fade_out)
 	evaluate()
 

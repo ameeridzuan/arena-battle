@@ -2,6 +2,9 @@ extends SceneTree
 ## M3 integration gate. Run with --headless --path <ArenaBattle> --script res://tests/integration/match_smoke_test.gd
 ## Each case instantiates the authored scene anew. M1/M2 are separate regression commands.
 const MAIN := preload("res://scenes/main/Main.tscn")
+const SHARED_DUMMY := preload("res://scenes/targets/DummyTarget.tscn")
+const MELEE := preload("res://scripts/combat/melee_attacker.gd")
+const SPARRING := preload("res://scripts/combat/local_sparring_attacker.gd")
 var _results: Array[bool] = []
 
 func _init() -> void:
@@ -89,7 +92,18 @@ func _case_start() -> void:
 	_check("authored_defaults", c.manager.time_limit == 180.0 and c.manager.score_limit == 5
 		and c.player.get_node("Combatant").respawn_delay == 3.0
 		and c.first.get_node("AttackHitbox").auto_attack
-		and c.first.get_node("AttackHitbox").attack_cooldown == 1.5)
+		and c.first.get_node("AttackHitbox").get_script() == SPARRING
+		and is_equal_approx(c.first.get_node("AttackHitbox").attack_cooldown, 0.9)
+		and is_equal_approx(c.first.get_node("AttackHitbox").windup_s, 0.32)
+		and c.second.get_node("AttackHitbox").auto_attack
+		and c.second.get_node("AttackHitbox").get_script() == SPARRING
+		and is_equal_approx(c.second.get_node("AttackHitbox").attack_cooldown, 0.9)
+		and is_equal_approx(c.second.get_node("AttackHitbox").windup_s, 0.32))
+	var shared_dummy := SHARED_DUMMY.instantiate()
+	var shared_attack: Node = shared_dummy.get_node("AttackHitbox")
+	_check("shared_dummy_defaults_unchanged", shared_attack.get_script() == MELEE
+		and shared_attack.auto_attack and is_equal_approx(shared_attack.attack_cooldown, 1.5))
+	shared_dummy.free()
 	_check("hud_initial_state", c.main.get_node("HUD/ScoreLabel").text == "TEAM A: 0  |  TEAM B: 0"
 		and c.main.get_node("HUD/TimerLabel").text == "3:00"
 		and not c.main.get_node("HUD/ResultLabel").visible)

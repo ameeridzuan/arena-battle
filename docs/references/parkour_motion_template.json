@@ -1,0 +1,479 @@
+{
+  "schema_version": 1,
+  "date": "2026-10-22",
+  "status": "reference_template_with_implemented_prototype_subset",
+  "evidence_method": "Coaching articles, published transcripts and research abstracts. Linked videos are reference candidates; no frame-by-frame video analysis or mocap extraction claimed.",
+  "timing_basis": "All normalized ranges are initial authored blocking proposals, not measured human timing. Contact gates take priority over time. Adjacent phase ranges intentionally overlap to coordinate limbs rather than produce serial robotic poses.",
+  "character_parameters": {
+    "Arclight": {
+      "body_mass_kg": null,
+      "equipment_mass_kg": null,
+      "limb_lengths_m": {
+        "upper_arm": 0.340588,
+        "forearm": 0.28,
+        "thigh": 0.4,
+        "shin": 0.39,
+        "measurement": "Godot skeleton rest joint distances"
+      }
+    },
+    "Ashen_Warden": {
+      "body_mass_kg": null,
+      "equipment_mass_kg": null,
+      "limb_lengths_m": {
+        "upper_arm": 0.340588,
+        "forearm": 0.28,
+        "thigh": 0.4,
+        "shin": 0.39,
+        "measurement": "Godot skeleton rest joint distances"
+      }
+    }
+  },
+  "sources": [
+    {
+      "id": "apex_hang",
+      "url": "https://apexmovement.com/parkour-as-life-skills-2",
+      "evidence": "Coach-written cat-hang setup: compressed legs, extended arms, feet pressing horizontally into wall."
+    },
+    {
+      "id": "apex_climb",
+      "url": "https://apexmovement.com/climb-up-intro",
+      "evidence": "Climb-up landmarks, leg-assisted pull, palm support and squat finish."
+    },
+    {
+      "id": "apex_progressions",
+      "url": "https://apexmovement.com/climb-up-ground-up",
+      "evidence": "Different low, walking, running and hanging climb-up progressions; top-out coordination."
+    },
+    {
+      "id": "apa_manual",
+      "url": "https://motricidadehumana.org/wp-content/uploads/2015/08/parkour-techniques-and-movements.pdf",
+      "evidence": "APA/Parkourpedia authored manual, hosted copy: printed pp15-18 climb-up; pp34-36 arm jump; pp38-41 wall run; pp56-58 tic tac."
+    },
+    {
+      "id": "london_feet",
+      "url": "https://londonparkour.com/tutorials/how-to-cat-leap-foot-position-2/",
+      "evidence": "Coaching transcript: staggered wall feet, mirrored practice."
+    },
+    {
+      "id": "london_absorb",
+      "url": "https://londonparkour.com/tutorials/how-to-cat-leap-arm-preparedness/",
+      "evidence": "Coaching transcript: catch absorption into extended-arm position."
+    },
+    {
+      "id": "london_cat_turn",
+      "url": "https://londonparkour.com/tutorials/180-cat-to-cat/",
+      "evidence": "Coaching transcript: high-foot step before upward turning transfer; downward transfer differs."
+    },
+    {
+      "id": "wall_biomechanics",
+      "url": "https://pubmed.ncbi.nlm.nih.gov/30446542/",
+      "evidence": "Measured wall-climb ground/wall impulses and centre-of-mass motion; not joint keyframes or universal clip timing."
+    },
+    {
+      "id": "baspo_support",
+      "url": "https://www.mobilesport.ch/parkour/parkour-trainingsformen-zu-den-erscheinungsformen-dynamisch-und-sicher-zwischen-haengender-stuetzender-und-stehender-position-wechseln/",
+      "evidence": "Swiss BASPO training text: transition hang to support, coordinate leg push and arm pull, then tuck knees into standing."
+    },
+    {
+      "id": "london_climb",
+      "url": "https://londonparkour.com/tutorials/cat-to-climbup-2/",
+      "evidence": "Written task uses clean knee-free cat-to-climb-up; transcript describes using approach momentum."
+    }
+  ],
+  "coordinate_contract": {
+    "wall_normal": "points out of wall",
+    "wall_tangent": "UP cross wall_normal; mirror by anatomical side",
+    "ledge": "actual top-front edge",
+    "contact_frames": "finger/palm and boot-forefoot/sole geometry, not wrist/ankle origin alone",
+    "balance": "pelvis is a visual balance proxy, not a computed whole-body centre of mass"
+  },
+  "clips": [
+    {
+      "id": "cat_catch",
+      "sources": [
+        "apa_manual",
+        "london_absorb",
+        "london_feet"
+      ],
+      "phases": [
+        {
+          "id": "reach",
+          "normalized_range": [
+            0,
+            0.3
+          ],
+          "contacts": [],
+          "body": "Legs lead toward wall; hands reach for lip; prepare to yield.",
+          "exit_gate": "reachable wall and lip"
+        },
+        {
+          "id": "impact_absorb",
+          "normalized_range": [
+            0.3,
+            0.75
+          ],
+          "contacts": [
+            "wall_forefoot",
+            "edge_fingers"
+          ],
+          "body": "Bend knees and yield arms/shoulders as required by incoming momentum; avoid immediate frozen hang.",
+          "exit_gate": "momentum absorbed without knee or face collision"
+        },
+        {
+          "id": "settle",
+          "normalized_range": [
+            0.75,
+            1
+          ],
+          "contacts": [
+            "both_edge_grips",
+            "staggered_wall_feet"
+          ],
+          "body": "Settle into compact supported cat-hang; preserve contact patches.",
+          "exit_gate": "stable support"
+        }
+      ]
+    },
+    {
+      "id": "cat_hang",
+      "loop": true,
+      "sources": [
+        "apex_hang",
+        "london_feet"
+      ],
+      "pose": {
+        "arms": "extended with visible shoulder engagement; grip near shoulder width",
+        "hips": "low compact position, toward ankle height as rig reach permits",
+        "knees": "flexed and clear of wall",
+        "feet": "staggered forefoot wall brace; heel/shin/ankle angle solved from posture",
+        "motion": "subtle breath and supported weight shifts; no synchronized wrist/boot sliding"
+      }
+    },
+    {
+      "id": "cat_climb_step_topout",
+      "sources": [
+        "apex_climb",
+        "apa_manual",
+        "apex_progressions",
+        "baspo_support",
+        "london_climb"
+      ],
+      "phases": [
+        {
+          "id": "load",
+          "normalized_range": [
+            0,
+            0.15
+          ],
+          "contacts": [
+            "both_edge_grips",
+            "staggered_wall_feet"
+          ],
+          "body": "Compress the wall-braced lower body.",
+          "exit_gate": "stable wall-foot purchase"
+        },
+        {
+          "id": "leg_drive_pull",
+          "normalized_range": [
+            0.12,
+            0.4
+          ],
+          "contacts": [
+            "both_edge_grips",
+            "driving_wall_foot"
+          ],
+          "body": "Extend braced leg while pulling; pelvis arcs up/out then chest approaches lip.",
+          "exit_gate": "chest can clear edge"
+        },
+        {
+          "id": "turnover",
+          "normalized_range": [
+            0.32,
+            0.55
+          ],
+          "contacts": [
+            "edge_grip_to_palm_support",
+            "wall_foot_until_push_complete"
+          ],
+          "body": "Bring shoulders over hands; visibly roll/reposition grip onto top.",
+          "exit_gate": "palm support established and chest clear"
+        },
+        {
+          "id": "press_support",
+          "normalized_range": [
+            0.48,
+            0.7
+          ],
+          "contacts": [
+            "top_palms"
+          ],
+          "body": "Push through arms with torso above edge; tuck knees only after clearance.",
+          "exit_gate": "hips and thigh route can clear lip"
+        },
+        {
+          "id": "foot_plant",
+          "normalized_range": [
+            0.62,
+            0.9
+          ],
+          "contacts": [
+            "supporting_top_hand",
+            "leading_top_sole"
+          ],
+          "body": "Place reachable lead foot near edge; bring trailing foot through; no default elbow/knee-on-wall prop.",
+          "exit_gate": "visible loaded sole support before hand release"
+        },
+        {
+          "id": "squat_recover",
+          "normalized_range": [
+            0.85,
+            1
+          ],
+          "contacts": [
+            "top_soles"
+          ],
+          "body": "Release hands after balance transfer, settle and rise or continue moving.",
+          "exit_gate": "stable stance or locomotion entry"
+        }
+      ]
+    },
+    {
+      "id": "low_mantle",
+      "sources": [
+        "apex_progressions"
+      ],
+      "phases": [
+        {
+          "id": "ground_push",
+          "normalized_range": [
+            0,
+            0.25
+          ],
+          "contacts": [
+            "ground_feet",
+            "top_palms"
+          ],
+          "body": "Retain ground support; lean over reachable top.",
+          "exit_gate": "hands loaded"
+        },
+        {
+          "id": "step_through",
+          "normalized_range": [
+            0.25,
+            0.75
+          ],
+          "contacts": [
+            "ground_trailing_foot",
+            "supporting_top_hand",
+            "leading_top_sole"
+          ],
+          "body": "Drive from ground and plant lead foot without visiting high cat hang.",
+          "exit_gate": "foot support verified"
+        },
+        {
+          "id": "recover",
+          "normalized_range": [
+            0.75,
+            1
+          ],
+          "contacts": [
+            "top_soles"
+          ],
+          "body": "Transfer body and recover into movement.",
+          "exit_gate": "standing clearance"
+        }
+      ]
+    },
+    {
+      "id": "cat_traverse",
+      "sources": [
+        "london_feet",
+        "apa_manual"
+      ],
+      "evidence_note": "Contact order below is an authored conservative interpretation; not a measured universal traverse gait.",
+      "loop": true,
+      "phases": [
+        {
+          "id": "load_support_side",
+          "normalized_range": [
+            0,
+            0.2
+          ],
+          "contacts": [
+            "both_edge_grips",
+            "wall_feet"
+          ],
+          "body": "Shift weight onto supporting hand and opposite wall foot; look toward travel.",
+          "exit_gate": "remaining support reachable"
+        },
+        {
+          "id": "reach_lead_hand",
+          "normalized_range": [
+            0.2,
+            0.45
+          ],
+          "contacts": [
+            "support_hand",
+            "support_wall_foot"
+          ],
+          "body": "Move only the unloaded lead hand to validated lip patch.",
+          "exit_gate": "new grip closed"
+        },
+        {
+          "id": "follow_feet_hips",
+          "normalized_range": [
+            0.45,
+            0.75
+          ],
+          "contacts": [
+            "both_edge_grips",
+            "one_wall_foot_at_a_time"
+          ],
+          "body": "Step wall feet and shift pelvis without dragging locked contacts.",
+          "exit_gate": "new supported lateral position"
+        },
+        {
+          "id": "close_trailing_hand",
+          "normalized_range": [
+            0.75,
+            1
+          ],
+          "contacts": [
+            "lead_grip",
+            "wall_feet"
+          ],
+          "body": "Bring trailing hand in; blend reversal through supported pose.",
+          "exit_gate": "both hands ready"
+        }
+      ]
+    },
+    {
+      "id": "wall_push_off",
+      "sources": [
+        "apa_manual"
+      ],
+      "current_mechanic": "Reference for existing jump away from airborne wall contact. Hand assistance is optional; distinct from wall run.",
+      "phases": [
+        {
+          "id": "plant_compress",
+          "normalized_range": [
+            0,
+            0.2
+          ],
+          "contacts": [
+            "one_wall_forefoot"
+          ],
+          "body": "Choose and lock wall foot; bend stance leg; free knee and arms prepare.",
+          "exit_gate": "actual wall purchase"
+        },
+        {
+          "id": "extend_release",
+          "normalized_range": [
+            0.2,
+            0.4
+          ],
+          "contacts": [
+            "wall_forefoot_until_toe_off"
+          ],
+          "body": "Extend stance hip/knee/ankle; free knee and arms counterbalance.",
+          "exit_gate": "toe-off event synchronized with gameplay launch"
+        },
+        {
+          "id": "flight",
+          "normalized_range": [
+            0.4,
+            0.8
+          ],
+          "contacts": [],
+          "body": "Release wall contact; orient to travel rather than immediately spinning in place.",
+          "exit_gate": "airborne arc"
+        },
+        {
+          "id": "prepare_landing_or_catch",
+          "normalized_range": [
+            0.8,
+            1
+          ],
+          "contacts": [],
+          "body": "Reach or lower legs for the predicted next contact.",
+          "exit_gate": "next real contact"
+        }
+      ]
+    },
+    {
+      "id": "wall_run_to_ledge",
+      "sources": [
+        "wall_biomechanics",
+        "apa_manual"
+      ],
+      "planned_variant": true,
+      "events": [
+        "ground_takeoff",
+        "single_wall_forefoot_plant",
+        "wall_leg_drive_with_free_knee_reach",
+        "wall_toe_off",
+        "lip_catch_absorb_or_running_topout"
+      ],
+      "rule": "Preserve approach-dependent horizontal-to-upward trajectory; never a stationary two-foot jump pose."
+    },
+    {
+      "id": "tic_tac",
+      "sources": [
+        "apa_manual"
+      ],
+      "planned_variant": true,
+      "events": [
+        "angled_approach",
+        "one_wall_forefoot_plant",
+        "stance_leg_extension_toward_target",
+        "toe_off",
+        "free_flight",
+        "next_landing_or_cat_catch"
+      ],
+      "rule": "Direction and asymmetry differ from frontal wall run."
+    },
+    {
+      "id": "cat_to_cat_turn",
+      "sources": [
+        "london_cat_turn"
+      ],
+      "planned_variant": true,
+      "events": [
+        "supported_cat_hang",
+        "step_up_for_height_when_needed",
+        "push_release_then_turn",
+        "reach_next_lip",
+        "absorb_next_catch"
+      ],
+      "rule": "Upward/same-level distance transfer and downward transfer require different vertical preparation."
+    }
+  ],
+  "review_requirements": [
+    "both rigs, both lead sides, front/side/three-quarter views",
+    "continuous normal-speed and slow playback, plus sampled phases",
+    "actual visible fingers/palms/soles and armor clearance",
+    "no hand release before deliberate support transfer except ballistic flight",
+    "no foot drag during locked contact; no leg reach clamping through tread",
+    "root/pelvis continuity at physics frames and 30/60/120fps presentation",
+    "separate approach speeds and low/medium/high reachable ledges",
+    "clothing and weapon clearance reviewed separately",
+    "existing tests supplement rather than certify natural motion"
+  ],
+  "runtime_implementation": {
+    "checkpoint": "../PARKOUR_ANIMATION_CHECKPOINT.md",
+    "implemented": [
+      "cat_hang",
+      "cat_climb_step_topout",
+      "cat_traverse",
+      "low_mantle",
+      "wall_push_off"
+    ],
+    "remaining": [
+      "momentum_dependent_cat_catch",
+      "wall_run_to_ledge",
+      "tic_tac",
+      "cat_to_cat_turn"
+    ],
+    "note": "Runtime uses authored rig-specific timings and contact IK. Reference phase ranges remain research blocking proposals; wall push-off preserves the existing immediate gameplay impulse."
+  }
+}

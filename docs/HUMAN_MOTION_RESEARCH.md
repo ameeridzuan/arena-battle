@@ -55,3 +55,11 @@ These are **capture candidates for inspection and adaptation**, not implemented 
 | Magic/energy casting and skills | No matching real-world action selected | Use human reach, weight transfer and recovery references; the magical action remains authored. |
 
 Next review priorities are walk/run foot contact, visible balance, equipment intersections and transitions at the approved speeds. Jump/strafe integration and the reference-only actions follow their separate roadmap tasks.
+
+## Parkour traversal research (22 October 2026)
+
+The team’s [parkour motion template](PARKOUR_MOTION_TEMPLATE.md) covers human
+hanging, catches, climb-ups, traversing and wall jumps. It distinguishes
+coaching evidence from proposed animation timing and identifies missing
+contact transitions in the current procedural implementation. It is an
+authoring reference, not imported motion capture or a completed runtime change.

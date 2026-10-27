@@ -55,6 +55,7 @@ extends SceneTree
 
 const MAIN_SCENE := "res://scenes/main/Main.tscn"
 const DUMMY_SCENE := "res://scenes/targets/DummyTarget.tscn"
+const SHARED_ATTACKER := preload("res://scripts/combat/melee_attacker.gd")
 
 # project.godot does not override the physics tick rate -> 60 Hz, 1 frame = 1/60 s = 0.016667 s.
 const PLAYER_SETTLE_FRAMES := 12    # let the CharacterBody3D land and come to rest on the floor
@@ -146,6 +147,17 @@ func _press_attack_traced(atk: Variant, dummy: Variant) -> Array[String]:
 ## (optionally) spawns a fresh DummyTarget at player.global_position + offset.
 func _setup(dummy_offset: Vector3, spawn_dummy: bool) -> Dictionary:
 	var main: Node3D = load(MAIN_SCENE).instantiate()
+	# This suite remains the shared/network immediate range-and-arc contract.
+	# Main's local weapon-contact adapter has its own physics integration suite.
+	# Restore the base script before _ready connects animation/feedback signals,
+	# retaining all authored base tunables (especially Mesh +Z aim ownership).
+	var authored_attack: Node = main.get_node("Player/AttackHitbox")
+	var base_values := {}
+	for field in ["attack_damage", "attack_range", "attack_cooldown", "attack_arc_deg", "auto_attack", "aim_reference_path", "aim_forward_positive_z"]:
+		base_values[field] = authored_attack.get(field)
+	authored_attack.set_script(SHARED_ATTACKER)
+	for field in base_values:
+		authored_attack.set(field, base_values[field])
 	root.add_child(main)
 
 	var player: CharacterBody3D = main.get_node("Player")

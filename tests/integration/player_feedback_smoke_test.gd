@@ -1,6 +1,7 @@
 extends SceneTree
 ## Presentation integration: actual health/death/respawn and cooldown-gated attacks.
 const MAIN := preload("res://scenes/main/Main.tscn")
+const SHARED_ATTACKER := preload("res://scripts/combat/melee_attacker.gd")
 var _results: Array[bool] = []
 
 func _init() -> void:
@@ -16,6 +17,15 @@ func _frames(count: int) -> void:
 
 func _run() -> void:
 	var main := MAIN.instantiate()
+	# Keep the legacy miss-swipe/cooldown presentation contract on its shared
+	# attacker. Main's local weapon contacts and confirmed hit VFX are tested apart.
+	var authored_attack: Node = main.get_node("Player/AttackHitbox")
+	var base_values := {}
+	for field in ["attack_damage", "attack_range", "attack_cooldown", "attack_arc_deg", "auto_attack", "aim_reference_path", "aim_forward_positive_z"]:
+		base_values[field] = authored_attack.get(field)
+	authored_attack.set_script(SHARED_ATTACKER)
+	for field in base_values:
+		authored_attack.set(field, base_values[field])
 	root.add_child(main)
 	await _frames(5)
 	var player: Variant = main.get_node("Player")

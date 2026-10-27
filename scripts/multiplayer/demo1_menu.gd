@@ -42,7 +42,7 @@ func _build_menu() -> void:
 	title.add_theme_font_size_override("font_size", 38)
 	menu.add_child(title)
 	var description := Label.new()
-	description.text = "1v1 multiplayer - two Windows PCs on the same LAN\nHost starts a match; your friend joins using your LAN IP."
+	description.text = "1v1 Parkour Arena - two Windows PCs on the same LAN\nHost starts a match; your friend joins using your LAN IP."
 	menu.add_child(description)
 	address = LineEdit.new()
 	address.placeholder_text = "Host IP address (for example 192.168.1.20)"
@@ -65,7 +65,7 @@ func _build_menu() -> void:
 	message.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	menu.add_child(message)
 	var controls := Label.new()
-	controls.text = "WASD move | Shift run | Space jump | Click attack\nMouse look | V change camera mode | Esc release cursor\nClose the host game to stop its server. No internet matchmaking."
+	controls.text = "WASD move | Shift run | Space jump / wall jump | Click melee\nE grab / climb | A/D shimmy | C drop | Q dash / dodge | F parry\nV aim | R cast + burn | Tab character | Esc cursor\nExplore the terraces and wall-jump lanes. Close host to stop server."
 	menu.add_child(controls)
 	var quit_button := Button.new()
 	quit_button.text = "Quit"

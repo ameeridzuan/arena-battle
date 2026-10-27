@@ -1,3 +1,6 @@
+Current 23 October 2026 build: see [1v1 parkour build](ONEVONE_PARKOUR_BUILD.md).
+The checkpoint below describes the earlier 17 October package.
+
 # Demo 1 and continuation checkpoint — 2026-10-17
 
 Demo 1 is a portable Windows x64 1v1 preview based on main `70dd88c` plus the

@@ -1,4 +1,5 @@
 extends MeshInstance3D
+signal model_changed(model: Node3D)
 ## Character model swapper (M7 art pass).
 ##
 ## Gameplay hard-references the `Mesh` node path (see docs/ART_IMPORT_CONVENTIONS.md and the
@@ -49,3 +50,4 @@ func _instantiate() -> void:
 	_model.name = "Model"
 	_model.transform = Transform3D(Basis.IDENTITY, MODEL_OFFSET)
 	add_child(_model)
+	model_changed.emit(_model)

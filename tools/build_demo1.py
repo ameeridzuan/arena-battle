@@ -14,6 +14,7 @@ import zipfile
 parser = argparse.ArgumentParser()
 parser.add_argument('--godot', required=True, type=Path)
 parser.add_argument('--output', required=True, type=Path)
+parser.add_argument('--reuse-stage', type=Path, help='Reuse an isolated stage created by this helper.')
 args = parser.parse_args()
 project = Path(__file__).resolve().parents[1]
 engine = args.godot.resolve(strict=True)
@@ -21,17 +22,25 @@ if engine.name.endswith('_console.exe'):
     engine = engine.with_name(engine.name.replace('_console.exe', '.exe'))
     if not engine.exists():
         raise SystemExit('Supply the full Godot GUI executable, not only its console wrapper.')
-stage = Path(tempfile.mkdtemp(prefix='ArenaBattle-Demo1-build-'))
+if args.reuse_stage:
+    stage = args.reuse_stage.resolve(strict=True)
+    if stage == project or not stage.name.startswith('ArenaBattle-Demo1-build-') or not (stage / 'project.godot').exists():
+        raise SystemExit('Only an existing isolated Demo 1 build stage can be reused.')
+else:
+    stage = Path(tempfile.mkdtemp(prefix='ArenaBattle-Demo1-build-'))
 out = args.output.resolve() / 'Demo 1'
 out.mkdir(parents=True, exist_ok=True)
+print('Build stage:', stage, flush=True)
 for folder in ['scenes', 'scripts', 'assets']:
-    shutil.copytree(project / folder, stage / folder,
+    shutil.copytree(project / folder, stage / folder, dirs_exist_ok=True,
                     ignore=shutil.ignore_patterns('*.blend', '*.blend1', 'preview_frames', '__pycache__'))
 shutil.copy2(project / 'icon.svg', stage / 'icon.svg')
 config = (project / 'project.godot').read_text(encoding='utf-8')
 config = config.replace('config/name="ArenaBattle"', 'config/name="Demo 1"')
 config = config.replace('run/main_scene="res://scenes/main/Main.tscn"',
                         'run/main_scene="res://scenes/multiplayer/Demo1.tscn"')
+# Portable Windows preview uses the tested compatibility renderer.
+config += '\n[rendering]\n\nrenderer/rendering_method="gl_compatibility"\nrenderer/rendering_method.mobile="gl_compatibility"\n'
 (stage / 'project.godot').write_text(config, encoding='utf-8')
 (stage / 'export_presets.cfg').write_text('''[preset.0]
 name="Demo 1 Pack"
@@ -49,12 +58,13 @@ texture_format/etc2_astc=false
 flags = getattr(subprocess, 'CREATE_NO_WINDOW', 0)
 def run(label, extra):
     log = stage / (label + '.log')
+    print('Running:', label, flush=True)
     with log.open('w', encoding='utf-8') as stream:
         result = subprocess.run([str(engine), '--headless', '--path', str(stage), *extra],
                                 stdout=stream, stderr=subprocess.STDOUT, creationflags=flags)
     if result.returncode or 'ERROR:' in log.read_text(encoding='utf-8'):
         raise SystemExit(f'{label} failed; inspect {log}')
-run('import', ['--editor', '--import', '--quit'])
+run('import', ['--import'])
 run('pack', ['--export-pack', 'Demo 1 Pack', str(out / 'Demo 1.pck')])
 shutil.copy2(engine, out / 'Demo 1.exe')
 license_script = '''extends SceneTree

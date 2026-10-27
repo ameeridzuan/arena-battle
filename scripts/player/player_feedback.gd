@@ -21,6 +21,7 @@ var _swipe_remaining: float = 0.0
 # M6: the authored skinned model lives under Mesh; mirror presentation onto it.
 var _skin_meshes: Array[MeshInstance3D] = []
 var _skin_saved: Array[Material] = []
+var _override_applied := false
 
 func _ready() -> void:
 	var body := get_parent()
@@ -29,6 +30,8 @@ func _ready() -> void:
 	_original_material = _mesh.material_override
 	for sm in _mesh.find_children("*", "MeshInstance3D", true, false):
 		_skin_meshes.append(sm as MeshInstance3D)
+	if _mesh.has_signal("model_changed"):
+		_mesh.model_changed.connect(_on_model_changed)
 	_hurt_material = StandardMaterial3D.new()
 	_hurt_material.albedo_color = hurt_color
 	_previous_health = _health.get_health()
@@ -61,6 +64,9 @@ func _build_swipe(radius: float, arc_degrees: float) -> void:
 	add_child(_swipe)
 
 func _on_attack_started(forward: Vector3) -> void:
+	# The local weapon adapter draws its trail at the real blade instead of this floor wedge.
+	if get_parent().get_node("AttackHitbox").has_method("get_weapon_segment"):
+		return
 	_swipe.global_rotation = Vector3(0.0, atan2(-forward.x, -forward.z), 0.0)
 	_swipe_remaining = maxf(swipe_duration, 0.01)
 	_swipe_material.albedo_color = swipe_color
@@ -68,17 +74,37 @@ func _on_attack_started(forward: Vector3) -> void:
 
 func _apply_override(mat: Material) -> void:
 	# Snapshot current overrides so a team tint applied after _ready survives the flash.
-	_skin_saved.clear()
-	for sm in _skin_meshes:
-		_skin_saved.append(sm.material_override)
+	# Repeated hits extend the flash without saving the temporary red override as original.
+	if not _override_applied:
+		_original_material = _mesh.material_override
+		_skin_saved.clear()
+		for sm in _skin_meshes:
+			_skin_saved.append(sm.material_override if is_instance_valid(sm) else null)
+	_override_applied = true
 	_mesh.material_override = mat
 	for sm in _skin_meshes:
-		sm.material_override = mat
+		if is_instance_valid(sm):
+			sm.material_override = mat
 
 func _restore_override() -> void:
+	if not _override_applied:
+		return
 	_mesh.material_override = _original_material
 	for i in range(_skin_meshes.size()):
-		_skin_meshes[i].material_override = _skin_saved[i] if i < _skin_saved.size() else null
+		if is_instance_valid(_skin_meshes[i]):
+			_skin_meshes[i].material_override = _skin_saved[i] if i < _skin_saved.size() else null
+	_override_applied = false
+
+func _on_model_changed(model: Node3D) -> void:
+	_restore_override()
+	_skin_meshes.clear()
+	_skin_saved.clear()
+	for sm in model.find_children("*", "MeshInstance3D", true, false):
+		_skin_meshes.append(sm as MeshInstance3D)
+	_flash_remaining = 0.0
+	_swipe_remaining = 0.0
+	if _swipe != null:
+		_swipe.visible = false
 
 func _on_health_changed(current: float, _maximum: float) -> void:
 	if current < _previous_health:

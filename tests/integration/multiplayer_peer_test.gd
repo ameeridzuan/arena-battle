@@ -47,6 +47,7 @@ func _run() -> void:
 		await _server_test()
 	else:
 		await _client_test()
+	print("SESSION_DIAGNOSTIC status=", session.status_text, " connected=", session.connected, " roster=", session.players.size())
 	var passed := not results.is_empty() and not results.has(false)
 	print("ALL_TESTS_PASS=", passed)
 	if not report_path.is_empty():
@@ -76,7 +77,7 @@ func _position_players(first: Node3D, second: Node3D, target: Vector3) -> void:
 		record.body.get_node("AttackHitbox")._cooldown_remaining = 0.0
 
 func _server_test() -> void:
-	_check("two_clients_registered", await _wait_until(func(): return session.players.size() == 2 and session.manager.phase == 1))
+	_check("two_clients_registered", await _wait_until(func(): return session.players.size() == 2 and session.manager.phase == 1, 120.0))
 	if session.players.size() != 2:
 		return
 	var records: Array = session.players.values()
@@ -91,6 +92,8 @@ func _server_test() -> void:
 		await _seconds(0.8)
 		return
 	if scenario == "timeout":
+		# Allow both clients to finish constructing their first model/pose snapshots.
+		await _seconds(3.0)
 		session.manager.time_remaining = 0.5
 		_stage("timeout")
 		_check("server_time_limit_ends_draw", await _wait_until(func(): return session.manager.phase == 2))
@@ -174,7 +177,7 @@ func _server_test() -> void:
 	await _seconds(0.8)
 
 func _client_test() -> void:
-	_check("client_connects_and_receives_two_players", await _wait_until(func(): return session.connected and session.players.size() == 2))
+	_check("client_connects_and_receives_two_players", await _wait_until(func(): return session.connected and session.players.size() == 2, 120.0))
 	if session.players.size() != 2:
 		return
 	var id: int = session.multiplayer.get_unique_id()

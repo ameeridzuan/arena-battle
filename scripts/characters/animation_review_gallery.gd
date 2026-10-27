@@ -12,6 +12,20 @@ var readout: Label
 var mode_selector: OptionButton
 var pause_button: Button
 const MOVING_ACTION_MODES := ["Layered/WalkAttack", "Layered/RunAttack", "Layered/StrafeAttack", "Layered/BackwardAttack"]
+const ACTION_LIBRARY := preload("res://scripts/player/action_library.gd")
+const ACTION_PREVIEWS := [
+	{"label": "Cast/Idle", "action": "CastEnergy", "velocity": Vector3.ZERO},
+	{"label": "Cast/Walk", "action": "CastEnergy", "velocity": Vector3.BACK * 1.2},
+	{"label": "Cast/Run", "action": "CastEnergy", "velocity": Vector3.BACK * 3.8},
+	{"label": "Cast/Strafe", "action": "CastEnergy", "velocity": Vector3.RIGHT * 1.2},
+	{"label": "Cast/Backward", "action": "CastEnergy", "velocity": Vector3.FORWARD * 1.2},
+	{"label": "Dash/Forward", "action": "Dash_Forward", "velocity": Vector3.BACK * 3.8},
+	{"label": "Dodge/Backward", "action": "Dodge_Backward", "velocity": Vector3.FORWARD * 1.2},
+	{"label": "Dodge/Left", "action": "Dodge_Left", "velocity": Vector3.LEFT * 1.2},
+	{"label": "Dodge/Right", "action": "Dodge_Right", "velocity": Vector3.RIGHT * 1.2},
+	{"label": "Parry/Attempt", "action": "Parry_Attempt", "velocity": Vector3.RIGHT * 1.2},
+	{"label": "Parry/Success (fixture)", "action": "Parry_Success", "velocity": Vector3.RIGHT * 1.2},
+]
 var _last_attack_tick := -1
 
 func _ready() -> void:
@@ -101,6 +115,8 @@ func _build_ui() -> void:
 		select.add_item(entry)
 	for entry in MOVING_ACTION_MODES:
 		select.add_item(entry)
+	for preview in ACTION_PREVIEWS:
+		select.add_item(preview.label)
 	select.item_selected.connect(_set_mode)
 	controls.add_child(select)
 	pause_button = Button.new()
@@ -127,7 +143,7 @@ func _build_ui() -> void:
 	panel.add_child(readout)
 	var pending := Label.new()
 	pending.position = Vector2(20, 625)
-	pending.text = "GAMEPLAY: forward/backward/side walking and forward run. Other modes are animation previews.\nDirectional hit / knockback remain drafts. Casting / skills / parry / block / dash / death are planned.\nCapture previews and reaction drafts have no new gameplay triggers or displacement."
+	pending.text = "Inspect casting, forward dash, side/back dodge and parry motion on both rigs.\nParry success here is a preview fixture; use F5 local sparring to test real timing.\nGallery bodies stay fixed. No damage, projectile or invulnerability is awarded here."
 	layer.add_child(pending)
 
 func _set_mode(index: int) -> void:
@@ -178,11 +194,20 @@ func _update_velocity() -> void:
 	for body in bodies:
 		body.velocity = Vector3(0, 0, speed if mode == 0 else 0.0)
 		if mode >= MODES.size():
-			body.velocity = [Vector3.BACK * 1.2, Vector3.BACK * 3.8, Vector3.RIGHT * 1.2, Vector3.FORWARD * 1.2][mode - MODES.size()]
+			var index := mode - MODES.size()
+			if index < MOVING_ACTION_MODES.size():
+				body.velocity = [Vector3.BACK * 1.2, Vector3.BACK * 3.8, Vector3.RIGHT * 1.2, Vector3.FORWARD * 1.2][index]
+			else:
+				body.velocity = ACTION_PREVIEWS[index - MOVING_ACTION_MODES.size()].velocity
 	if mode >= MODES.size() and int(elapsed / 1.4) != _last_attack_tick:
 		_last_attack_tick = int(elapsed / 1.4)
 		for body in bodies:
-			body.get_node("CharacterAnimation")._on_attack_started(Vector3.BACK)
+			var index := mode - MODES.size() - MOVING_ACTION_MODES.size()
+			var driver: Node = body.get_node("CharacterAnimation")
+			if index < 0:
+				driver._on_attack_started(Vector3.BACK)
+			else:
+				driver.present_action(ACTION_LIBRARY.definition(ACTION_PREVIEWS[index].action))
 
 func _runtime_mode() -> bool:
 	return mode == 0 or mode >= MODES.size()

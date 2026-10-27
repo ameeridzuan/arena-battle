@@ -5,6 +5,10 @@
 [ext_resource type="PackedScene" path="res://scenes/characters/Player.tscn" id="3_player"]
 [ext_resource type="PackedScene" path="res://scenes/targets/DummyTarget.tscn" id="4_dummy"]
 [ext_resource type="PackedScene" path="res://scenes/ui/HUD.tscn" id="5_hud"]
+[ext_resource type="Script" path="res://scripts/player/local_motion_test_player.gd" id="6_motion_player"]
+[ext_resource type="Script" path="res://scripts/characters/motion_test_controls.gd" id="7_motion_controls"]
+[ext_resource type="Script" path="res://scripts/combat/local_sparring_attacker.gd" id="8_sparring"]
+[ext_resource type="Script" path="res://scripts/combat/local_weapon_attacker.gd" id="9_weapon"]
 
 [node name="Main" type="Node3D" unique_id=166739296]
 
@@ -15,14 +19,30 @@ script = ExtResource("1_mm")
 
 [node name="Player" parent="." unique_id=694163127 instance=ExtResource("3_player")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -6, 1, -6)
+script = ExtResource("6_motion_player")
+
+[node name="MotionTestControls" type="Node" parent="Player"]
+script = ExtResource("7_motion_controls")
+
+[node name="AttackHitbox" parent="Player" index="3"]
+script = ExtResource("9_weapon")
+friendly_fire = false
 
 [node name="Opponent1" parent="." unique_id=1737940627 instance=ExtResource("4_dummy")]
 transform = Transform3D(0.707107, 0, 0.707107, 0, 1, 0, -0.707107, 0, 0.707107, 6, 1, 6)
+
+[node name="AttackHitbox" parent="Opponent1" index="4"]
+script = ExtResource("8_sparring")
+attack_cooldown = 0.9
 
 [node name="Opponent2" parent="." unique_id=452618460 instance=ExtResource("4_dummy")]
 transform = Transform3D(0.447214, 0, 0.894427, 0, 1, 0, -0.894427, 0, 0.447214, 8, 1, 4)
 
 [node name="Combatant" parent="Opponent2" index="3"]
 spawn_index = 1
+
+[node name="AttackHitbox" parent="Opponent2" index="4"]
+script = ExtResource("8_sparring")
+attack_cooldown = 0.9
 
 [node name="HUD" parent="." unique_id=638088544 instance=ExtResource("5_hud")]

@@ -1,5 +1,9 @@
 # Character animation and cosmetic plan
 
+> Hands-on test update: F5 Main now supports local R casting in V aim view, Q directional dodge travel and Tab character switching. See PLAYABLE_MOTION_TEST.md. These are isolated motion-test controls; multiplayer mechanics and visual acceptance remain pending.
+
+> 2026-10-20 A4 preview update: one reusable magic-cast sequence and four directional dodge blockouts are available for both rigs. See CAST_DODGE_CHECKPOINT.md. Ranged/dodge gameplay, persistent aim stance and visual acceptance remain pending.
+
 > 2026-10-20 layered-action update: locomotion and upper-body melee now have independent clocks in one AnimationTree. Shared attack clips can overlay idle, walking, running and directional steps. See LAYERED_ANIMATION_CHECKPOINT.md for the graph, future movement policy and verification status.
 
 > 2026-10-20 checkpoint: backward/sideways walking is integrated for both rigs; start/stop, left/right turn and block captures are gallery previews. Local aim side/back fast steps use a 1.8 m/s target. See OTHER_ANIMATION_CHECKPOINT.md for scope, tests and pending integration.
@@ -326,3 +330,14 @@ as part of this documentation-only planning task.
 The user has already requested the feature families and animation-first priority;
 these open details are design dependencies, not a reason to stop the audit and
 locomotion/aim animation work.
+
+## Local evasion/parry prototype update
+
+The owner requested a more effective dodge, a forward dash and parry. Main now
+uses immediate side/back evasion and a distinct Run-derived forward dash, with
+shared timing profiles for movement and pose generation. Main sparring enemies
+telegraph their strikes before contact. F provides a timed frontal single-hit
+parry with separate attempt/success upper-body clips over ordinary locomotion.
+These are playable local defaults; multiplayer action authority, rewards and final
+balance remain future decisions. See DASH_PARRY_CHECKPOINT.md for exact values
+and automated checks. Visual polish and keyboard feel still require a playtest.

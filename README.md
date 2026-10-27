@@ -1,5 +1,11 @@
 # ArenaBattle — 3D 4v4 Battle Arena
 
+**Updated 1v1:** Host/Join now includes adaptive stairs, climbing/shimmying, wall slides/jumps, blade-contact attacks, casting/burn, dash/dodge and parry on a mirrored parkour arena. See [build and verification](docs/ONEVONE_PARKOUR_BUILD.md).
+
+**Character movement course:** open `scenes/characters/MotionTestCourse.tscn`
+and press **F6**. Includes free movement, jump gaps, slopes, measured ledges,
+and wall-jump lanes with adaptive stair stepping, ledge climbing and wall jumping. See [course controls and testing](docs/MOTION_TEST_COURSE.md).
+
 A third-person 3D platform/action battle arena where **two teams of four players** compete
 in the same arena. Built incrementally, milestone by milestone, with a small testable
 foundation first.
@@ -201,3 +207,11 @@ Current animation checkpoint: [Human walk/run](docs/HUMAN_MOTION_CHECKPOINT.md).
 Directional walking and preview-only starts/stops, turns and blocks: [Other animation checkpoint](docs/OTHER_ANIMATION_CHECKPOINT.md).
 
 Layered movement and attacks: [Layered animation checkpoint](docs/LAYERED_ANIMATION_CHECKPOINT.md). Open `AnimationReviewGallery.tscn` and select `Layered/WalkAttack`, `Layered/RunAttack`, `Layered/StrafeAttack` or `Layered/BackwardAttack` to compare both characters. These previews never move the gameplay body or apply damage.
+
+Magic casting and directional dodge previews: [Casting/dodge checkpoint](docs/CAST_DODGE_CHECKPOINT.md). Review `Cast/Idle`, `Cast/Walk`, `Cast/Run`, `Cast/Strafe`, `Cast/Backward` and the four `Dodge/` directions in the same gallery. These modes preview motion in place; use the F5 controls below for a moving local test.
+
+**Interactive motion test (F5):** Left click swings; Space then left click performs an overhead jump attack. Blade contact produces sparks and 25 damage once per target. V then R fires a moving cast: 20 impact damage plus 3 burn damage/second for 3 seconds. Floating numbers show actual damage; orange numbers and embers show burn. Q + forward dashes, Q + side/back dodges, Q alone backsteps; F parries; Tab switches characters. Local enemies show a short STRIKE windup for reaction testing. [Controls](docs/PLAYABLE_MOTION_TEST.md), [weapon contacts](docs/WEAPON_ATTACK_CHECKPOINT.md), [damage/burn rules](docs/RANGED_DAMAGE_CHECKPOINT.md) and [dash/parry changes](docs/DASH_PARRY_CHECKPOINT.md). The updated 1v1 portable build also includes these controls; see [1v1 parkour build](docs/ONEVONE_PARKOUR_BUILD.md).
+
+Local adaptive movement: [stairs, climbing and wall-jump controls](docs/ADAPTIVE_TRAVERSAL.md).
+
+Human parkour references and traversal authoring blueprint: [Parkour motion template](docs/PARKOUR_MOTION_TEMPLATE.md). Research/template only; live integration remains a separate animation revision.

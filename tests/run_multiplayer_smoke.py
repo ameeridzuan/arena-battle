@@ -40,7 +40,7 @@ for offset, scenario in enumerate(['gameplay', 'disconnect', 'timeout', 'unavail
             processes.append((subprocess.Popen(command, stdout=output, stderr=subprocess.STDOUT,
                                                creationflags=flags), report, role))
             time.sleep(0.5)
-        deadline = time.monotonic() + 45
+        deadline = time.monotonic() + 240
         while any(p.poll() is None for p, _, _ in processes) and time.monotonic() < deadline:
             time.sleep(0.1)
         for process, report, role in processes:

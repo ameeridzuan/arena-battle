@@ -255,3 +255,68 @@ Use captured backward/side walks rather than reversing the accepted forward clip
 ## 2026-10-20 — Layered actions without movement-state clip duplication
 
 Use one runtime AnimationTree as the pose writer; AnimationPlayer supplies clips and runs only in explicitly isolated raw gallery mode. Blend the locomotion base continuously with an action filtered to the actual rig's spine descendants, keeping root/pelvis/legs on locomotion. Share existing melee clips across idle/walk/run/strafe rather than authoring their Cartesian product. Independently advance locomotion and action clocks; gait cadence must never speed up attack playback. Current graph uses two phase-aware locomotion slots and an action slot with TimeSeek sampling, driven once per physics update. Data resources declare clip, upper/full-body ownership, priority, interruption and fades. Full-body overrides are explicit; motion and combat authority remain in existing controllers. Death clears actions and model replacement rebuilds bindings. Future persistent guard/aim, additive reactions and server phase synchronization are separate extensions, not mechanics enabled by this change. Visual acceptance and performance measurements remain pending.
+
+## 2026-10-20 — Reusable casting and directional dodge previews
+
+Author one composite magic cast over the upper-body layer, shared across all movement states, and four directional dodge one-shots using explicit full-body ownership. Use limb-length-aware analytical pose targets and rig-specific libraries while preserving the imported model files. Keep root/horizontal hip travel in place; gameplay remains authoritative for travel, collision and effects. Record visual phase/release markers as metadata only. A common present_action adapter supplies the same priority/death/manual-preview rules as melee. Do not add projectile, dodge movement, invulnerability, aim replication or controls merely because their preview animation exists. Persistent casting stances and gameplay timing synchronization remain separate work. Generated motion is labelled authored blockout, not human capture or measured armor simulation.
+
+## 2026-10-20 — Local playable motion harness
+
+At the owner's request to test the new motion, install a local-only Main player adapter: V/R casts with one cosmetic bolt, Q chooses a cardinal collision-based dodge, and Tab swaps the character. Keep animation as presentation; the test component owns bounded in-place-to-body movement and cosmetic release timing. Use a local player subclass so shared/network movement has no new input branch. Prototype defaults are 1 s cooldowns, 0.72 s dodge duration and 5.5 m/s peak, with no invulnerability or ranged damage. Cancel on death, match end, focus/cursor loss and model change; suppress melee while a test action owns the layer. Rebind hit-feedback meshes on the new model_changed signal to avoid stale freed-node references. Existing portable exports and multiplayer protocols remain unchanged; visual acceptance and authoritative mechanics are separate work.
+
+## 2026-10-21 — Responsive evasion and local parry
+
+Replace forward dodge with a distinct Run-derived forward dash. Start displacement immediately: dash lasts 0.36 s and travels about 3.35 m; side/back dodge lasts 0.42 s and travels about 2.53 m. Share profile timing between pose generation and movement. Add a 0.32 s visible windup to Main-only sparring enemies so contact-time range checks allow physical evasion. F starts a reusable upper-body parry: one frontal melee hit during 0.04–0.22 s is deflected, followed by a confirmed-success pose. Ordinary damage bypasses parry. Keep collision, gravity and environmental vulnerability; no automatic counterattack or multiplayer protocol. Parry reuses locomotion beneath the torso layer instead of adding movement-specific variants. See DASH_PARRY_CHECKPOINT.md for tuning and validation.
+
+## 2026-10-21 — Actual damage feedback and local spell burn
+
+The owner requested hit amounts, ranged damage and a short damage-over-time effect. Health emits actual HP loss with a damage kind for a reusable floating-number presenter on Player and DummyTarget. Keep presentation outside Health and outside model meshes; initial replica snapshots establish a baseline without inventing a hit. The local traveling bolt now validates source, team, authoritative Health and swept world collision before applying 20 impact damage. A separate BurnStatus owns three one-second ticks of 3 damage, preserving caster kill credit. Repeated hits refresh the single burn and its source while preserving the upcoming tick cadence, preventing stacking and tick starvation. Explicit reset, death and match-end signals clear the status. Replica clients never run burn damage timers. Orange numbers and built-in ember particles identify burn; ordinary hits use red numbers. These values are tunable local defaults; multiplayer spell authority/replication and portable exports remain separate work. See RANGED_DAMAGE_CHECKPOINT.md.
+
+## 2026-10-21 — Local adaptive traversal
+
+Use capsule sweeps plus bounded support snapping for local stair stepping, with
+terrain-aware leg IK and cosmetic mesh/camera smoothing. Keep ledge and wall
+movement in a separate traversal state machine, arbitrate competing actions,
+and sweep every climb segment. Reuse the existing local test adapter; leave
+network authority/replication for a dedicated integration. See
+[adaptive traversal design, sources and QA](ADAPTIVE_TRAVERSAL.md).
+
+## 2026-10-22 — Local jump attacks and weapon contacts
+
+The owner requested airborne melee and contact effects. Main and MotionTestCourse
+use a local weapon adapter that explicitly presents existing ground attacks and
+Attack_Overhead over Jump. Reuse the upper-body action layer rather than create
+idle/run/jump combinations. Add action playback speed independently of gait to
+normalize local ground/air swings to 0.65/0.9 seconds. Only the active 30–80% of
+the swing can damage. Sample the actual rig blade through hand.R skin bindings,
+sweep its capsule between physics samples and apply one 25-damage hit per victim.
+Use the actual shape-contact surface for occlusion checks and spark placement;
+blade and body rays prevent damage through intervening world geometry.
+Gravity continues, one air attack is permitted before landing, and lifecycle or
+higher-priority actions cancel pending contact. Keep shared/network melee timing
+and original GLBs unchanged. See WEAPON_ATTACK_CHECKPOINT.md for scope and checks.
+
+## 2026-10-22 — Visible traversal contacts and clearance
+
+Use rest-model skin envelopes to constrain cosmetic traversal bones in addition
+to physical capsule sweeps. Keep explicit boot frames independent of shin axes,
+and retain a crouched hip transfer until the trailing hand can safely release.
+Ease clearance above the lip while preserving full protection below it. Validate
+actual post-modifier geometry throughout complete climbs, rather than accepting
+only bone endpoints and static sheets. See TRAVERSAL_ANIMATION_REVIEW.md for
+reference demonstrations, review findings and scoped acceptance.
+
+
+## 2026-10-23 — 1v1 shared motion authority and parkour arena
+
+The owner requested the approved local motion/combat changes in the portable
+1v1 Host/Join match and terrain that exercises climbing and wall jumping.
+The network session now uses the shared movement, action and blade-contact
+components on its authority. Clients submit bounded controls; snapshots carry
+consistent character identity, contact-driven traversal/action pose, burn and
+cosmetic effects. Bounded DEFLATE snapshot compression keeps 1v1 pose traffic
+below the unreliable-packet MTU. Match start waits for both clients to finish
+loading the complete roster; loading grace is separate from input timeout.
+A mirrored arena preserves spawns and central duel space while adding terraces,
+variable-rise stairs, low vaults and opposing wall-jump lanes.
+See ONEVONE_PARKOUR_BUILD.md for exact checks, packaging and limitations.

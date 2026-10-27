@@ -1,7 +1,7 @@
 [gd_scene load_steps=3 format=3]
 
 [ext_resource type="Script" path="res://scripts/multiplayer/network_session.gd" id="1_session"]
-[ext_resource type="PackedScene" path="res://scenes/arena/Arena.tscn" id="2_arena"]
+[ext_resource type="PackedScene" path="res://scenes/arena/ParkourArena.tscn" id="2_arena"]
 
 [node name="MultiplayerArena" type="Node3D"]
 script = ExtResource("1_session")

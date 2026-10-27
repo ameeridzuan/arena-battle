@@ -1,0 +1,202 @@
+{
+	"rigs": {
+		"arclight": {
+			"CastEnergy": {
+				"duration": 0.86,
+				"layer": "upper_body",
+				"loop": false,
+				"markers_visual_only": {
+					"anticipation": 0.18,
+					"complete": 0.86,
+					"recovery": 0.56,
+					"release": 0.34
+				},
+				"movement": "free_locomotion",
+				"release_bone": "hand.L",
+				"source": "authored_blockout"
+			},
+			"Dash_Forward": {
+				"duration": 0.36,
+				"layer": "full_body",
+				"loop": false,
+				"markers_visual_only": {
+					"brake": 0.2952,
+					"complete": 0.36,
+					"push": 0.0288,
+					"travel": 0.0864
+				},
+				"movement": "external_authority_required",
+				"release_bone": "",
+				"source": "CMU Run with authored dash lean"
+			},
+			"Dodge_Backward": {
+				"duration": 0.42,
+				"layer": "full_body",
+				"loop": false,
+				"markers_visual_only": {
+					"brake": 0.3444,
+					"complete": 0.42,
+					"push": 0.0336,
+					"travel": 0.1008
+				},
+				"movement": "external_authority_required",
+				"release_bone": "",
+				"source": "authored_blockout"
+			},
+			"Dodge_Left": {
+				"duration": 0.42,
+				"layer": "full_body",
+				"loop": false,
+				"markers_visual_only": {
+					"brake": 0.3444,
+					"complete": 0.42,
+					"push": 0.0336,
+					"travel": 0.1008
+				},
+				"movement": "external_authority_required",
+				"release_bone": "",
+				"source": "authored_blockout"
+			},
+			"Dodge_Right": {
+				"duration": 0.42,
+				"layer": "full_body",
+				"loop": false,
+				"markers_visual_only": {
+					"brake": 0.3444,
+					"complete": 0.42,
+					"push": 0.0336,
+					"travel": 0.1008
+				},
+				"movement": "external_authority_required",
+				"release_bone": "",
+				"source": "authored_blockout"
+			},
+			"Parry_Attempt": {
+				"duration": 0.46,
+				"layer": "upper_body",
+				"loop": false,
+				"markers_visual_only": {
+					"active_end": 0.22,
+					"active_start": 0.04,
+					"complete": 0.46
+				},
+				"movement": "free_locomotion",
+				"release_bone": "",
+				"source": "authored_blockout"
+			},
+			"Parry_Success": {
+				"duration": 0.3,
+				"layer": "upper_body",
+				"loop": false,
+				"markers_visual_only": {
+					"complete": 0.3,
+					"deflect": 0.04,
+					"recover": 0.16
+				},
+				"movement": "free_locomotion",
+				"release_bone": "",
+				"source": "authored_blockout"
+			}
+		},
+		"ashen_warden": {
+			"CastEnergy": {
+				"duration": 0.86,
+				"layer": "upper_body",
+				"loop": false,
+				"markers_visual_only": {
+					"anticipation": 0.18,
+					"complete": 0.86,
+					"recovery": 0.56,
+					"release": 0.34
+				},
+				"movement": "free_locomotion",
+				"release_bone": "hand.L",
+				"source": "authored_blockout"
+			},
+			"Dash_Forward": {
+				"duration": 0.36,
+				"layer": "full_body",
+				"loop": false,
+				"markers_visual_only": {
+					"brake": 0.2952,
+					"complete": 0.36,
+					"push": 0.0288,
+					"travel": 0.0864
+				},
+				"movement": "external_authority_required",
+				"release_bone": "",
+				"source": "CMU Run with authored dash lean"
+			},
+			"Dodge_Backward": {
+				"duration": 0.42,
+				"layer": "full_body",
+				"loop": false,
+				"markers_visual_only": {
+					"brake": 0.3444,
+					"complete": 0.42,
+					"push": 0.0336,
+					"travel": 0.1008
+				},
+				"movement": "external_authority_required",
+				"release_bone": "",
+				"source": "authored_blockout"
+			},
+			"Dodge_Left": {
+				"duration": 0.42,
+				"layer": "full_body",
+				"loop": false,
+				"markers_visual_only": {
+					"brake": 0.3444,
+					"complete": 0.42,
+					"push": 0.0336,
+					"travel": 0.1008
+				},
+				"movement": "external_authority_required",
+				"release_bone": "",
+				"source": "authored_blockout"
+			},
+			"Dodge_Right": {
+				"duration": 0.42,
+				"layer": "full_body",
+				"loop": false,
+				"markers_visual_only": {
+					"brake": 0.3444,
+					"complete": 0.42,
+					"push": 0.0336,
+					"travel": 0.1008
+				},
+				"movement": "external_authority_required",
+				"release_bone": "",
+				"source": "authored_blockout"
+			},
+			"Parry_Attempt": {
+				"duration": 0.46,
+				"layer": "upper_body",
+				"loop": false,
+				"markers_visual_only": {
+					"active_end": 0.22,
+					"active_start": 0.04,
+					"complete": 0.46
+				},
+				"movement": "free_locomotion",
+				"release_bone": "",
+				"source": "authored_blockout"
+			},
+			"Parry_Success": {
+				"duration": 0.3,
+				"layer": "upper_body",
+				"loop": false,
+				"markers_visual_only": {
+					"complete": 0.3,
+					"deflect": 0.04,
+					"recover": 0.16
+				},
+				"movement": "free_locomotion",
+				"release_bone": "",
+				"source": "authored_blockout"
+			}
+		}
+	},
+	"source": "Authored cast/dodge/parry; dash adapts accepted CMU Run capture with authored lean",
+	"status": "blockout; visual approval pending"
+}

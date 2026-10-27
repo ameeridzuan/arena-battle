@@ -1,0 +1,349 @@
+{
+  "fps": 30,
+  "clips": [
+    {
+      "name": "Idle",
+      "duration": 2.0,
+      "loop": true,
+      "status": "first-pass motion study",
+      "root_motion": false
+    },
+    {
+      "name": "Walk",
+      "duration": 1.0,
+      "loop": true,
+      "status": "first-pass motion study",
+      "root_motion": false
+    },
+    {
+      "name": "Run",
+      "duration": 0.7,
+      "loop": true,
+      "status": "first-pass motion study",
+      "root_motion": false
+    },
+    {
+      "name": "Walk_Backward",
+      "duration": 1.1,
+      "loop": true,
+      "status": "first-pass motion study",
+      "root_motion": false
+    },
+    {
+      "name": "Walk_Left",
+      "duration": 1.0666666666666667,
+      "loop": true,
+      "status": "first-pass motion study",
+      "root_motion": false
+    },
+    {
+      "name": "Walk_Right",
+      "duration": 1.0666666666666667,
+      "loop": true,
+      "status": "first-pass motion study",
+      "root_motion": false
+    },
+    {
+      "name": "RunStartCapture",
+      "duration": 0.8,
+      "loop": false,
+      "status": "first-pass motion study",
+      "root_motion": false
+    },
+    {
+      "name": "RunStopCapture",
+      "duration": 0.8,
+      "loop": false,
+      "status": "first-pass motion study",
+      "root_motion": false
+    },
+    {
+      "name": "TurnLeftCapture",
+      "duration": 0.9,
+      "loop": false,
+      "status": "first-pass motion study",
+      "root_motion": false
+    },
+    {
+      "name": "TurnRightCapture",
+      "duration": 0.9,
+      "loop": false,
+      "status": "first-pass motion study",
+      "root_motion": false
+    },
+    {
+      "name": "Jump",
+      "duration": 1.1,
+      "loop": false,
+      "status": "first-pass motion study",
+      "root_motion": false
+    },
+    {
+      "name": "FallLoop",
+      "duration": 1.2,
+      "loop": true,
+      "status": "first-pass motion study",
+      "root_motion": false
+    },
+    {
+      "name": "LandSoft",
+      "duration": 0.5,
+      "loop": false,
+      "status": "first-pass motion study",
+      "root_motion": false
+    },
+    {
+      "name": "Attack_Slash",
+      "duration": 0.6666666666666666,
+      "loop": false,
+      "status": "first-pass motion study",
+      "root_motion": false
+    },
+    {
+      "name": "Attack_Backhand",
+      "duration": 0.6666666666666666,
+      "loop": false,
+      "status": "first-pass motion study",
+      "root_motion": false
+    },
+    {
+      "name": "Attack_Overhead",
+      "duration": 0.9,
+      "loop": false,
+      "status": "first-pass motion study",
+      "root_motion": false
+    },
+    {
+      "name": "Attack_Thrust",
+      "duration": 0.6666666666666666,
+      "loop": false,
+      "status": "first-pass motion study",
+      "root_motion": false
+    },
+    {
+      "name": "Attack_Aerial",
+      "duration": 0.9,
+      "loop": false,
+      "status": "first-pass motion study",
+      "root_motion": false
+    },
+    {
+      "name": "CastEnergy",
+      "duration": 0.8666666666666667,
+      "loop": false,
+      "status": "first-pass motion study",
+      "root_motion": false
+    },
+    {
+      "name": "Aim",
+      "duration": 1.5,
+      "loop": true,
+      "status": "first-pass motion study",
+      "root_motion": false
+    },
+    {
+      "name": "Dash_Forward",
+      "duration": 0.36666666666666664,
+      "loop": false,
+      "status": "first-pass motion study",
+      "root_motion": false
+    },
+    {
+      "name": "Dodge_Backward",
+      "duration": 0.43333333333333335,
+      "loop": false,
+      "status": "first-pass motion study",
+      "root_motion": false
+    },
+    {
+      "name": "Dodge_Left",
+      "duration": 0.43333333333333335,
+      "loop": false,
+      "status": "first-pass motion study",
+      "root_motion": false
+    },
+    {
+      "name": "Dodge_Right",
+      "duration": 0.43333333333333335,
+      "loop": false,
+      "status": "first-pass motion study",
+      "root_motion": false
+    },
+    {
+      "name": "Parry_Attempt",
+      "duration": 0.4666666666666667,
+      "loop": false,
+      "status": "first-pass motion study",
+      "root_motion": false
+    },
+    {
+      "name": "Parry_Success",
+      "duration": 0.3,
+      "loop": false,
+      "status": "first-pass motion study",
+      "root_motion": false
+    },
+    {
+      "name": "BlockLeftCapture",
+      "duration": 0.7,
+      "loop": false,
+      "status": "first-pass motion study",
+      "root_motion": false
+    },
+    {
+      "name": "BlockRightCapture",
+      "duration": 0.7,
+      "loop": false,
+      "status": "first-pass motion study",
+      "root_motion": false
+    },
+    {
+      "name": "HitFront",
+      "duration": 0.5333333333333333,
+      "loop": false,
+      "status": "first-pass motion study",
+      "root_motion": false
+    },
+    {
+      "name": "HitBack",
+      "duration": 0.5333333333333333,
+      "loop": false,
+      "status": "first-pass motion study",
+      "root_motion": false
+    },
+    {
+      "name": "HitLeft",
+      "duration": 0.5333333333333333,
+      "loop": false,
+      "status": "first-pass motion study",
+      "root_motion": false
+    },
+    {
+      "name": "HitRight",
+      "duration": 0.5333333333333333,
+      "loop": false,
+      "status": "first-pass motion study",
+      "root_motion": false
+    },
+    {
+      "name": "KnockbackTravel",
+      "duration": 0.6666666666666666,
+      "loop": false,
+      "status": "first-pass motion study",
+      "root_motion": false
+    },
+    {
+      "name": "KnockbackRecover",
+      "duration": 0.8,
+      "loop": false,
+      "status": "first-pass motion study",
+      "root_motion": false
+    },
+    {
+      "name": "LedgeHang",
+      "duration": 1.4,
+      "loop": true,
+      "status": "first-pass motion study",
+      "root_motion": false
+    },
+    {
+      "name": "Shimmy_Left",
+      "duration": 1.1,
+      "loop": true,
+      "status": "first-pass motion study",
+      "root_motion": false
+    },
+    {
+      "name": "Shimmy_Right",
+      "duration": 1.1,
+      "loop": true,
+      "status": "first-pass motion study",
+      "root_motion": false
+    },
+    {
+      "name": "Climb",
+      "duration": 1.8,
+      "loop": false,
+      "status": "first-pass motion study",
+      "root_motion": false
+    },
+    {
+      "name": "Vault",
+      "duration": 1.0,
+      "loop": false,
+      "status": "first-pass motion study",
+      "root_motion": false
+    },
+    {
+      "name": "WallSlide",
+      "duration": 1.2,
+      "loop": true,
+      "status": "first-pass motion study",
+      "root_motion": false
+    },
+    {
+      "name": "WallJump",
+      "duration": 0.8666666666666667,
+      "loop": false,
+      "status": "first-pass motion study",
+      "root_motion": false
+    },
+    {
+      "name": "LedgeDrop",
+      "duration": 0.7,
+      "loop": false,
+      "status": "first-pass motion study",
+      "root_motion": false
+    },
+    {
+      "name": "Stair_Up",
+      "duration": 1.1,
+      "loop": true,
+      "status": "first-pass motion study",
+      "root_motion": false
+    },
+    {
+      "name": "Stair_Down",
+      "duration": 1.1,
+      "loop": true,
+      "status": "first-pass motion study",
+      "root_motion": false
+    },
+    {
+      "name": "WalkAttack",
+      "duration": 1.0,
+      "loop": true,
+      "status": "first-pass motion study",
+      "root_motion": false
+    },
+    {
+      "name": "RunAttack",
+      "duration": 1.0,
+      "loop": true,
+      "status": "first-pass motion study",
+      "root_motion": false
+    },
+    {
+      "name": "StrafeAttack",
+      "duration": 1.0,
+      "loop": true,
+      "status": "first-pass motion study",
+      "root_motion": false
+    },
+    {
+      "name": "BackwardAttack",
+      "duration": 1.0,
+      "loop": true,
+      "status": "first-pass motion study",
+      "root_motion": false
+    },
+    {
+      "name": "Death",
+      "duration": 1.1,
+      "loop": false,
+      "status": "first-pass motion study",
+      "root_motion": false
+    }
+  ],
+  "notes": "In-place authored studies. Traversal uses representative poses, not baked game contact IK. Gameplay integration has not been changed."
+}

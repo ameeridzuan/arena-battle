@@ -1,9 +1,11 @@
-[gd_scene load_steps=9 format=3]
+[gd_scene load_steps=11 format=3]
 
 [ext_resource type="Script" path="res://scripts/targets/dummy_target.gd" id="1_dt"]
 [ext_resource type="Script" path="res://scripts/combat/health.gd" id="2_h"]
 [ext_resource type="Script" path="res://scripts/combat/combatant.gd" id="3_cb"]
 [ext_resource type="Script" path="res://scripts/combat/melee_attacker.gd" id="4_ma"]
+[ext_resource type="Script" path="res://scripts/combat/damage_feedback.gd" id="5_damage"]
+[ext_resource type="Script" path="res://scripts/combat/burn_status.gd" id="6_burn"]
 
 [sub_resource type="BoxShape3D" id="body_shape"]
 size = Vector3(1, 2, 1)
@@ -53,3 +55,9 @@ aim_reference_path = NodePath("..")
 
 [node name="CollisionShape3D" type="CollisionShape3D" parent="AttackHitbox"]
 shape = SubResource("attack_shape")
+
+[node name="DamageFeedback" type="Node" parent="."]
+script = ExtResource("5_damage")
+
+[node name="BurnStatus" type="Node3D" parent="."]
+script = ExtResource("6_burn")

@@ -1,4 +1,4 @@
-DEMO 1 - ArenaBattle multiplayer preview
+DEMO 1 - ArenaBattle 1v1 Parkour Arena (23 October 2026)
 Windows x64. No installation or Godot setup needed.
 
 1. Extract the ENTIRE ZIP to a folder. Keep Demo 1.exe and Demo 1.pck together.
@@ -15,8 +15,18 @@ This build has no matchmaking, authentication, internet relay, or NAT traversal.
 Different homes are not plug-and-play. Do not disable a firewall to connect.
 Office-managed PCs remain subject to workplace software/network policies.
 
-WASD move, Shift run, Space jump, mouse look, left click attack.
-V switches camera mode. Esc releases/re-captures the cursor.
+WASD move, Shift run, Space jump / wall jump, mouse look.
+E grabs/climbs a ledge; A/D shimmy; C drops.
+Left click: timed blade attack; jump + left click: overhead attack.
+Q + forward: dash; Q + side/back: dodge; Q alone: backstep.
+F: timed frontal parry. V: aim view; R: fire spell (20 impact + 3 burn x 3).
+Tab: switch Arclight / Ashen Warden. Both players see the same character.
+Esc releases/re-captures the cursor.
+
+NEW TERRAIN: blue/amber terraces on the sides have 1.8 m climbable faces
+and varied-height stair approaches. The north/south routes contain opposing
+walls for alternating wall jumps, with elevated landing platforms. Low blocks
+provide vault routes; the central court stays open for dueling.
 Press Esc to click "Return to menu" for another match.
 Closing the host or returning to menu stops its background server.
 Closing a client ends a running session. Restart/return to menu for a new match.
@@ -29,7 +39,7 @@ portable runtime with a separately exported resource pack. It is larger than
 a template-based release build, but no editor installation is required.
 Godot's executable metadata/icon remain present. Engine licenses accompany it.
 
-Current characters are viewer-relative: each player sees their own character as
-Arclight and the opponent as Ashen Warden. Team identity is shown by a marker.
-Character selection, combat animation timing polish and performance optimization
-are not finished. This is a playtest preview, not a completed M7 release.
+Team A starts as Arclight; Team B starts as Ashen Warden. Tab switches are
+server-approved and replicated to both clients. Movement, blade contacts,
+parry windows, cooldowns, spell/burn damage and scoring run on the server.
+This is a playtest preview; human LAN/feel acceptance remains separate.

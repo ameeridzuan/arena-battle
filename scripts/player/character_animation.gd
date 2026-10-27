@@ -30,6 +30,7 @@ const LOCOMOTION := preload("res://scripts/player/locomotion_library.gd")
 const LOCAL_RESOURCES := preload("res://scripts/player/animation_resources.gd")
 const LAYERS := preload("res://scripts/player/layered_animation.gd")
 const ACTION := preload("res://scripts/player/animation_action.gd")
+const ACTION_LIBRARY := preload("res://scripts/player/action_library.gd")
 ## Optional character-specific presentation definitions; empty uses shared melee defaults.
 @export var action_definitions: Array[ACTION] = []
 var _layers: LAYERS
@@ -61,7 +62,7 @@ func _ready() -> void:
 	_body = get_parent() as CharacterBody3D
 	_mesh = _body.get_node_or_null("Mesh") if _body != null else null
 	var hitbox := _body.get_node_or_null("AttackHitbox") if _body != null else null
-	if hitbox != null and hitbox.has_signal("attack_started"):
+	if hitbox != null and hitbox.has_signal("attack_started") and not hitbox.has_method("owns_animation_action"):
 		hitbox.attack_started.connect(_on_attack_started)
 	_health = _body.get_node_or_null("Health") if _body != null else null
 	if _health != null:
@@ -95,6 +96,7 @@ func _locate_animation_player() -> void:
 func _configure_loop_modes() -> void:
 	LOCAL_RESOURCES.make_local(_anim)
 	LOCOMOTION.install(_anim,int(_mesh.character))
+	ACTION_LIBRARY.install(_anim, int(_mesh.character))
 	for clip in LOOPED:
 		if _anim.has_animation(clip):
 			_anim.get_animation(clip).loop_mode = Animation.LOOP_LINEAR
@@ -120,6 +122,12 @@ func _physics_process(delta: float) -> void:
 		return
 	if _health != null and _health.get_health() <= 0:
 		reset_presentation()
+		return
+	if _body.has_method("get_traversal_mode") and _body.get_traversal_mode() != "normal":
+		_play("Idle")
+		_layers.base_speed = 1.0
+		_layers.advance(delta * playback_multiplier)
+		_attack_playing = false
 		return
 	if not _is_grounded():
 		_play(AIRBORNE)
@@ -152,6 +160,8 @@ func _is_grounded() -> bool:
 		return true
 	# Externally-controlled replicas have physics disabled on clients, so is_on_floor() is stale;
 	# infer airborne state from the snapshot's vertical velocity instead.
+	if _body.has_method("is_motion_grounded"):
+		return _body.is_motion_grounded()
 	if _body.external_control:
 		return absf(_body.velocity.y) < airborne_velocity_threshold
 	return _body.is_on_floor()
@@ -175,8 +185,21 @@ func _on_attack_started(_forward: Vector3) -> void:
 	if spec == null:
 		spec = ACTION.new()
 		spec.clip = StringName(clip)
-	_layers.start_action(spec)
+	present_action(spec)
 	_attack_playing = _layers.action != null
+
+
+## Presentation adapter for accepted actions or isolated previews. Never grants an effect.
+func present_action(spec: ACTION) -> bool:
+	if spec == null or _manual_preview or (_health != null and _health.get_health() <= 0):
+		return false
+	if not is_instance_valid(_anim) or _bound_model != _mesh._model:
+		_locate_animation_player()
+	if _layers == null or not is_instance_valid(_anim):
+		return false
+	var accepted: bool = _layers.start_action(spec)
+	_attack_playing = _layers.action != null
+	return accepted
 
 
 func _next_attack_clip() -> String:
@@ -225,6 +248,13 @@ func get_locomotion_speed() -> float:
 
 func get_action_clip() -> String:
 	return String(_layers.action.clip) if _layers != null and _layers.action != null else ""
+
+func cancel_action() -> void:
+	_attack_playing = false
+	if _layers != null:
+		_layers.cancel_action()
+		if not _manual_preview:
+			_layers.evaluate()
 
 func reset_presentation() -> void:
 	_attack_playing = false

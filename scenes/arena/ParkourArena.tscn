@@ -1,0 +1,9 @@
+[gd_scene load_steps=3 format=3]
+
+[ext_resource type="Script" path="res://scripts/multiplayer/parkour_arena.gd" id="1_layout"]
+[ext_resource type="PackedScene" path="res://scenes/arena/Arena.tscn" id="2_base"]
+
+[node name="ParkourArena" type="Node3D"]
+script = ExtResource("1_layout")
+
+[node name="Arena" parent="." instance=ExtResource("2_base")]
